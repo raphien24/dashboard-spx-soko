@@ -348,8 +348,8 @@ function WeeklyScheduleTable({ data, currentWeek, onWeekChange }) {
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedData.map((courier, index) => {
               const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
-              const metTarget = courier.productivityPercentage >= 100;
-              const targetDiff = courier.avgDaily - courier.target;
+              const metTarget = (courier.productivityPercentage || 0) >= 100;
+              const targetDiff = (courier.avgDaily || 0) - (courier.target || 0);
 
               return (
                 <tr key={courier.id} className="hover:bg-gray-50 transition-colors">
@@ -361,9 +361,9 @@ function WeeklyScheduleTable({ data, currentWeek, onWeekChange }) {
                   {/* Courier Info */}
                   <td className="px-4 py-4">
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{courier.name}</p>
-                      <p className="text-xs text-gray-500">ID: {courier.id}</p>
-                      <p className="text-xs text-blue-600">3 shifts in week</p>
+                      <p className="text-sm font-semibold text-gray-900">{courier.name || 'Unknown'}</p>
+                      <p className="text-xs text-gray-500">ID: {courier.id || '-'}</p>
+                      <p className="text-xs text-blue-600">{courier.shiftsCount || 0} shifts in week</p>
                     </div>
                   </td>
 
@@ -375,26 +375,26 @@ function WeeklyScheduleTable({ data, currentWeek, onWeekChange }) {
                   {/* Zone */}
                   <td className="px-4 py-4">
                     <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-700">
-                      {courier.zone}
+                      {courier.zone || 'N/A'}
                     </span>
                   </td>
 
                   {/* Contract */}
                   <td className="px-4 py-4">
                     <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                      courier.contract === 'Dedicated' 
+                      (courier.contract || '').includes('Dedicated')
                         ? 'bg-purple-100 text-purple-700'
-                        : courier.contract === 'Kurir Plus'
+                        : (courier.contract || '').includes('Plus')
                         ? 'bg-blue-100 text-blue-700'
                         : 'bg-green-100 text-green-700'
                     }`}>
-                      {courier.contract}
+                      {courier.contract || 'N/A'}
                     </span>
                   </td>
 
                   {/* Vehicle */}
                   <td className="px-4 py-4 text-sm font-medium text-gray-700">
-                    {courier.vehicle}
+                    {courier.vehicle || 'N/A'}
                   </td>
 
                   {/* Weekly Productivity vs Target */}
@@ -446,7 +446,7 @@ function WeeklyScheduleTable({ data, currentWeek, onWeekChange }) {
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-center gap-1">
                       {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => {
-                        const isActive = courier.activeDays?.[day.toLowerCase()];
+                        const isActive = courier.activeDays?.[day.toLowerCase()] || false;
                         return (
                           <div
                             key={day}
