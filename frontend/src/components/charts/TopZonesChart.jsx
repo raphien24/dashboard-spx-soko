@@ -19,7 +19,12 @@ function TopZonesChart({ data }) {
   // Add ranking to data
   const rankedData = data.map((item, index) => ({
     ...item,
-    rank: index + 1
+    rank: index + 1,
+    // Ensure all required properties exist
+    zone: item?.zone || 'Unknown',
+    delivered: item?.delivered || 0,
+    total: item?.total || 0,
+    successRate: item?.successRate || 0
   }));
 
   // Color gradient from darkest to lightest
@@ -56,6 +61,11 @@ function TopZonesChart({ data }) {
 
   // Custom label showing delivered/total and percentage
   const CustomLabel = (props) => {
+    // Safety check for props
+    if (!props || typeof props.x === 'undefined' || !props.payload) {
+      return null;
+    }
+    
     const { x, y, width, value, payload } = props;
     return (
       <text 

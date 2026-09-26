@@ -43,6 +43,11 @@ function FleetCompositionChart({ data }) {
 
   // Custom label for center of donut
   const CenterLabel = ({ viewBox }) => {
+    // Safety check for viewBox
+    if (!viewBox || typeof viewBox.cx === 'undefined' || typeof viewBox.cy === 'undefined') {
+      return null;
+    }
+    
     const { cx, cy } = viewBox;
     return (
       <g>
