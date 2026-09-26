@@ -71,6 +71,23 @@ function Dashboard({ autoRefreshEnabled = true }) {
     );
   }
 
+  // Safety check - if no data after loading, show empty state
+  if (!isLoading && !kpiMetrics && !summaryMetrics) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <AlertCircle className="w-12 h-12 text-yellow-600 mb-4" />
+        <p className="text-gray-600 text-lg font-medium">No data available</p>
+        <p className="text-gray-500 text-sm mt-2">Please check your data source</p>
+        <button
+          onClick={() => fetchDashboardData()}
+          className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   const formatTimeAgo = (date) => {
     if (!date) return 'Never';
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
@@ -136,32 +153,38 @@ function Dashboard({ autoRefreshEnabled = true }) {
       )}
 
       {/* KPI Cards (3 main cards) */}
-      <KPICardsSection kpiData={kpiMetrics} />
+      {kpiMetrics && <KPICardsSection kpiData={kpiMetrics} />}
 
       {/* Secondary Metrics (5 small cards) */}
-      <SecondaryMetricsSection summaryData={summaryMetrics} />
+      {summaryMetrics && <SecondaryMetricsSection summaryData={summaryMetrics} />}
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Performance by Contract Type */}
-        <PerformanceByContractChart data={performanceData} />
+        {performanceData && performanceData.length > 0 && (
+          <PerformanceByContractChart data={performanceData} />
+        )}
 
         {/* Top Zones by Parcel Volume */}
-        <TopZonesChart data={zonesData} />
+        {zonesData && zonesData.length > 0 && (
+          <TopZonesChart data={zonesData} />
+        )}
       </div>
 
       {/* Fleet Composition - Full Width */}
-      <FleetCompositionChart data={fleetData} />
+      {fleetData && <FleetCompositionChart data={fleetData} />}
 
       {/* Weekly Schedule Table */}
-      <WeeklyScheduleTable 
-        data={courierSchedule} 
-        currentWeek="21 Sep - 27 Sep, 2026"
-        onWeekChange={(direction) => {
-          console.log('Week navigation:', direction);
-          // TODO: Implement week navigation
-        }}
-      />
+      {courierSchedule && courierSchedule.length > 0 && (
+        <WeeklyScheduleTable 
+          data={courierSchedule} 
+          currentWeek="21 Sep - 27 Sep, 2026"
+          onWeekChange={(direction) => {
+            console.log('Week navigation:', direction);
+            // TODO: Implement week navigation
+          }}
+        />
+      )}
 
       {/* Info Footer */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
