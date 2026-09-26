@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Loader, RefreshCw, AlertCircle } from 'lucide-react';
 import useDashboardStore from '../../store/dashboardStore';
 import useAutoRefresh from '../../hooks/useAutoRefresh';
+import ErrorBoundary from '../common/ErrorBoundary';
 import KPICardsSection from './KPICardsSection';
 import SecondaryMetricsSection from './SecondaryMetricsSection';
 import PerformanceByContractChart from '../charts/PerformanceByContractChart';
@@ -153,38 +154,50 @@ function Dashboard({ autoRefreshEnabled = true }) {
       )}
 
       {/* KPI Cards (3 main cards) */}
-      {kpiMetrics && <KPICardsSection kpiData={kpiMetrics} />}
+      <ErrorBoundary componentName="KPICardsSection">
+        {kpiMetrics && <KPICardsSection kpiData={kpiMetrics} />}
+      </ErrorBoundary>
 
       {/* Secondary Metrics (5 small cards) */}
-      {summaryMetrics && <SecondaryMetricsSection summaryData={summaryMetrics} />}
+      <ErrorBoundary componentName="SecondaryMetricsSection">
+        {summaryMetrics && <SecondaryMetricsSection summaryData={summaryMetrics} />}
+      </ErrorBoundary>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Performance by Contract Type */}
-        {performanceData && performanceData.length > 0 && (
-          <PerformanceByContractChart data={performanceData} />
-        )}
+        <ErrorBoundary componentName="PerformanceByContractChart">
+          {performanceData && performanceData.length > 0 && (
+            <PerformanceByContractChart data={performanceData} />
+          )}
+        </ErrorBoundary>
 
         {/* Top Zones by Parcel Volume */}
-        {zonesData && zonesData.length > 0 && (
-          <TopZonesChart data={zonesData} />
-        )}
+        <ErrorBoundary componentName="TopZonesChart">
+          {zonesData && zonesData.length > 0 && (
+            <TopZonesChart data={zonesData} />
+          )}
+        </ErrorBoundary>
       </div>
 
       {/* Fleet Composition - Full Width */}
-      {fleetData && <FleetCompositionChart data={fleetData} />}
+      <ErrorBoundary componentName="FleetCompositionChart">
+        {fleetData && <FleetCompositionChart data={fleetData} />}
+      </ErrorBoundary>
 
       {/* Weekly Schedule Table */}
-      {courierSchedule && courierSchedule.length > 0 && (
-        <WeeklyScheduleTable 
-          data={courierSchedule} 
-          currentWeek="21 Sep - 27 Sep, 2026"
-          onWeekChange={(direction) => {
-            console.log('Week navigation:', direction);
-            // TODO: Implement week navigation
-          }}
-        />
-      )}
+      <ErrorBoundary componentName="WeeklyScheduleTable">
+        {courierSchedule && courierSchedule.length > 0 && (
+          <WeeklyScheduleTable 
+            data={courierSchedule} 
+            currentWeek="21 Sep - 27 Sep, 2026"
+            onWeekChange={(direction) => {
+              console.log('Week navigation:', direction);
+              // TODO: Implement week navigation
+            }}
+          />
+        )}
+      </ErrorBoundary>
 
       {/* Info Footer */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
