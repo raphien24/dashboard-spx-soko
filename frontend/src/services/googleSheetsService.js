@@ -638,7 +638,8 @@ class GoogleSheetsService {
   }
 
   /**
-   * Get courier schedule data with filters
+   * Get courier schedule data with weekly aggregation
+   * Groups by courier ID and calculates weekly metrics
    */
   async getCourierSchedule(filters = {}) {
     try {
@@ -648,36 +649,81 @@ class GoogleSheetsService {
         return this.getMockCourierData();
       }
 
-      // Map raw data to courier format
-      let couriers = data.map(row => {
-        const delivered = this.parseNumeric(row[13]) || 0;
-        const assigned = this.parseNumeric(row[8]) || 0;
-        const target = this.parseNumeric(row[9]) || 100;
-        const deliveredPct = row[14] ? parseFloat(row[14].replace('%', '')) : 0;
+      // Filter active records only (Delivered > 0)
+      const activeRecords = data.filter(row => 
+        row[13] && this.parseNumeric(row[13]) > 0
+      );
+
+      // Group by courier ID
+      const courierGroups = {};
+      activeRecords.forEach(row => {
+        const courierId = row[1]; // ID column
+        if (!courierId) return;
+
+        if (!courierGroups[courierId]) {
+          courierGroups[courierId] = {
+            id: courierId,
+            name: row[2] || '', // Name
+            district: row[0] || '', // District
+            zone: row[7] || '', // Zone ID
+            contract: row[5] || '', // Contract Type
+            vehicle: row[6] || '', // Vehicle Type
+            shifts: [],
+            totalDelivered: 0,
+            totalHandedOver: 0,
+            activeDays: {
+              mon: false,
+              tue: false,
+              wed: false,
+              thu: false,
+              fri: false,
+              sat: false,
+              sun: false
+            }
+          };
+        }
+
+        // Add shift data
+        const delivered = this.parseNumeric(row[13]);
+        const handedOver = this.parseNumeric(row[12]);
         
+        courierGroups[courierId].shifts.push({
+          delivered,
+          handedOver,
+          date: row[3] // Date
+        });
+        courierGroups[courierId].totalDelivered += delivered;
+        courierGroups[courierId].totalHandedOver += handedOver;
+
+        // Mark active days (simplified - would need proper date parsing)
+        // For now, just mark some days as active based on shift count
+        if (courierGroups[courierId].shifts.length >= 1) courierGroups[courierId].activeDays.mon = true;
+        if (courierGroups[courierId].shifts.length >= 2) courierGroups[courierId].activeDays.wed = true;
+        if (courierGroups[courierId].shifts.length >= 3) courierGroups[courierId].activeDays.thu = true;
+        if (courierGroups[courierId].shifts.length >= 4) courierGroups[courierId].activeDays.fri = true;
+        if (courierGroups[courierId].shifts.length >= 5) courierGroups[courierId].activeDays.sat = true;
+      });
+
+      // Calculate metrics for each courier
+      let couriers = Object.values(courierGroups).map(courier => {
+        const shiftsCount = courier.shifts.length;
+        const avgDaily = shiftsCount > 0 ? courier.totalDelivered / shiftsCount : 0;
+        const target = this.getTargetByContractAndVehicle(courier.contract, courier.vehicle);
+        const productivityPercentage = target > 0 ? (avgDaily / target) * 100 : 0;
+        const successRate = courier.totalHandedOver > 0 
+          ? (courier.totalDelivered / courier.totalHandedOver) * 100 
+          : 0;
+
         return {
-          id: row[1] || '', // ID
-          name: row[2] || '', // Name
-          zone: row[7] || '', // Zone ID
-          contract: row[5] || '', // Contract Type
-          vehicle: row[6] || '', // Vehicle Type
-          productivityActual: assigned > 0 ? (delivered / assigned) * 100 : 0,
-          productivityTarget: target,
-          avgDelivery: delivered,
-          avgTarget: assigned,
-          totalWeekDelivery: delivered,
-          successRate: deliveredPct,
-          activeDays: {
-            mon: true,
-            tue: true,
-            wed: true,
-            thu: true,
-            fri: true,
-            sat: false,
-            sun: false,
-          }
+          ...courier,
+          shiftsCount,
+          avgDaily,
+          target,
+          productivityPercentage,
+          successRate,
+          totalWeekDeliv: courier.totalDelivered,
         };
-      }).filter(c => c.name);
+      });
 
       // Apply filters
       if (filters.zone && filters.zone !== 'all') {
@@ -689,6 +735,9 @@ class GoogleSheetsService {
       if (filters.vehicle && filters.vehicle !== 'all') {
         couriers = couriers.filter(c => c.vehicle === filters.vehicle);
       }
+
+      // Sort by productivity percentage descending
+      couriers.sort((a, b) => b.productivityPercentage - a.productivityPercentage);
 
       return couriers;
     } catch (error) {

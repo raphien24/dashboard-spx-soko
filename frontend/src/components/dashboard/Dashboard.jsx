@@ -7,6 +7,7 @@ import SecondaryMetricsSection from './SecondaryMetricsSection';
 import PerformanceByContractChart from '../charts/PerformanceByContractChart';
 import TopZonesChart from '../charts/TopZonesChart';
 import FleetCompositionChart from '../charts/FleetCompositionChart';
+import WeeklyScheduleTable from '../schedule/WeeklyScheduleTable';
 
 function Dashboard({ autoRefreshEnabled = true }) {
   const {
@@ -15,18 +16,21 @@ function Dashboard({ autoRefreshEnabled = true }) {
     performanceData,
     zonesData,
     fleetData,
+    courierSchedule,
     isLoading,
     isRefreshing,
     error,
     lastUpdated,
     fetchDashboardData,
     refreshDashboardData,
+    fetchCourierSchedule,
   } = useDashboardStore();
 
   // Initial data fetch
   useEffect(() => {
     fetchDashboardData();
-  }, [fetchDashboardData]);
+    fetchCourierSchedule();
+  }, [fetchDashboardData, fetchCourierSchedule]);
 
   // Auto-refresh every 30 seconds (configurable and controllable)
   useAutoRefresh(() => {
@@ -147,31 +151,17 @@ function Dashboard({ autoRefreshEnabled = true }) {
       </div>
 
       {/* Fleet Composition - Full Width */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <FleetCompositionChart data={fleetData} />
-        </div>
+      <FleetCompositionChart data={fleetData} />
 
-        {/* Placeholder for future components */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <RefreshCw className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Weekly Schedule Table
-              </h3>
-              <p className="text-sm text-gray-500 mb-4">
-                Coming soon - detailed courier schedule with filters
-              </p>
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
-                Under Development
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Weekly Schedule Table */}
+      <WeeklyScheduleTable 
+        data={courierSchedule} 
+        currentWeek="21 Sep - 27 Sep, 2026"
+        onWeekChange={(direction) => {
+          console.log('Week navigation:', direction);
+          // TODO: Implement week navigation
+        }}
+      />
 
       {/* Info Footer */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
