@@ -17,7 +17,7 @@ class GoogleSheetsService {
     try {
       if (USE_BACKEND_PROXY) {
         // Use backend proxy (for Service Account)
-        const url = `${BASE_URL}/sheets/range/${encodeURIComponent(range)}`;
+        const url = `${BASE_URL}/api/sheets/range/${encodeURIComponent(range)}`;
         const response = await axios.get(url);
         return response.data.data || [];
       } else {
@@ -41,7 +41,7 @@ class GoogleSheetsService {
     try {
       if (USE_BACKEND_PROXY) {
         // Use backend proxy
-        const url = `${BASE_URL}/sheets/batch`;
+        const url = `${BASE_URL}/api/sheets/batch`;
         const response = await axios.post(url, { ranges });
         return response.data.data || {};
       } else {
