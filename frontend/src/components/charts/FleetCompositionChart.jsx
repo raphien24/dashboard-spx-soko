@@ -1,75 +1,39 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { Bike, Car, Truck } from 'lucide-react';
-import { formatNumber, formatPercentage } from '../../utils/formatters';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { Target } from 'lucide-react';
 
 /**
- * Fleet Composition Donut Chart Component
- * Shows fleet composition and quota information
+ * Quota & Fleet Composition Chart Component
+ * Shows % met quota target and fleet vehicle breakdown
  */
 function FleetCompositionChart({ data }) {
   if (!data) {
     return (
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          🚗 Quote & Fleet Composition
+          🎯 Quota & Fleet Composition
         </h3>
-        <div className="h-80 bg-gray-100 rounded-lg animate-pulse" />
+        <div className="h-64 bg-gray-100 rounded-lg animate-pulse" />
       </div>
     );
   }
 
-  const { mainTarget, motorcycles, fleetMotors, fleetPickups, avgTargetPerCourier, totalPackages } = data;
+  // Fleet composition data for donut chart
+  const fleetData = [
+    { name: '2WH (4WBS)', value: data.count2WH || 0, color: '#3B82F6' },
+    { name: '4WH (PABM)', value: data.count4WH || 0, color: '#F59E0B' },
+  ];
 
-  // Prepare data for donut chart
-  const chartData = [
-    { name: 'Motorcycles', value: motorcycles, color: '#7C3AED', icon: Bike },
-    { name: 'Fleet Motors', value: fleetMotors, color: '#3B82F6', icon: Car },
-    { name: 'Fleet Pickups', value: fleetPickups, color: '#10B981', icon: Truck },
-  ].filter(item => item.value > 0);
-
-  const totalFleet = motorcycles + fleetMotors + fleetPickups;
-
-  // Custom label for center
-  const renderCustomLabel = ({ cx, cy }) => {
-    return (
-      <g>
-        <text 
-          x={cx} 
-          y={cy - 10} 
-          textAnchor="middle" 
-          dominantBaseline="middle"
-          className="text-4xl font-bold fill-purple-600"
-        >
-          {mainTarget}%
-        </text>
-        <text 
-          x={cx} 
-          y={cy + 15} 
-          textAnchor="middle" 
-          dominantBaseline="middle"
-          className="text-sm fill-gray-500"
-        >
-          Main Quota Target
-        </text>
-      </g>
-    );
-  };
-
-  // Custom tooltip
+  // Custom tooltip for donut chart
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const data = payload[0];
-      const percentage = ((data.value / totalFleet) * 100).toFixed(1);
+      const item = payload[0];
+      const total = fleetData.reduce((sum, d) => sum + d.value, 0);
+      const percentage = total > 0 ? ((item.value / total) * 100).toFixed(0) : 0;
       return (
         <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-          <p className="font-semibold text-gray-900 mb-1">{data.name}</p>
-          <p className="text-sm text-gray-600">
-            Count: <span className="font-semibold text-gray-900">{data.value}</span>
-          </p>
-          <p className="text-sm text-gray-600">
-            Share: <span className="font-semibold" style={{ color: data.payload.color }}>
-              {percentage}%
-            </span>
+          <p className="font-semibold text-gray-900 text-sm">{item.name}</p>
+          <p className="text-gray-600 text-xs">
+            {item.value} vehicles ({percentage}%)
           </p>
         </div>
       );
@@ -77,91 +41,107 @@ function FleetCompositionChart({ data }) {
     return null;
   };
 
+  // Custom label for center of donut
+  const CenterLabel = ({ viewBox }) => {
+    const { cx, cy } = viewBox;
+    return (
+      <g>
+        <text 
+          x={cx} 
+          y={cy - 10} 
+          textAnchor="middle" 
+          dominantBaseline="central"
+          className="text-4xl font-bold fill-gray-900"
+        >
+          {data.metQuotaPercentage || 0}%
+        </text>
+        <text 
+          x={cx} 
+          y={cy + 15} 
+          textAnchor="middle" 
+          dominantBaseline="central"
+          className="text-xs fill-gray-500"
+        >
+          Met Quota Target
+        </text>
+        <text 
+          x={cx} 
+          y={cy + 30} 
+          textAnchor="middle" 
+          dominantBaseline="central"
+          className="text-xs fill-gray-400"
+        >
+          {data.metQuotaCount || 0} of {data.totalCouriers || 0} couriers
+        </text>
+      </g>
+    );
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
       {/* Header */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-          🚗 Quote & Fleet Composition
-        </h3>
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Quota & Fleet Composition
+          </h3>
+        </div>
         <p className="text-sm text-gray-500">
-          {formatNumber(totalFleet)} total fleet vehicles
+          Probable assigned adherence & fleet mix
         </p>
       </div>
 
       {/* Chart */}
-      <div className="flex items-center justify-center mb-6">
-        <ResponsiveContainer width="100%" height={250}>
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              innerRadius={70}
-              outerRadius={100}
-              paddingAngle={3}
-              dataKey="value"
-              label={renderCustomLabel}
-              labelLine={false}
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
+      <ResponsiveContainer width="100%" height={280}>
+        <PieChart>
+          <Pie
+            data={fleetData}
+            cx="50%"
+            cy="50%"
+            innerRadius={80}
+            outerRadius={110}
+            paddingAngle={2}
+            dataKey="value"
+            label={CenterLabel}
+          >
+            {fleetData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color} />
+            ))}
+          </Pie>
+          <Tooltip content={<CustomTooltip />} />
+        </PieChart>
+      </ResponsiveContainer>
 
       {/* Fleet Breakdown */}
-      <div className="space-y-3 mb-6">
-        {chartData.map((item, index) => {
-          const Icon = item.icon;
-          const percentage = ((item.value / totalFleet) * 100).toFixed(1);
-          
-          return (
-            <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-              <div className="flex items-center gap-3">
-                <div 
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white"
-                  style={{ backgroundColor: item.color }}
-                >
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{item.name}</p>
-                  <p className="text-xs text-gray-500">{percentage}% of fleet</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-lg font-bold text-gray-900">{item.value}</p>
-                <p className="text-xs text-gray-500">vehicles</p>
-              </div>
+      <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="text-center p-3 bg-blue-50 rounded-lg">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+              <p className="text-xs font-semibold text-gray-600 uppercase">2WH (4WBS)</p>
             </div>
-          );
-        })}
-      </div>
-
-      {/* Additional Stats */}
-      <div className="pt-4 border-t border-gray-200 space-y-3">
-        <div className="flex items-center justify-between p-3 rounded-lg bg-purple-50">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-purple-600"></div>
-            <span className="text-sm text-gray-600">Avg Target per Courier</span>
+            <p className="text-2xl font-bold text-blue-600">{data.count2WH || 0}</p>
+            <p className="text-xs text-gray-500">Total Vehicles Dispatched</p>
           </div>
-          <span className="text-sm font-semibold text-purple-600">
-            {avgTargetPerCourier > 0 ? formatNumber(avgTargetPerCourier) : 'N/A'}
-          </span>
+          
+          <div className="text-center p-3 bg-orange-50 rounded-lg">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+              <p className="text-xs font-semibold text-gray-600 uppercase">4WH (PABM)</p>
+            </div>
+            <p className="text-2xl font-bold text-orange-600">{data.count4WH || 0}</p>
+            <p className="text-xs text-gray-500">Total Vehicles Dispatched</p>
+          </div>
         </div>
-        
-        <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-            <span className="text-sm text-gray-600">Total Packages</span>
+
+        {/* Average Target Info */}
+        <div className="flex items-center justify-center gap-2 p-3 bg-gray-50 rounded-lg">
+          <Target className="w-4 h-4 text-gray-600" />
+          <div className="text-center">
+            <p className="text-xs text-gray-500">Avg Target per courier:</p>
+            <p className="text-lg font-bold text-gray-900">{data.avgTargetPerCourier || 0} packages</p>
           </div>
-          <span className="text-sm font-semibold text-blue-600">
-            {formatNumber(totalPackages)} packages
-          </span>
         </div>
       </div>
     </div>

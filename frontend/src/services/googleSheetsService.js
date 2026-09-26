@@ -93,61 +93,141 @@ class GoogleSheetsService {
   }
 
   /**
-   * Parse KPI data from dashboard sheet
-   * Using raw sheet data - calculate from courier performance
+   * Parse KPI data from raw sheet
+   * Formulas based on canvas spreadsheet:
+   * 1. WEEKLY AVG PRODUCTIVITY = Total Delivered ÷ Active Shifts
+   * 2. DEDICATED VS PLUS = (2W Kurir Plus Avg) ÷ (2W Dedicated Avg) × 100
+   * 3. DAILY ACTIVE = Active Shifts (Deliv>0) ÷ (Total Couriers × Operating Days) × 100
    */
   async getKPIMetrics() {
     try {
       // Get courier data from raw sheet
+      // Columns: District(0), ID(1), Name(2), Date(3), Driver Name(4), Contract Type(5), 
+      //          Vehicle Type(6), Zone ID(7), Assigned(8), Assigned Target(9), Assigned Progress(10),
+      //          Delivery Progress(11), Handed Over(12), Delivered(13), Delivered(%)(14), 
+      //          Delivering(#)(15), Delivering(%)(16), Failed Delivery(#)(17), Failed Delivery(%)(18),
+      //          Stuck at Delivering(19), Onhold(20)
       const data = await this.getRange('raw!A2:Z1000'); // Skip header row
       
       if (!data || data.length === 0) {
         return this.getMockKPIData();
       }
 
-      // Calculate KPIs from raw data
-      const totalCouriers = data.length;
-      const totalDelivered = data.reduce((sum, row) => sum + (this.parseNumeric(row[13]) || 0), 0); // Delivered column
-      const totalAssigned = data.reduce((sum, row) => sum + (this.parseNumeric(row[8]) || 0), 0); // Assigned column
-      
-      // Weekly Avg Productivity: Delivered / Courier / Shift
-      const weeklyProductivity = totalCouriers > 0 ? totalDelivered / totalCouriers : 0;
-      
-      // Unloaded vs Plan: Average delivery progress
-      const avgDeliveryProgress = data.reduce((sum, row) => {
-        const progress = row[11] ? parseFloat(row[11].replace('%', '')) : 0; // Delivery Progress column
-        return sum + progress;
-      }, 0) / totalCouriers;
-      
-      // Daily Active: Calculate attendance rate from data
-      const activeToday = data.filter(row => row[13] && this.parseNumeric(row[13]) > 0).length; // Has deliveries
-      const attendanceRate = totalCouriers > 0 ? (activeToday / totalCouriers) * 100 : 0;
+      // Filter active records (has Delivered value)
+      const activeRecords = data.filter(row => 
+        row[13] && this.parseNumeric(row[13]) > 0
+      );
+
+      if (activeRecords.length === 0) {
+        return this.getMockKPIData();
+      }
+
+      // === KPI 1: WEEKLY AVG PRODUCTIVITY ===
+      const totalDelivered = activeRecords.reduce((sum, row) => 
+        sum + this.parseNumeric(row[13]), 0
+      );
+      const totalActiveShifts = activeRecords.length;
+      const weeklyAvgProductivity = totalActiveShifts > 0 
+        ? totalDelivered / totalActiveShifts 
+        : 0;
+
+      // Calculate target (weighted average based on contract/vehicle distribution)
+      const avgTarget = activeRecords.reduce((sum, row) => {
+        const target = this.getTargetByContractAndVehicle(row[5], row[6]);
+        return sum + target;
+      }, 0) / totalActiveShifts;
+
+      const productivityProgress = avgTarget > 0 
+        ? (weeklyAvgProductivity / avgTarget) * 100 
+        : 0;
+
+      // === KPI 2: DEDICATED VS PLUS (2WH only) ===
+      const kurirPlus2WH = activeRecords.filter(row => 
+        row[5]?.includes('Kurir Plus') && row[6] === '2WH'
+      );
+      const dedicated2WH = activeRecords.filter(row => 
+        row[5] === 'Dedicated' && row[6] === '2WH'
+      );
+
+      const kurirPlusAvg = kurirPlus2WH.length > 0
+        ? kurirPlus2WH.reduce((sum, row) => sum + this.parseNumeric(row[13]), 0) / kurirPlus2WH.length
+        : 0;
+
+      const dedicatedAvg = dedicated2WH.length > 0
+        ? dedicated2WH.reduce((sum, row) => sum + this.parseNumeric(row[13]), 0) / dedicated2WH.length
+        : 0;
+
+      const dedicatedVsPlus = dedicatedAvg > 0 
+        ? (kurirPlusAvg / dedicatedAvg) * 100 
+        : 0;
+
+      const dedicatedVsPlusDiff = 100 - dedicatedVsPlus;
+
+      // === KPI 3: DAILY ACTIVE (2WH, Dedicated+Kurir Plus only, Deliv>0) ===
+      const filtered2WHDedicatedPlus = data.filter(row => 
+        row[6] === '2WH' && 
+        (row[5] === 'Dedicated' || row[5]?.includes('Kurir Plus')) &&
+        row[13] && this.parseNumeric(row[13]) > 0
+      );
+
+      // Get unique couriers (by ID)
+      const uniqueCouriers = new Set(filtered2WHDedicatedPlus.map(row => row[1]));
+      const totalUniqueCouriers = uniqueCouriers.size;
+
+      // Get unique dates to determine operating days
+      const uniqueDates = new Set(filtered2WHDedicatedPlus.map(row => row[3]));
+      const operatingDays = uniqueDates.size || 6; // Default to 6 if can't determine
+
+      const activeShiftsFiltered = filtered2WHDedicatedPlus.length;
+      const dailyActiveRate = (totalUniqueCouriers > 0 && operatingDays > 0)
+        ? (activeShiftsFiltered / (totalUniqueCouriers * operatingDays)) * 100
+        : 0;
+
+      const avgCouriersPerDay = operatingDays > 0 
+        ? activeShiftsFiltered / operatingDays 
+        : 0;
 
       return {
         weeklyProductivity: {
-          value: parseFloat(weeklyProductivity.toFixed(1)),
-          target: 100,
-          unit: 'Delivered/Courier/Shift',
-          trend: 'up',
+          value: parseFloat(weeklyAvgProductivity.toFixed(1)),
+          target: parseFloat(avgTarget.toFixed(1)),
+          unit: 'DELIVERED / COURIER / SHIFT',
+          progress: parseFloat(productivityProgress.toFixed(1)),
+          label: 'WEEKLY AVG PRODUCTIVITY',
+          badge: 'CORE KPI',
           subMetrics: {
-            weekly: totalDelivered.toString(),
-            comparison: `${totalCouriers} couriers active`
+            totalVolume: totalDelivered,
+            activeShifts: totalActiveShifts,
+            shiftTarget: parseFloat(avgTarget.toFixed(1)),
+            formula: 'Total Deliv ÷ Total Active Shifts'
           }
         },
-        unloadedVsPlan: {
-          value: parseFloat(avgDeliveryProgress.toFixed(1)),
+        dedicatedVsPlus: {
+          value: parseFloat(dedicatedVsPlus.toFixed(1)),
           unit: '%',
-          label: 'Avg Delivery Progress',
+          label: 'DEDICATED VS PLUS',
+          badge: '2WH FLEET',
+          diff: parseFloat(dedicatedVsPlusDiff.toFixed(1)),
           subMetrics: {
-            packages: `${totalAssigned} assigned`
+            kurirPlusAvg: parseFloat(kurirPlusAvg.toFixed(1)),
+            dedicatedAvg: parseFloat(dedicatedAvg.toFixed(1)),
+            kurirPlusCount: kurirPlus2WH.length,
+            dedicatedCount: dedicated2WH.length,
+            formula: '(2W Plus ÷ 2w Dedicated) × 100'
           }
         },
         dailyActive: {
-          value: parseFloat(attendanceRate.toFixed(1)),
+          value: parseFloat(dailyActiveRate.toFixed(1)),
           unit: '%',
-          label: 'Active Couriers Today',
+          label: 'DAILY ACTIVE',
+          badge: 'DELIV >0',
+          filters: '2W | D(0)+PLUS | DELIV >0',
           subMetrics: {
-            avgCouriers: `${activeToday} / ${totalCouriers} couriers active`
+            activeShifts: activeShiftsFiltered,
+            totalCouriers: totalUniqueCouriers,
+            operatingDays: operatingDays,
+            avgCouriersPerDay: parseFloat(avgCouriersPerDay.toFixed(1)),
+            formula: 'Active Shifts ÷ (Unique Headcount × Op Days)'
           }
         }
       };
@@ -158,7 +238,8 @@ class GoogleSheetsService {
   }
 
   /**
-   * Parse summary metrics from raw data
+   * Parse secondary metrics from raw data
+   * Metrics: Unique Headcount, Total Delivered, Met Quota, Total Assigned, Exceptions
    */
   async getSummaryMetrics() {
     try {
@@ -168,17 +249,128 @@ class GoogleSheetsService {
         return this.getMockSummaryData();
       }
 
-      // Extract unique values
-      const uniqueZones = new Set(data.map(row => row[7]).filter(Boolean)); // Zone ID
-      const uniqueDistricts = new Set(data.map(row => row[0]).filter(Boolean)); // District
-      const uniqueContracts = new Set(data.map(row => row[5]).filter(Boolean)); // Contract Type
-      
+      // Filter active records (Delivered > 0)
+      const activeRecords = data.filter(row => 
+        row[13] && this.parseNumeric(row[13]) > 0
+      );
+
+      // UNIQUE HEADCOUNT: Unique couriers with Delivered > 0
+      const uniqueCouriers = new Set(activeRecords.map(row => row[1])); // ID column
+      const uniqueHeadcount = uniqueCouriers.size;
+      const activeShifts = activeRecords.length;
+
+      // TOTAL DELIVERED
+      const totalDelivered = activeRecords.reduce((sum, row) => 
+        sum + this.parseNumeric(row[13]), 0
+      );
+
+      // TOTAL ASSIGNED (use Handed Over as baseline)
+      const totalHandedOver = activeRecords.reduce((sum, row) => 
+        sum + this.parseNumeric(row[12]), 0
+      );
+
+      // Success Rate = Delivered / Handed Over
+      const successRate = totalHandedOver > 0 
+        ? (totalDelivered / totalHandedOver) * 100 
+        : 0;
+
+      // MET QUOTA: Count couriers who met target
+      // Group by courier ID and calculate avg productivity
+      const courierProductivity = {};
+      activeRecords.forEach(row => {
+        const courierId = row[1];
+        const delivered = this.parseNumeric(row[13]);
+        const contractType = row[5];
+        const vehicleType = row[6];
+        
+        if (!courierProductivity[courierId]) {
+          courierProductivity[courierId] = {
+            totalDelivered: 0,
+            shifts: 0,
+            contractType,
+            vehicleType
+          };
+        }
+        courierProductivity[courierId].totalDelivered += delivered;
+        courierProductivity[courierId].shifts++;
+      });
+
+      // Count how many met target
+      let metQuota = 0;
+      Object.values(courierProductivity).forEach(courier => {
+        const avgProductivity = courier.totalDelivered / courier.shifts;
+        const target = this.getTargetByContractAndVehicle(
+          courier.contractType, 
+          courier.vehicleType
+        );
+        if (avgProductivity >= target) {
+          metQuota++;
+        }
+      });
+
+      const metQuotaPercentage = uniqueHeadcount > 0 
+        ? (metQuota / uniqueHeadcount) * 100 
+        : 0;
+      const underTarget = uniqueHeadcount - metQuota;
+
+      // TOTAL ASSIGNED (for display)
+      const totalAssigned = activeRecords.reduce((sum, row) => 
+        sum + this.parseNumeric(row[8]), 0
+      );
+
+      // EXCEPTIONS: Failed Deliveries
+      const totalFailed = activeRecords.reduce((sum, row) => 
+        sum + this.parseNumeric(row[17]), 0 // Failed Delivery (#)
+      );
+
+      const failureRate = totalHandedOver > 0 
+        ? (totalFailed / totalHandedOver) * 100 
+        : 0;
+
+      // On-hold and stuck deliveries
+      const totalOnhold = activeRecords.reduce((sum, row) => 
+        sum + this.parseNumeric(row[20]), 0
+      );
+      const totalStuck = activeRecords.reduce((sum, row) => 
+        sum + this.parseNumeric(row[19]), 0
+      );
+
       return {
-        uniqueWarehouses: uniqueDistricts.size,
-        totalEmployees: data.length,
-        bdLogistic: uniqueContracts.size,
-        totalAccounts: data.reduce((sum, row) => sum + (this.parseNumeric(row[13]) || 0), 0), // Total delivered
-        relationships: uniqueZones.size,
+        uniqueHeadcount: {
+          value: uniqueHeadcount,
+          label: 'UNIQUE HEADCOUNT',
+          subtitle: 'Daily > 0',
+          detail: `${activeShifts} active shifts`,
+          detail2: 'Deliv > 0'
+        },
+        totalDelivered: {
+          value: totalDelivered,
+          label: 'TOTAL DELIVERED',
+          subtitle: `${successRate.toFixed(1)}%`,
+          detail: `of ${totalHandedOver.toLocaleString()} avg`,
+          detail2: 'Delivered'
+        },
+        metQuota: {
+          value: metQuota,
+          label: 'MET QUOTA',
+          subtitle: `${Math.round(metQuotaPercentage)}%`,
+          detail: `${underTarget} under tgt`,
+          detail2: 'Target Hit!'
+        },
+        totalAssigned: {
+          value: totalAssigned,
+          label: 'TOTAL ASSIGNED',
+          subtitle: 'Volume',
+          detail: `tgt ${totalHandedOver.toLocaleString()}`,
+          detail2: 'Assigned'
+        },
+        exceptions: {
+          value: totalFailed,
+          label: 'EXCEPTIONS',
+          subtitle: `${failureRate.toFixed(1)}%`,
+          detail: `${totalFailed} fail x ${totalOnhold} hld`,
+          detail2: `${totalStuck} stick`
+        }
       };
     } catch (error) {
       console.error('Error parsing summary metrics:', error);
@@ -188,16 +380,48 @@ class GoogleSheetsService {
 
   getMockSummaryData() {
     return {
-      uniqueWarehouses: 79,
-      totalEmployees: 32741,
-      bdLogistic: 22,
-      totalAccounts: 34049,
-      relationships: 900,
+      uniqueHeadcount: {
+        value: 79,
+        label: 'UNIQUE HEADCOUNT',
+        subtitle: 'Daily > 0',
+        detail: '389 active shifts',
+        detail2: 'Deliv > 0'
+      },
+      totalDelivered: {
+        value: 39771,
+        label: 'TOTAL DELIVERED',
+        subtitle: '96.2%',
+        detail: 'of 41,334 avg',
+        detail2: 'Delivered'
+      },
+      metQuota: {
+        value: 22,
+        label: 'MET QUOTA',
+        subtitle: '28%',
+        detail: '57 under tgt',
+        detail2: 'Target Hit!'
+      },
+      totalAssigned: {
+        value: 41334,
+        label: 'TOTAL ASSIGNED',
+        subtitle: 'Volume',
+        detail: 'tgt 42,717',
+        detail2: 'Assigned'
+      },
+      exceptions: {
+        value: 1155,
+        label: 'EXCEPTIONS',
+        subtitle: '2.8%',
+        detail: '1155 fail x 0 hld',
+        detail2: '0 stick'
+      }
     };
   }
 
   /**
    * Get performance by contract type data
+   * Success Rate = Delivered ÷ Handed Over × 100
+   * Shows: Contract Type, Couriers Count, Delivered/Total, Success %, Failed count
    */
   async getPerformanceByContract() {
     try {
@@ -207,36 +431,49 @@ class GoogleSheetsService {
         return this.getMockPerformanceData();
       }
 
+      // Filter active records only
+      const activeRecords = data.filter(row => 
+        row[13] && this.parseNumeric(row[13]) > 0
+      );
+
       // Group by contract type (column index 5)
       const contractGroups = {};
-      data.forEach(row => {
+      activeRecords.forEach(row => {
         const contract = row[5] || 'Unknown'; // Contract Type
         if (!contractGroups[contract]) {
           contractGroups[contract] = {
-            couriers: 0,
+            couriers: new Set(),
             totalDelivered: 0,
-            totalAssigned: 0
+            totalHandedOver: 0,
+            totalFailed: 0
           };
         }
-        contractGroups[contract].couriers++;
+        contractGroups[contract].couriers.add(row[1]); // Unique courier ID
         contractGroups[contract].totalDelivered += this.parseNumeric(row[13]) || 0; // Delivered
-        contractGroups[contract].totalAssigned += this.parseNumeric(row[8]) || 0; // Assigned
+        contractGroups[contract].totalHandedOver += this.parseNumeric(row[12]) || 0; // Handed Over
+        contractGroups[contract].totalFailed += this.parseNumeric(row[17]) || 0; // Failed Delivery (#)
       });
 
-      // Convert to array format
-      return Object.keys(contractGroups).map(contractType => {
-        const group = contractGroups[contractType];
-        const performance = group.totalAssigned > 0 
-          ? (group.totalDelivered / group.totalAssigned) * 100 
-          : 0;
-        
-        return {
-          contractType,
-          couriers: group.couriers,
-          accounts: group.totalDelivered,
-          performance: parseFloat(performance.toFixed(1))
-        };
-      }).filter(item => item.couriers > 0);
+      // Convert to array format and sort by couriers count
+      return Object.keys(contractGroups)
+        .map(contractType => {
+          const group = contractGroups[contractType];
+          const couriersCount = group.couriers.size;
+          const successRate = group.totalHandedOver > 0 
+            ? (group.totalDelivered / group.totalHandedOver) * 100 
+            : 0;
+          
+          return {
+            contractType,
+            couriers: couriersCount,
+            delivered: group.totalDelivered,
+            total: group.totalHandedOver,
+            successRate: parseFloat(successRate.toFixed(1)),
+            failed: group.totalFailed
+          };
+        })
+        .filter(item => item.couriers > 0)
+        .sort((a, b) => b.couriers - a.couriers); // Sort by number of couriers descending
     } catch (error) {
       console.error('Error parsing performance data:', error);
       return this.getMockPerformanceData();
@@ -245,6 +482,7 @@ class GoogleSheetsService {
 
   /**
    * Get top zones by parcel volume
+   * Shows: Zone ID, Delivered volume, Total (Delivered/Handed Over), Success %
    */
   async getTopZones() {
     try {
@@ -254,32 +492,48 @@ class GoogleSheetsService {
         return this.getMockZonesData();
       }
 
+      // Filter active records only
+      const activeRecords = data.filter(row => 
+        row[13] && this.parseNumeric(row[13]) > 0
+      );
+
       // Group by zone (column index 7)
       const zoneGroups = {};
-      data.forEach(row => {
+      activeRecords.forEach(row => {
         const zone = row[7] || 'Unknown'; // Zone ID
         const delivered = this.parseNumeric(row[13]) || 0; // Delivered
+        const handedOver = this.parseNumeric(row[12]) || 0; // Handed Over
         
         if (!zoneGroups[zone]) {
-          zoneGroups[zone] = 0;
+          zoneGroups[zone] = {
+            delivered: 0,
+            handedOver: 0
+          };
         }
-        zoneGroups[zone] += delivered;
+        zoneGroups[zone].delivered += delivered;
+        zoneGroups[zone].handedOver += handedOver;
       });
 
-      // Convert to array and sort by parcels
-      const zonesArray = Object.keys(zoneGroups).map(zone => ({
-        zone,
-        parcels: zoneGroups[zone]
-      })).sort((a, b) => b.parcels - a.parcels);
+      // Convert to array and sort by delivered
+      const zonesArray = Object.keys(zoneGroups)
+        .map(zone => {
+          const group = zoneGroups[zone];
+          const successRate = group.handedOver > 0 
+            ? (group.delivered / group.handedOver) * 100 
+            : 0;
+          
+          return {
+            zone,
+            delivered: group.delivered,
+            total: group.handedOver,
+            successRate: parseFloat(successRate.toFixed(0)) // Round to integer for display
+          };
+        })
+        .filter(z => z.delivered > 0)
+        .sort((a, b) => b.delivered - a.delivered);
 
-      // Calculate percentages and get top 5
-      const totalParcels = zonesArray.reduce((sum, z) => sum + z.parcels, 0);
-      
-      return zonesArray.slice(0, 5).map(z => ({
-        zone: z.zone,
-        parcels: z.parcels,
-        percentage: totalParcels > 0 ? (z.parcels / totalParcels) * 100 : 0
-      }));
+      // Return top 6 zones
+      return zonesArray.slice(0, 6);
     } catch (error) {
       console.error('Error parsing zones data:', error);
       return this.getMockZonesData();
@@ -287,7 +541,8 @@ class GoogleSheetsService {
   }
 
   /**
-   * Get fleet composition data
+   * Get fleet composition and quota data
+   * Shows: % Met Quota, 2WH count, 4WH count, Avg Target per courier
    */
   async getFleetComposition() {
     try {
@@ -297,29 +552,83 @@ class GoogleSheetsService {
         return this.getMockFleetData();
       }
 
+      // Filter active records only
+      const activeRecords = data.filter(row => 
+        row[13] && this.parseNumeric(row[13]) > 0
+      );
+
       // Group by vehicle type (column index 6)
       const vehicleGroups = {};
-      data.forEach(row => {
+      activeRecords.forEach(row => {
         const vehicle = row[6] || 'Unknown'; // Vehicle Type
         vehicleGroups[vehicle] = (vehicleGroups[vehicle] || 0) + 1;
       });
 
-      // Map vehicle types to fleet categories
-      const motorcycles = (vehicleGroups['2WH'] || 0) + (vehicleGroups['Motor'] || 0);
-      const fleetMotors = vehicleGroups['Fleet Motor'] || 0;
-      const fleetPickups = vehicleGroups['4WH'] || vehicleGroups['Pickup'] || 0;
-      const totalFleet = motorcycles + fleetMotors + fleetPickups;
+      // Count 2WH and 4WH
+      const count2WH = vehicleGroups['2WH'] || 0;
+      const count4WH = vehicleGroups['4WH'] || 0;
 
-      // Calculate average deliveries
-      const totalDelivered = data.reduce((sum, row) => sum + (this.parseNumeric(row[13]) || 0), 0);
-      const avgPerCourier = data.length > 0 ? totalDelivered / data.length : 0;
+      // Calculate Met Quota (same logic as in getSummaryMetrics)
+      const courierProductivity = {};
+      activeRecords.forEach(row => {
+        const courierId = row[1];
+        const delivered = this.parseNumeric(row[13]);
+        const contractType = row[5];
+        const vehicleType = row[6];
+        
+        if (!courierProductivity[courierId]) {
+          courierProductivity[courierId] = {
+            totalDelivered: 0,
+            shifts: 0,
+            contractType,
+            vehicleType
+          };
+        }
+        courierProductivity[courierId].totalDelivered += delivered;
+        courierProductivity[courierId].shifts++;
+      });
+
+      let metQuota = 0;
+      const uniqueCouriers = Object.keys(courierProductivity).length;
+      
+      Object.values(courierProductivity).forEach(courier => {
+        const avgProductivity = courier.totalDelivered / courier.shifts;
+        const target = this.getTargetByContractAndVehicle(
+          courier.contractType, 
+          courier.vehicleType
+        );
+        if (avgProductivity >= target) {
+          metQuota++;
+        }
+      });
+
+      const metQuotaPercentage = uniqueCouriers > 0 
+        ? (metQuota / uniqueCouriers) * 100 
+        : 0;
+
+      // Calculate average target
+      const totalTarget = Object.values(courierProductivity).reduce((sum, courier) => {
+        return sum + this.getTargetByContractAndVehicle(
+          courier.contractType, 
+          courier.vehicleType
+        );
+      }, 0);
+      const avgTargetPerCourier = uniqueCouriers > 0 
+        ? totalTarget / uniqueCouriers 
+        : 0;
+
+      // Total delivered
+      const totalDelivered = activeRecords.reduce((sum, row) => 
+        sum + this.parseNumeric(row[13]), 0
+      );
 
       return {
-        mainTarget: 80, // You can adjust this
-        motorcycles,
-        fleetMotors,
-        fleetPickups,
-        avgTargetPerCourier: parseFloat(avgPerCourier.toFixed(1)),
+        metQuotaPercentage: parseFloat(metQuotaPercentage.toFixed(0)),
+        metQuotaCount: metQuota,
+        totalCouriers: uniqueCouriers,
+        count2WH,
+        count4WH,
+        avgTargetPerCourier: Math.round(avgTargetPerCourier),
         totalPackages: totalDelivered,
       };
     } catch (error) {
@@ -389,6 +698,47 @@ class GoogleSheetsService {
   }
 
   /**
+   * Get target for courier based on contract type and vehicle type
+   * Based on actual data analysis:
+   * - Dedicated 2WH: 207-299 (avg 260.97)
+   * - Dedicated 4WH: 53-104 (avg 78.75)
+   * - Kurir Plus 2WH: 145-224 (avg 192.20)
+   * - Mitra 2WH: 21-112 (avg 41)
+   * - Mitra 4WH: 33-59 (avg 50)
+   */
+  getTargetByContractAndVehicle(contractType, vehicleType) {
+    const targets = {
+      'Dedicated': {
+        '2WH': 260.97,
+        '4WH': 78.75,
+      },
+      'Kurir Plus': {
+        '2WH': 192.20,
+      },
+      'Mitra': {
+        '2WH': 41,
+        '4WH': 50,
+      },
+    };
+
+    // Normalize contract type
+    const contract = contractType?.trim() || 'Mitra';
+    const vehicle = vehicleType?.trim() || '2WH';
+
+    // Get target
+    if (targets[contract] && targets[contract][vehicle]) {
+      return targets[contract][vehicle];
+    }
+
+    // Fallback to vehicle type default
+    if (vehicle === '4WH') {
+      return 78.75; // Default for 4WH
+    }
+
+    return 192.20; // Default for 2WH
+  }
+
+  /**
    * Helper: Parse numeric value from cell
    * @param {string|number} value - Cell value
    * @returns {number} - Parsed number or 0
@@ -397,6 +747,21 @@ class GoogleSheetsService {
     if (typeof value === 'number') return value;
     if (typeof value === 'string') {
       const cleaned = value.replace(/[^0-9.-]/g, '');
+      const parsed = parseFloat(cleaned);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  }
+
+  /**
+   * Helper: Parse percentage value from cell
+   * @param {string|number} value - Cell value (e.g., "96.5%" or 96.5)
+   * @returns {number} - Parsed percentage as number (96.5)
+   */
+  parsePercentage(value) {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+      const cleaned = value.replace('%', '').trim();
       const parsed = parseFloat(cleaned);
       return isNaN(parsed) ? 0 : parsed;
     }
@@ -430,31 +795,32 @@ class GoogleSheetsService {
 
   getMockPerformanceData() {
     return [
-      { contractType: 'Dedicated', couriers: 2163, accounts: 89, performance: 89.9 },
-      { contractType: 'Kiloan', couriers: 341, accounts: 18, performance: 89.0 },
-      { contractType: 'Group-based', couriers: 127, accounts: 7, performance: 73.0 },
-      { contractType: 'Kora Plus', couriers: 341, accounts: 18, performance: 89.0 },
+      { contractType: 'Dedicated', couriers: 94, delivered: 24220, total: 25012, successRate: 96.8, failed: 579 },
+      { contractType: 'Mitra', couriers: 43, delivered: 5366, total: 5631, successRate: 95.3, failed: 196 },
+      { contractType: 'Kurir Plus', couriers: 42, delivered: 10185, total: 10691, successRate: 95.3, failed: 380 },
     ];
   }
 
   getMockZonesData() {
     return [
-      { zone: 'JKT-20 (Date)', parcels: 38250341, percentage: 50 },
-      { zone: 'JKT-21 (Date)', parcels: 18115942, percentage: 28 },
-      { zone: 'JKT-22 (Date)', parcels: 12314281, percentage: 19 },
-      { zone: 'JKT P-30 (Date)', parcels: 9575641, percentage: 15 },
-      { zone: 'JKT P-33 (Date)', parcels: 3322453, percentage: 8 },
+      { zone: 'OKO-A-03', delivered: 3347, total: 3544, successRate: 94 },
+      { zone: 'OKO-B-04', delivered: 2955, total: 3026, successRate: 98 },
+      { zone: 'OKO-A-B7', delivered: 2806, total: 2965, successRate: 95 },
+      { zone: 'OKO-A-08', delivered: 2867, total: 2930, successRate: 98 },
+      { zone: 'OKO-B-B7', delivered: 2786, total: 2891, successRate: 96 },
+      { zone: 'OKO-B-B1', delivered: 2760, total: 2856, successRate: 97 },
     ];
   }
 
   getMockFleetData() {
     return {
-      mainTarget: 28,
-      motorcycles: 66,
-      fleetMotors: 13,
-      fleetPickups: 0,
-      avgTargetPerCourier: 0,
-      totalPackages: 490,
+      metQuotaPercentage: 28,
+      metQuotaCount: 22,
+      totalCouriers: 79,
+      count2WH: 66,
+      count4WH: 13,
+      avgTargetPerCourier: 541,
+      totalPackages: 39771,
     };
   }
 

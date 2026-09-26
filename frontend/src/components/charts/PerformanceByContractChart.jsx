@@ -1,10 +1,8 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { formatNumber, formatPercentage, getContractBadgeColor } from '../../utils/formatters';
-import { CONTRACT_COLORS } from '../../utils/constants';
 
 /**
  * Performance by Contract Type Chart Component
- * Horizontal bar chart showing performance metrics by contract type
+ * Horizontal bar chart showing success rate by contract type
  */
 function PerformanceByContractChart({ data }) {
   if (!data || data.length === 0) {
@@ -18,22 +16,32 @@ function PerformanceByContractChart({ data }) {
     );
   }
 
+  // Colors for different contract types
+  const colors = {
+    'Dedicated': '#10B981',
+    'Mitra': '#8B5CF6',
+    'Kurir Plus': '#3B82F6',
+  };
+
   // Custom tooltip
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload;
+      const item = payload[0].payload;
       return (
         <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
-          <p className="font-semibold text-gray-900 mb-2">{data.contractType}</p>
+          <p className="font-semibold text-gray-900 mb-2">{item.contractType}</p>
           <div className="space-y-1 text-sm">
             <p className="text-gray-600">
-              Couriers: <span className="font-semibold text-gray-900">{formatNumber(data.couriers)}</span>
+              <span className="font-medium">{item.couriers} couriers</span>
             </p>
-            <p className="text-gray-600">
-              Accounts: <span className="font-semibold text-gray-900">{formatNumber(data.accounts)}</span>
+            <p className="text-green-600 font-semibold">
+              {item.successRate}% success
             </p>
-            <p className="text-gray-600">
-              Performance: <span className="font-semibold text-purple-600">{formatPercentage(data.performance)}</span>
+            <p className="text-gray-500 text-xs">
+              Delivered {item.delivered?.toLocaleString()} / {item.total?.toLocaleString()}
+            </p>
+            <p className="text-red-500 text-xs">
+              Failed: {item.failed?.toLocaleString()}
             </p>
           </div>
         </div>
@@ -45,82 +53,75 @@ function PerformanceByContractChart({ data }) {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
       {/* Header */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-          📊 Performance by Contract Type
-        </h3>
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Performance by Contract Type
+          </h3>
+        </div>
         <p className="text-sm text-gray-500">
-          {formatNumber(data.reduce((sum, item) => sum + item.couriers, 0))} total couriers
+          Assigned vs Delivered volume
         </p>
       </div>
 
       {/* Chart */}
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={280}>
         <BarChart
           data={data}
           layout="vertical"
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={true} vertical={false} />
           <XAxis 
             type="number" 
             stroke="#9CA3AF"
-            tick={{ fill: '#6B7280', fontSize: 12 }}
+            tick={{ fill: '#6B7280', fontSize: 11 }}
+            domain={[0, 100]}
           />
           <YAxis 
             type="category" 
             dataKey="contractType" 
-            width={120}
+            width={100}
             stroke="#9CA3AF"
-            tick={{ fill: '#6B7280', fontSize: 12 }}
+            tick={{ fill: '#374151', fontSize: 12, fontWeight: 500 }}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(124, 58, 237, 0.1)' }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(124, 58, 237, 0.05)' }} />
           <Bar 
-            dataKey="performance" 
-            radius={[0, 8, 8, 0]}
-            label={{ position: 'right', fill: '#6B7280', fontSize: 12 }}
+            dataKey="successRate" 
+            radius={[0, 6, 6, 0]}
           >
             {data.map((entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
-                fill={CONTRACT_COLORS[entry.contractType] || '#7C3AED'} 
+                fill={colors[entry.contractType] || '#7C3AED'} 
               />
             ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
 
-      {/* Legend with additional info */}
-      <div className="mt-6 pt-4 border-t border-gray-200">
-        <div className="grid grid-cols-2 gap-4">
-          {data.map((item, index) => (
-            <div 
-              key={index} 
-              className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: CONTRACT_COLORS[item.contractType] || '#7C3AED' }}
-                />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{item.contractType}</p>
-                  <p className="text-xs text-gray-500">
-                    {formatNumber(item.couriers)} couriers
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold text-purple-600">
-                  {formatPercentage(item.performance, 1)}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {formatNumber(item.accounts)} accts
-                </p>
-              </div>
+      {/* Legend with details */}
+      <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
+        {data.map((item, index) => (
+          <div key={index} className="flex items-center justify-between text-sm py-1.5">
+            <div className="flex items-center gap-2">
+              <div 
+                className="w-3 h-3 rounded-full flex-shrink-0" 
+                style={{ backgroundColor: colors[item.contractType] || '#7C3AED' }}
+              ></div>
+              <span className="font-medium text-gray-700">● {item.contractType}</span>
+              <span className="text-gray-500">({item.couriers} couriers)</span>
             </div>
-          ))}
-        </div>
+            <div className="flex items-center gap-4 text-xs">
+              <span className="text-green-600 font-semibold">{item.successRate}% success</span>
+              <span className="text-gray-600">
+                Delivered {item.delivered?.toLocaleString()}/{item.total?.toLocaleString()}
+              </span>
+              <span className="text-red-500">Failed: {item.failed}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

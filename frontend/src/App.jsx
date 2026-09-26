@@ -1,140 +1,138 @@
 import { useState } from 'react';
-import { Play, Pause } from 'lucide-react';
+import { Play, Pause, RefreshCw } from 'lucide-react';
+import Sidebar from './components/common/Sidebar';
 import Dashboard from './components/dashboard/Dashboard';
-import ScheduleTable from './components/schedule/ScheduleTable';
 
 function App() {
-  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' or 'schedule'
+  const [activePage, setActivePage] = useState('productivity');
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
 
+  const handleNavigation = (pageId) => {
+    setActivePage(pageId);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">S</span>
-              </div>
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      {/* Sidebar */}
+      <Sidebar activePage={activePage} onNavigate={handleNavigation} />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b border-gray-200">
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">
+                <h1 className="text-2xl font-bold text-gray-900">
                   Soko Hub Productivity Dashboard
                 </h1>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 mt-1">
                   <p className="text-sm text-gray-500">
-                    Live Operations Dashboard
+                    Fleet Operations Dashboard
                   </p>
-                  <div className="flex items-center gap-1">
+                  <span className="text-gray-300">•</span>
+                  <div className="flex items-center gap-1.5">
                     {autoRefreshEnabled ? (
                       <>
                         <span className="relative flex h-2 w-2">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                         </span>
-                        <span className="text-xs text-green-600 font-medium">Live Synced</span>
+                        <span className="text-xs text-green-600 font-medium">Live Synced Data</span>
                       </>
                     ) : (
                       <>
                         <span className="h-2 w-2 rounded-full bg-gray-400"></span>
-                        <span className="text-xs text-gray-500">Paused</span>
+                        <span className="text-xs text-gray-500">Sync Paused</span>
                       </>
                     )}
                   </div>
+                  <span className="text-gray-300">•</span>
+                  <span className="text-xs text-gray-500">5697 records mapped</span>
                 </div>
               </div>
-            </div>
-            
-            {/* View Toggle */}
-            <div className="flex items-center gap-4">
-              {/* Auto-refresh Toggle */}
-              <button
-                onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  autoRefreshEnabled
-                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-                title={autoRefreshEnabled ? 'Pause auto-refresh' : 'Resume auto-refresh'}
-              >
-                {autoRefreshEnabled ? (
-                  <Pause className="w-4 h-4" />
-                ) : (
-                  <Play className="w-4 h-4" />
-                )}
-                <span className="hidden sm:inline">
-                  {autoRefreshEnabled ? 'Auto-Refresh On' : 'Auto-Refresh Off'}
-                </span>
-              </button>
+              
+              {/* Controls */}
+              <div className="flex items-center gap-3">
+                {/* Date Range Display */}
+                <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                  <span className="text-sm text-gray-600">Scope:</span>
+                  <span className="text-sm font-semibold text-gray-900">21 Sep – 27 Sep, 2026</span>
+                </div>
 
-              {/* View Tabs */}
-              <div className="flex space-x-2 bg-gray-100 rounded-lg p-1">
+                {/* Auto-refresh Toggle */}
                 <button
-                  onClick={() => setCurrentView('dashboard')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    currentView === 'dashboard'
-                      ? 'bg-white text-purple-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                  onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    autoRefreshEnabled
+                      ? 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200'
+                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200'
                   }`}
+                  title={autoRefreshEnabled ? 'Pause auto-refresh' : 'Resume auto-refresh'}
                 >
-                  Dashboard
+                  {autoRefreshEnabled ? (
+                    <>
+                      <Pause className="w-4 h-4" />
+                      <span>Auto-Refresh On</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4" />
+                      <span>Auto-Refresh Off</span>
+                    </>
+                  )}
                 </button>
+
+                {/* Manual Refresh */}
                 <button
-                  onClick={() => setCurrentView('schedule')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    currentView === 'schedule'
-                      ? 'bg-white text-purple-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  title="Refresh data now"
                 >
-                  Schedule
+                  <RefreshCw className="w-4 h-4" />
+                  <span>Refresh</span>
                 </button>
               </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {currentView === 'dashboard' ? (
-          <Dashboard autoRefreshEnabled={autoRefreshEnabled} />
-        ) : (
-          <ScheduleTable autoRefreshEnabled={autoRefreshEnabled} />
-        )}
-      </main>
+        {/* Main Content - Scrollable */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-6">
+            {activePage === 'productivity' && (
+              <Dashboard autoRefreshEnabled={autoRefreshEnabled} />
+            )}
+            {/* Future pages will go here */}
+          </div>
+        </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-center md:text-left">
-              <p className="text-sm text-gray-600">
+        {/* Footer */}
+        <footer className="bg-white border-t border-gray-200 px-6 py-3">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-4">
+              <p className="text-gray-600">
                 Data synced from{' '}
                 <a
-                  href="https://docs.google.com/spreadsheets"
+                  href="https://docs.google.com/spreadsheets/d/1wrQhe7ySqkITVe-L3f9aK3lo368WVzolL1nViONKYCA"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-purple-600 hover:text-purple-700 font-medium"
+                  className="text-indigo-600 hover:text-indigo-700 font-medium"
                 >
                   Google Sheets
                 </a>
               </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Auto-refresh interval: {autoRefreshEnabled ? '30 seconds' : 'Disabled'}
-              </p>
+              <span className="text-gray-300">•</span>
+              <span className="text-xs text-gray-500">
+                Refresh: {autoRefreshEnabled ? '30s interval' : 'Manual only'}
+              </span>
             </div>
             
-            <div className="flex items-center gap-4 text-xs text-gray-500">
-              <span>© 2024 SPX SOKO Team</span>
-              <span>•</span>
-              <a href="#" className="hover:text-purple-600">Documentation</a>
-              <span>•</span>
-              <a href="#" className="hover:text-purple-600">Support</a>
+            <div className="flex items-center gap-3 text-xs text-gray-500">
+              <span>© 2026 SPX SOKO</span>
             </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }

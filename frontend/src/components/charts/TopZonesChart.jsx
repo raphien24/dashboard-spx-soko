@@ -1,48 +1,51 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { formatNumber, formatPercentage, formatCompactNumber } from '../../utils/formatters';
-import { CHART_COLORS } from '../../utils/constants';
 
 /**
  * Top Zones by Parcel Volume Chart Component
- * Horizontal bar chart showing top performing zones
+ * Horizontal bar chart showing top zones with volume and success rate
  */
 function TopZonesChart({ data }) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📍 Top Zones by Parcel Volume
+          🌍 Top Zones by Parcel Volume
         </h3>
         <div className="h-64 bg-gray-100 rounded-lg animate-pulse" />
       </div>
     );
   }
 
-  // Generate color gradient for bars
-  const getBarColor = (index) => {
-    const colors = [
-      '#7C3AED', // Purple
-      '#3B82F6', // Blue
-      '#10B981', // Green
-      '#F59E0B', // Orange
-      '#EF4444', // Red
-    ];
-    return colors[index % colors.length];
-  };
+  // Add ranking to data
+  const rankedData = data.map((item, index) => ({
+    ...item,
+    rank: index + 1
+  }));
+
+  // Color gradient from darkest to lightest
+  const colors = ['#1E40AF', '#2563EB', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE'];
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload;
+      const item = payload[0].payload;
       return (
         <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
-          <p className="font-semibold text-gray-900 mb-2">{data.zone}</p>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700">
+              #{item.rank}
+            </div>
+            <p className="font-semibold text-gray-900">{item.zone}</p>
+          </div>
           <div className="space-y-1 text-sm">
             <p className="text-gray-600">
-              Parcels: <span className="font-semibold text-gray-900">{formatNumber(data.parcels)}</span>
+              Delivered: <span className="font-semibold text-gray-900">{item.delivered?.toLocaleString()}</span>
             </p>
             <p className="text-gray-600">
-              Share: <span className="font-semibold text-purple-600">{formatPercentage(data.percentage)}</span>
+              Total: <span className="font-semibold text-gray-900">{item.total?.toLocaleString()}</span>
+            </p>
+            <p className="text-green-600 font-semibold">
+              Success Rate: {item.successRate}%
             </p>
           </div>
         </div>
@@ -51,110 +54,95 @@ function TopZonesChart({ data }) {
     return null;
   };
 
-  const totalParcels = data.reduce((sum, item) => sum + item.parcels, 0);
+  // Custom label showing delivered/total and percentage
+  const CustomLabel = (props) => {
+    const { x, y, width, value, payload } = props;
+    return (
+      <text 
+        x={x + width + 5} 
+        y={y + 10} 
+        fill="#374151" 
+        fontSize={11}
+        fontWeight={600}
+      >
+        {payload.delivered?.toLocaleString()}/{payload.total?.toLocaleString()} {payload.successRate}%
+      </text>
+    );
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
       {/* Header */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-          📍 Top Zones by Parcel Volume
-        </h3>
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Top Zones by Parcel Volume
+          </h3>
+        </div>
         <p className="text-sm text-gray-500">
-          {formatCompactNumber(totalParcels)} total parcels across top zones
+          Operational zone breakdown
         </p>
       </div>
 
       {/* Chart */}
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={320}>
         <BarChart
-          data={data}
+          data={rankedData}
           layout="vertical"
-          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          margin={{ top: 5, right: 120, left: 20, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={true} vertical={false} />
           <XAxis 
             type="number" 
             stroke="#9CA3AF"
-            tick={{ fill: '#6B7280', fontSize: 12 }}
-            tickFormatter={(value) => formatCompactNumber(value)}
+            tick={{ fill: '#6B7280', fontSize: 11 }}
+            hide
           />
           <YAxis 
             type="category" 
             dataKey="zone" 
-            width={140}
+            width={80}
             stroke="#9CA3AF"
-            tick={{ fill: '#6B7280', fontSize: 11 }}
+            tick={{ fill: '#374151', fontSize: 12, fontWeight: 500 }}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(124, 58, 237, 0.1)' }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(59, 130, 246, 0.05)' }} />
           <Bar 
-            dataKey="parcels" 
-            radius={[0, 8, 8, 0]}
+            dataKey="delivered" 
+            radius={[0, 6, 6, 0]}
+            label={<CustomLabel />}
           >
-            {data.map((entry, index) => (
+            {rankedData.map((entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
-                fill={getBarColor(index)} 
+                fill={colors[index] || colors[colors.length - 1]} 
               />
             ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
 
-      {/* Detailed List */}
-      <div className="mt-6 pt-4 border-t border-gray-200">
-        <div className="space-y-3">
-          {data.map((item, index) => (
-            <div 
-              key={index}
-              className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              {/* Left: Rank and Zone */}
-              <div className="flex items-center gap-3">
-                <div 
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
-                  style={{ backgroundColor: getBarColor(index) }}
-                >
-                  {index + 1}
+      {/* Zone rankings */}
+      <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+          {rankedData.map((item) => (
+            <div key={item.zone} className="flex items-center justify-between text-sm py-1">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700">
+                  #{item.rank}
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{item.zone}</p>
-                  <p className="text-xs text-gray-500">Zone Code</p>
-                </div>
+                <span className="font-medium text-gray-700">{item.zone}</span>
               </div>
-
-              {/* Right: Stats */}
               <div className="text-right">
-                <p className="text-sm font-semibold text-gray-900">
-                  {formatCompactNumber(item.parcels)}
-                </p>
-                <div className="flex items-center gap-2 justify-end">
-                  <div className="w-16 bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                    <div
-                      className="h-full rounded-full"
-                      style={{ 
-                        width: `${item.percentage}%`,
-                        backgroundColor: getBarColor(index)
-                      }}
-                    />
-                  </div>
-                  <span className="text-xs font-medium text-gray-600">
-                    {formatPercentage(item.percentage, 0)}
-                  </span>
-                </div>
+                <span className="text-gray-900 font-semibold text-xs">
+                  {item.delivered?.toLocaleString()}/{item.total?.toLocaleString()}
+                </span>
+                <span className="ml-2 text-green-600 font-semibold text-xs">
+                  {item.successRate}%
+                </span>
               </div>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Summary Footer */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600">Total Volume</span>
-          <span className="font-semibold text-gray-900">
-            {formatNumber(totalParcels)} parcels
-          </span>
         </div>
       </div>
     </div>
