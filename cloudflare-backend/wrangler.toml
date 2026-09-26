@@ -1,0 +1,10 @@
+name = "dashboard-spx-soko-backend"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Environment variables (set via dashboard or wrangler secret)
+[vars]
+SPREADSHEET_ID = "1wrQhe7ySqkITVe-L3f9aK3lo368WVzolL1nViONKYCA"
+
+# Secrets (set via: wrangler secret put GOOGLE_SERVICE_ACCOUNT)
+# GOOGLE_SERVICE_ACCOUNT = "..." (base64 encoded service account JSON)
