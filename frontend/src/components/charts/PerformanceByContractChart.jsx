@@ -94,7 +94,7 @@ function PerformanceByContractChart({ data }) {
             {data.map((entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
-                fill={colors[entry.contractType] || '#7C3AED'} 
+                fill={colors[entry?.contractType] || '#7C3AED'} 
               />
             ))}
           </Bar>
@@ -108,17 +108,17 @@ function PerformanceByContractChart({ data }) {
             <div className="flex items-center gap-2">
               <div 
                 className="w-3 h-3 rounded-full flex-shrink-0" 
-                style={{ backgroundColor: colors[item.contractType] || '#7C3AED' }}
+                style={{ backgroundColor: colors[item?.contractType] || '#7C3AED' }}
               ></div>
-              <span className="font-medium text-gray-700">● {item.contractType}</span>
-              <span className="text-gray-500">({item.couriers} couriers)</span>
+              <span className="font-medium text-gray-700">● {item?.contractType || 'Unknown'}</span>
+              <span className="text-gray-500">({item?.couriers || 0} couriers)</span>
             </div>
             <div className="flex items-center gap-4 text-xs">
-              <span className="text-green-600 font-semibold">{item.successRate}% success</span>
+              <span className="text-green-600 font-semibold">{item?.successRate || 0}% success</span>
               <span className="text-gray-600">
-                Delivered {item.delivered?.toLocaleString()}/{item.total?.toLocaleString()}
+                Delivered {item?.delivered?.toLocaleString() || 0}/{item?.total?.toLocaleString() || 0}
               </span>
-              <span className="text-red-500">Failed: {item.failed}</span>
+              <span className="text-red-500">Failed: {item?.failed?.toLocaleString() || 0}</span>
             </div>
           </div>
         ))}

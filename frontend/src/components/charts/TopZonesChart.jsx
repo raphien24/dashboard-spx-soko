@@ -126,19 +126,19 @@ function TopZonesChart({ data }) {
       <div className="mt-4 pt-4 border-t border-gray-100">
         <div className="grid grid-cols-2 gap-x-6 gap-y-2">
           {rankedData.map((item) => (
-            <div key={item.zone} className="flex items-center justify-between text-sm py-1">
+            <div key={item?.zone || Math.random()} className="flex items-center justify-between text-sm py-1">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700">
-                  #{item.rank}
+                  #{item?.rank || 0}
                 </div>
-                <span className="font-medium text-gray-700">{item.zone}</span>
+                <span className="font-medium text-gray-700">{item?.zone || 'Unknown'}</span>
               </div>
               <div className="text-right">
                 <span className="text-gray-900 font-semibold text-xs">
-                  {item.delivered?.toLocaleString()}/{item.total?.toLocaleString()}
+                  {item?.delivered?.toLocaleString() || 0}/{item?.total?.toLocaleString() || 0}
                 </span>
                 <span className="ml-2 text-green-600 font-semibold text-xs">
-                  {item.successRate}%
+                  {item?.successRate || 0}%
                 </span>
               </div>
             </div>
