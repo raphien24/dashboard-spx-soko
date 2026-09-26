@@ -5,11 +5,11 @@ const SecondaryMetricsSection = ({ summaryData }) => {
   if (!summaryData) return null;
 
   const {
-    uniqueHeadcount,
-    totalDelivered,
-    metQuota,
-    totalAssigned,
-    exceptions
+    uniqueHeadcount = {},
+    totalDelivered = {},
+    metQuota = {},
+    totalAssigned = {},
+    exceptions = {}
   } = summaryData;
 
   const metrics = [
@@ -18,35 +18,55 @@ const SecondaryMetricsSection = ({ summaryData }) => {
       icon: Users,
       iconBg: 'bg-blue-100',
       iconColor: 'text-blue-600',
-      ...uniqueHeadcount
+      label: uniqueHeadcount.label || 'Unique Headcount',
+      value: uniqueHeadcount.value || 0,
+      subtitle: uniqueHeadcount.subtitle,
+      detail: uniqueHeadcount.detail,
+      detail2: uniqueHeadcount.detail2
     },
     {
       id: 'delivered',
       icon: Package,
       iconBg: 'bg-green-100',
       iconColor: 'text-green-600',
-      ...totalDelivered
+      label: totalDelivered.label || 'Total Delivered',
+      value: totalDelivered.value || 0,
+      subtitle: totalDelivered.subtitle,
+      detail: totalDelivered.detail,
+      detail2: totalDelivered.detail2
     },
     {
       id: 'quota',
       icon: Target,
       iconBg: 'bg-yellow-100',
       iconColor: 'text-yellow-600',
-      ...metQuota
+      label: metQuota.label || 'Met Quota',
+      value: metQuota.value || 0,
+      subtitle: metQuota.subtitle,
+      detail: metQuota.detail,
+      detail2: metQuota.detail2
     },
     {
       id: 'assigned',
       icon: TrendingUp,
       iconBg: 'bg-purple-100',
       iconColor: 'text-purple-600',
-      ...totalAssigned
+      label: totalAssigned.label || 'Total Assigned',
+      value: totalAssigned.value || 0,
+      subtitle: totalAssigned.subtitle,
+      detail: totalAssigned.detail,
+      detail2: totalAssigned.detail2
     },
     {
       id: 'exceptions',
       icon: AlertTriangle,
       iconBg: 'bg-red-100',
       iconColor: 'text-red-600',
-      ...exceptions
+      label: exceptions.label || 'Exceptions',
+      value: exceptions.value || 0,
+      subtitle: exceptions.subtitle,
+      detail: exceptions.detail,
+      detail2: exceptions.detail2
     }
   ];
 
