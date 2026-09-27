@@ -93,7 +93,8 @@ class GoogleSheetsService {
   }
 
   /**
-   * Helper: Parse date from DD/MM/YYYY format
+   * Helper: Parse date from DD/MM/YYYY or MM/DD/YYYY format
+   * Auto-detect format based on values
    */
   parseDate(dateString) {
     if (!dateString) return null;
@@ -102,15 +103,47 @@ class GoogleSheetsService {
     const parts = dateString.split('/');
     if (parts.length !== 3) return null;
     
-    // Try DD/MM/YYYY first (more common in international format)
-    const day = parseInt(parts[0]);
-    const month = parseInt(parts[1]) - 1; // JavaScript months are 0-indexed
+    const first = parseInt(parts[0]);
+    const second = parseInt(parts[1]);
     const year = parseInt(parts[2]);
+    
+    // Auto-detect format:
+    // If first > 12, must be DD/MM/YYYY (day can't be month)
+    // If second > 12, must be MM/DD/YYYY (month can't be > 12)
+    // Otherwise ambiguous - default to MM/DD/YYYY (US format seems more common in your data)
+    
+    let day, month;
+    
+    if (first > 12) {
+      // Must be DD/MM/YYYY format
+      day = first;
+      month = second - 1; // JS months are 0-indexed
+      console.log('[parseDate] Detected DD/MM/YYYY format:', { dateString, day, month, year });
+    } else if (second > 12) {
+      // Must be MM/DD/YYYY format
+      month = first - 1; // JS months are 0-indexed
+      day = second;
+      console.log('[parseDate] Detected MM/DD/YYYY format:', { dateString, month, day, year });
+    } else {
+      // Ambiguous - default to MM/DD/YYYY (your data shows 06/17/2026)
+      month = first - 1;
+      day = second;
+      console.log('[parseDate] Ambiguous, using MM/DD/YYYY format:', { dateString, month, day, year });
+    }
     
     const date = new Date(year, month, day);
     
     // Validate date
-    if (isNaN(date.getTime())) return null;
+    if (isNaN(date.getTime())) {
+      console.error('[parseDate] Invalid date:', { dateString, day, month, year });
+      return null;
+    }
+    
+    console.log('[parseDate] Result:', {
+      input: dateString,
+      output: date.toISOString(),
+      formatted: `${day}/${month + 1}/${year}`
+    });
     
     return date;
   }
