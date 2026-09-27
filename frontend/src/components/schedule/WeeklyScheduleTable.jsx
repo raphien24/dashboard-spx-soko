@@ -44,14 +44,18 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
 
   // Calculate current week range whenever offset changes
   const currentWeekRange = useMemo(() => {
-    return getWeekRange(currentWeekOffset);
+    const range = getWeekRange(currentWeekOffset);
+    console.log('[WeeklyScheduleTable] Computed week range for offset', currentWeekOffset, ':', range);
+    return range;
   }, [currentWeekOffset, getWeekRange]);
   
   const formatWeekLabel = useMemo(() => {
     const { monday, sunday } = currentWeekRange;
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     
-    return `${monday.getDate()} ${monthNames[monday.getMonth()]} — ${sunday.getDate()} ${monthNames[sunday.getMonth()]}, ${sunday.getFullYear()}`;
+    const label = `${monday.getDate()} ${monthNames[monday.getMonth()]} — ${sunday.getDate()} ${monthNames[sunday.getMonth()]}, ${sunday.getFullYear()}`;
+    console.log('[WeeklyScheduleTable] Computed week label:', label, 'from range:', currentWeekRange);
+    return label;
   }, [currentWeekRange]);
 
   const handleWeekChange = (direction) => {
