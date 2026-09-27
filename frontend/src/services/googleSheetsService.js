@@ -439,7 +439,13 @@ class GoogleSheetsService {
       // Group by contract type (column index 5)
       const contractGroups = {};
       activeRecords.forEach(row => {
-        const contract = row[5] || 'Unknown'; // Contract Type
+        const contract = row[5] || ''; // Contract Type
+        
+        // Skip if empty or Unknown
+        if (!contract || contract.toLowerCase().includes('unknown')) {
+          return;
+        }
+        
         if (!contractGroups[contract]) {
           contractGroups[contract] = {
             couriers: new Set(),
@@ -500,7 +506,13 @@ class GoogleSheetsService {
       // Group by zone (column index 7)
       const zoneGroups = {};
       activeRecords.forEach(row => {
-        const zone = row[7] || 'Unknown'; // Zone ID
+        const zone = row[7] || ''; // Zone ID
+        
+        // Skip if empty or Unknown
+        if (!zone || zone.toLowerCase().includes('unknown')) {
+          return;
+        }
+        
         const delivered = this.parseNumeric(row[13]) || 0; // Delivered
         const handedOver = this.parseNumeric(row[12]) || 0; // Handed Over
         

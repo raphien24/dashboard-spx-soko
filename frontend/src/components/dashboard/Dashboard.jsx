@@ -180,20 +180,15 @@ function Dashboard({ autoRefreshEnabled = true }) {
         </ErrorBoundary>
       </div>
 
-      {/* Fleet Composition - Full Width */}
-      <ErrorBoundary componentName="FleetCompositionChart">
-        {fleetData && <FleetCompositionChart data={fleetData} />}
-      </ErrorBoundary>
-
       {/* Weekly Schedule Table */}
       <ErrorBoundary componentName="WeeklyScheduleTable">
         {courierSchedule && courierSchedule.length > 0 && (
           <WeeklyScheduleTable 
-            data={courierSchedule} 
-            currentWeek="21 Sep - 27 Sep, 2026"
-            onWeekChange={(direction) => {
-              console.log('Week navigation:', direction);
-              // TODO: Implement week navigation
+            data={courierSchedule}
+            onWeekChange={(direction, weekRange) => {
+              console.log('Week changed:', direction, weekRange);
+              // TODO: Fetch data for selected week from API
+              // fetchCourierSchedule({ startDate: weekRange.monday, endDate: weekRange.sunday });
             }}
           />
         )}
