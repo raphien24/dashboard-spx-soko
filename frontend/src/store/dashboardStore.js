@@ -51,6 +51,10 @@ const useDashboardStore = create((set, get) => ({
       const rawData = await googleSheetsService.getRange('raw!A2:Z1000');
       console.log('[Store] Loaded', rawData?.length || 0, 'rows');
       
+      // Detect date range from actual data
+      const dateRange = get().detectDateRangeFromData(rawData);
+      console.log('[Store] Detected date range from data:', dateRange);
+      
       set({
         rawCourierData: rawData,
         isLoading: false,
@@ -70,6 +74,41 @@ const useDashboardStore = create((set, get) => ({
       });
       return false;
     }
+  },
+
+  /**
+   * Detect earliest and latest dates from raw data
+   */
+  detectDateRangeFromData: (rawData) => {
+    if (!rawData || rawData.length === 0) return null;
+    
+    const dates = [];
+    
+    rawData.forEach(row => {
+      const dateStr = row[3]; // Date column (MM/DD/YYYY)
+      if (dateStr) {
+        const date = googleSheetsService.parseDate(dateStr);
+        if (date) {
+          dates.push(date);
+        }
+      }
+    });
+    
+    if (dates.length === 0) return null;
+    
+    // Sort dates
+    dates.sort((a, b) => a - b);
+    
+    const earliest = dates[0];
+    const latest = dates[dates.length - 1];
+    
+    console.log('[detectDateRangeFromData] Data range:', {
+      earliest: earliest.toISOString(),
+      latest: latest.toISOString(),
+      totalDates: dates.length
+    });
+    
+    return { earliest, latest };
   },
 
   /**

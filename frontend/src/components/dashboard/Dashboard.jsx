@@ -26,7 +26,12 @@ function Dashboard({ autoRefreshEnabled = true }) {
     refreshDashboardData,
     fetchCourierSchedule,
     setDateRange, // NEW: For instant week navigation
+    detectDateRangeFromData, // NEW: Detect date range from data
+    rawCourierData, // NEW: Access to raw data for date detection
   } = useDashboardStore();
+
+  // Detect date range from loaded data
+  const dataDateRange = rawCourierData ? useDashboardStore.getState().detectDateRangeFromData(rawCourierData) : null;
 
   // Initial data fetch
   useEffect(() => {
@@ -187,6 +192,7 @@ function Dashboard({ autoRefreshEnabled = true }) {
       <ErrorBoundary componentName="WeeklyScheduleTable">
         <WeeklyScheduleTable 
           data={courierSchedule || []}
+          dataDateRange={dataDateRange}
           onWeekChange={(direction, weekRange) => {
             // Use setDateRange for instant client-side filtering (no API call)
             setDateRange({ 

@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Search, Filter, CheckCircle, XCircle, Eye, E
  * Weekly Schedule Table Component
  * Matches canvas spreadsheet table with all columns and features
  */
-function WeeklyScheduleTable({ data, onWeekChange }) {
+function WeeklyScheduleTable({ data, onWeekChange, dataDateRange }) {
   const [filters, setFilters] = useState({
     specificDate: 'All Specific Dates',
     district: 'All Districts',
@@ -18,21 +18,23 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDay, setSelectedDay] = useState('Full Week (Mon-Sun)');
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentWeekOffset, setCurrentWeekOffset] = useState(0); // 0 = current week, -1 = prev week, +1 = next week
+  const [currentWeekOffset, setCurrentWeekOffset] = useState(0); // 0 = latest week, -1 = prev week, +1 = next week
   const itemsPerPage = 10;
 
-  // Calculate week range based on offset - regular function (not memoized)
+  // Calculate week range based on offset - use latest date from data as reference
   const getWeekRange = (offset) => {
-    const today = new Date();
-    const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc
+    // Use latest date from data as reference, fallback to today
+    const referenceDate = dataDateRange?.latest ? new Date(dataDateRange.latest) : new Date();
+    
+    const currentDayOfWeek = referenceDate.getDay(); // 0 = Sunday, 1 = Monday, etc
     const daysFromMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1; // Convert to Monday-based week
     
-    // Get Monday of current week
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - daysFromMonday + (offset * 7));
+    // Get Monday of reference week
+    const monday = new Date(referenceDate);
+    monday.setDate(referenceDate.getDate() - daysFromMonday + (offset * 7));
     monday.setHours(0, 0, 0, 0);
     
-    // Get Sunday of current week
+    // Get Sunday of reference week
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
     sunday.setHours(23, 59, 59, 999);
