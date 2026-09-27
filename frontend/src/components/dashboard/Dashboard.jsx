@@ -100,21 +100,21 @@ function Dashboard({ autoRefreshEnabled = true }) {
   return (
     <div className="space-y-6">
       {/* Section Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         <div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
-            <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+            <h2 className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">
               KEY STRATEGIC PERFORMANCE DRIVERS
             </h2>
           </div>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex flex-wrap items-center gap-2 mt-1">
             <span className="text-xs text-indigo-600 font-medium">Primary Metrics</span>
             {lastUpdated && (
               <>
                 <span className="text-xs text-gray-400">•</span>
                 <span className="text-xs text-gray-500">
-                  Last updated: {formatTimeAgo(lastUpdated)}
+                  Updated: {formatTimeAgo(lastUpdated)}
                 </span>
               </>
             )}
@@ -132,7 +132,7 @@ function Dashboard({ autoRefreshEnabled = true }) {
         <button
           onClick={() => refreshDashboardData()}
           disabled={isRefreshing}
-          className="px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors disabled:opacity-50 border border-indigo-200"
+          className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors disabled:opacity-50 border border-indigo-200"
         >
           <RefreshCw className={`w-4 h-4 inline mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
           Refresh Data

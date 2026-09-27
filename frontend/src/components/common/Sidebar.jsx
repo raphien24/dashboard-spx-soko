@@ -6,11 +6,14 @@ import {
   Settings, 
   ChevronLeft, 
   ChevronRight,
-  Package
+  Package,
+  Menu,
+  X
 } from 'lucide-react';
 
 const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
     {
@@ -45,17 +48,37 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
   const handleNavigate = (itemId) => {
     if (onNavigate && !menuItems.find(item => item.id === itemId)?.disabled) {
       onNavigate(itemId);
+      setIsMobileOpen(false); // Close mobile menu after navigation
     }
   };
 
   return (
-    <div 
-      className={`
-        relative h-screen bg-gradient-to-b from-indigo-900 via-indigo-800 to-indigo-900 
-        text-white transition-all duration-300 ease-in-out flex flex-col
-        ${isCollapsed ? 'w-20' : 'w-64'}
-      `}
-    >
+    <>
+      {/* Mobile Menu Button (Fixed Top-Left) */}
+      <button
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-indigo-600 text-white rounded-lg shadow-lg hover:bg-indigo-700 transition-colors"
+      >
+        {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+      </button>
+
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div 
+        className={`
+          fixed lg:relative h-screen bg-gradient-to-b from-indigo-900 via-indigo-800 to-indigo-900 
+          text-white transition-all duration-300 ease-in-out flex flex-col z-40
+          ${isCollapsed ? 'lg:w-20' : 'lg:w-64'}
+          ${isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0 w-64'}
+        `}
+      >
       {/* Logo Section */}
       <div className="p-6 border-b border-indigo-700/50">
         <div className="flex items-center justify-between">
@@ -136,10 +159,10 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
         </div>
       )}
 
-      {/* Collapse Toggle Button */}
+      {/* Collapse Toggle Button (Desktop Only) */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 bg-white rounded-full shadow-lg flex items-center justify-center text-indigo-600 hover:bg-indigo-50 transition-colors z-10"
+        className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-white rounded-full shadow-lg items-center justify-center text-indigo-600 hover:bg-indigo-50 transition-colors z-10"
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
@@ -148,7 +171,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
           <ChevronLeft className="w-4 h-4" />
         )}
       </button>
-    </div>
+    </>
   );
 };
 
