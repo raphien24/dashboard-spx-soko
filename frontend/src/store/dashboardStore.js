@@ -35,18 +35,32 @@ const useDashboardStore = create((set, get) => ({
   },
 
   /**
-   * Fetch all dashboard data
+   * Set date range filter
    */
-  fetchDashboardData: async () => {
+  setDateRange: (startDate, endDate) => {
+    set({ 
+      filters: { 
+        ...get().filters, 
+        dateRange: { start: startDate, end: endDate } 
+      } 
+    });
+  },
+
+  /**
+   * Fetch all dashboard data with optional date range
+   */
+  fetchDashboardData: async (dateRange = null) => {
     set({ isLoading: true, error: null });
     
     try {
+      const filters = dateRange ? { dateRange } : { dateRange: get().filters.dateRange };
+      
       const [kpi, summary, performance, zones, fleet] = await Promise.all([
-        googleSheetsService.getKPIMetrics(),
-        googleSheetsService.getSummaryMetrics(),
-        googleSheetsService.getPerformanceByContract(),
-        googleSheetsService.getTopZones(),
-        googleSheetsService.getFleetComposition(),
+        googleSheetsService.getKPIMetrics(filters),
+        googleSheetsService.getSummaryMetrics(filters),
+        googleSheetsService.getPerformanceByContract(filters),
+        googleSheetsService.getTopZones(filters),
+        googleSheetsService.getFleetComposition(filters),
       ]);
 
       set({
@@ -71,16 +85,18 @@ const useDashboardStore = create((set, get) => ({
   /**
    * Refresh dashboard data (non-blocking)
    */
-  refreshDashboardData: async () => {
+  refreshDashboardData: async (dateRange = null) => {
     set({ isRefreshing: true });
     
     try {
+      const filters = dateRange ? { dateRange } : { dateRange: get().filters.dateRange };
+      
       const [kpi, summary, performance, zones, fleet] = await Promise.all([
-        googleSheetsService.getKPIMetrics(),
-        googleSheetsService.getSummaryMetrics(),
-        googleSheetsService.getPerformanceByContract(),
-        googleSheetsService.getTopZones(),
-        googleSheetsService.getFleetComposition(),
+        googleSheetsService.getKPIMetrics(filters),
+        googleSheetsService.getSummaryMetrics(filters),
+        googleSheetsService.getPerformanceByContract(filters),
+        googleSheetsService.getTopZones(filters),
+        googleSheetsService.getFleetComposition(filters),
       ]);
 
       set({
@@ -102,8 +118,8 @@ const useDashboardStore = create((set, get) => ({
   /**
    * Fetch courier schedule data with filters
    */
-  fetchCourierSchedule: async () => {
-    const { filters } = get();
+  fetchCourierSchedule: async (dateRange = null) => {
+    const filters = dateRange ? { dateRange } : get().filters;
     set({ isLoading: true, error: null });
     
     try {

@@ -93,13 +93,60 @@ class GoogleSheetsService {
   }
 
   /**
+   * Helper: Parse date from DD/MM/YYYY format
+   */
+  parseDate(dateString) {
+    if (!dateString) return null;
+    
+    // Format: DD/MM/YYYY or MM/DD/YYYY
+    const parts = dateString.split('/');
+    if (parts.length !== 3) return null;
+    
+    // Try DD/MM/YYYY first (more common in international format)
+    const day = parseInt(parts[0]);
+    const month = parseInt(parts[1]) - 1; // JavaScript months are 0-indexed
+    const year = parseInt(parts[2]);
+    
+    const date = new Date(year, month, day);
+    
+    // Validate date
+    if (isNaN(date.getTime())) return null;
+    
+    return date;
+  }
+
+  /**
+   * Helper: Filter records by date range
+   */
+  filterByDateRange(records, dateRange) {
+    if (!dateRange || !dateRange.start || !dateRange.end) {
+      return records;
+    }
+    
+    const startDate = new Date(dateRange.start);
+    startDate.setHours(0, 0, 0, 0);
+    
+    const endDate = new Date(dateRange.end);
+    endDate.setHours(23, 59, 59, 999);
+    
+    return records.filter(row => {
+      const dateStr = row[3]; // Date column
+      const recordDate = this.parseDate(dateStr);
+      
+      if (!recordDate) return false;
+      
+      return recordDate >= startDate && recordDate <= endDate;
+    });
+  }
+
+  /**
    * Parse KPI data from raw sheet
    * Formulas based on canvas spreadsheet:
    * 1. WEEKLY AVG PRODUCTIVITY = Total Delivered ÷ Active Shifts
    * 2. DEDICATED VS PLUS = (2W Kurir Plus Avg) ÷ (2W Dedicated Avg) × 100
    * 3. DAILY ACTIVE = Active Shifts (Deliv>0) ÷ (Total Couriers × Operating Days) × 100
    */
-  async getKPIMetrics() {
+  async getKPIMetrics(filters = {}) {
     try {
       // Get courier data from raw sheet
       // Columns: District(0), ID(1), Name(2), Date(3), Driver Name(4), Contract Type(5), 
@@ -114,9 +161,12 @@ class GoogleSheetsService {
       }
 
       // Filter active records (has Delivered value)
-      const activeRecords = data.filter(row => 
+      let activeRecords = data.filter(row => 
         row[13] && this.parseNumeric(row[13]) > 0
       );
+
+      // Apply date range filter if provided
+      activeRecords = this.filterByDateRange(activeRecords, filters.dateRange);
 
       if (activeRecords.length === 0) {
         return this.getMockKPIData();
@@ -241,7 +291,7 @@ class GoogleSheetsService {
    * Parse secondary metrics from raw data
    * Metrics: Unique Headcount, Total Delivered, Met Quota, Total Assigned, Exceptions
    */
-  async getSummaryMetrics() {
+  async getSummaryMetrics(filters = {}) {
     try {
       const data = await this.getRange('raw!A2:Z1000');
       
@@ -250,9 +300,12 @@ class GoogleSheetsService {
       }
 
       // Filter active records (Delivered > 0)
-      const activeRecords = data.filter(row => 
+      let activeRecords = data.filter(row => 
         row[13] && this.parseNumeric(row[13]) > 0
       );
+
+      // Apply date range filter if provided
+      activeRecords = this.filterByDateRange(activeRecords, filters.dateRange);
 
       // UNIQUE HEADCOUNT: Unique couriers with Delivered > 0
       const uniqueCouriers = new Set(activeRecords.map(row => row[1])); // ID column
@@ -423,7 +476,7 @@ class GoogleSheetsService {
    * Success Rate = Delivered ÷ Handed Over × 100
    * Shows: Contract Type, Couriers Count, Delivered/Total, Success %, Failed count
    */
-  async getPerformanceByContract() {
+  async getPerformanceByContract(filters = {}) {
     try {
       const data = await this.getRange('raw!A2:Z1000');
       
@@ -432,9 +485,12 @@ class GoogleSheetsService {
       }
 
       // Filter active records only
-      const activeRecords = data.filter(row => 
+      let activeRecords = data.filter(row => 
         row[13] && this.parseNumeric(row[13]) > 0
       );
+
+      // Apply date range filter if provided
+      activeRecords = this.filterByDateRange(activeRecords, filters.dateRange);
 
       // Group by contract type (column index 5)
       const contractGroups = {};
@@ -490,7 +546,7 @@ class GoogleSheetsService {
    * Get top zones by parcel volume
    * Shows: Zone ID, Delivered volume, Total (Delivered/Handed Over), Success %
    */
-  async getTopZones() {
+  async getTopZones(filters = {}) {
     try {
       const data = await this.getRange('raw!A2:Z1000');
       
@@ -499,9 +555,12 @@ class GoogleSheetsService {
       }
 
       // Filter active records only
-      const activeRecords = data.filter(row => 
+      let activeRecords = data.filter(row => 
         row[13] && this.parseNumeric(row[13]) > 0
       );
+
+      // Apply date range filter if provided
+      activeRecords = this.filterByDateRange(activeRecords, filters.dateRange);
 
       // Group by zone (column index 7)
       const zoneGroups = {};
@@ -662,10 +721,18 @@ class GoogleSheetsService {
       }
 
       // Filter active records only (Delivered > 0)
-      const activeRecords = data.filter(row => 
+      let activeRecords = data.filter(row => 
         row[13] && this.parseNumeric(row[13]) > 0
       );
 
+      // Apply date range filter if provided
+      if (filters.dateRange) {
+        activeRecords = this.filterByDateRange(activeRecords, filters.dateRange);
+      }
+
+      // Map day names to Indonesian
+      const dayNames = ['sen', 'sel', 'rab', 'kam', 'jum', 'sab', 'min'];
+      
       // Group by courier ID
       const courierGroups = {};
       activeRecords.forEach(row => {
@@ -684,13 +751,13 @@ class GoogleSheetsService {
             totalDelivered: 0,
             totalHandedOver: 0,
             activeDays: {
-              mon: false,
-              tue: false,
-              wed: false,
-              thu: false,
-              fri: false,
-              sat: false,
-              sun: false
+              sen: false,  // Senin
+              sel: false,  // Selasa
+              rab: false,  // Rabu
+              kam: false,  // Kamis
+              jum: false,  // Jumat
+              sab: false,  // Sabtu
+              min: false   // Minggu
             }
           };
         }
@@ -698,22 +765,26 @@ class GoogleSheetsService {
         // Add shift data
         const delivered = this.parseNumeric(row[13]);
         const handedOver = this.parseNumeric(row[12]);
+        const dateStr = row[3]; // Date
+        const recordDate = this.parseDate(dateStr);
         
         courierGroups[courierId].shifts.push({
           delivered,
           handedOver,
-          date: row[3] // Date
+          date: dateStr,
+          parsedDate: recordDate
         });
         courierGroups[courierId].totalDelivered += delivered;
         courierGroups[courierId].totalHandedOver += handedOver;
 
-        // Mark active days (simplified - would need proper date parsing)
-        // For now, just mark some days as active based on shift count
-        if (courierGroups[courierId].shifts.length >= 1) courierGroups[courierId].activeDays.mon = true;
-        if (courierGroups[courierId].shifts.length >= 2) courierGroups[courierId].activeDays.wed = true;
-        if (courierGroups[courierId].shifts.length >= 3) courierGroups[courierId].activeDays.thu = true;
-        if (courierGroups[courierId].shifts.length >= 4) courierGroups[courierId].activeDays.fri = true;
-        if (courierGroups[courierId].shifts.length >= 5) courierGroups[courierId].activeDays.sat = true;
+        // Mark active days based on actual date (0=Minggu, 1=Senin, etc)
+        if (recordDate) {
+          const dayIndex = recordDate.getDay(); // 0 = Sunday, 1 = Monday, etc
+          // Convert to our day mapping (Monday-based)
+          const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1; // 0=Mon, 1=Tue, ..., 6=Sun
+          const dayKey = dayNames[adjustedIndex];
+          courierGroups[courierId].activeDays[dayKey] = true;
+        }
       });
 
       // Calculate metrics for each courier

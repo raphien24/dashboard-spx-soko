@@ -131,16 +131,16 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
     currentPage * itemsPerPage
   );
 
-  // Day tabs with counts
+  // Day tabs with counts (Indonesian)
   const dayTabs = [
-    { id: 'full', label: 'Full Week (Mon-Sun)', count: filteredData.length },
-    { id: 'mon', label: 'Mon', count: 82 },
-    { id: 'tue', label: 'Tue', count: 39 },
-    { id: 'wed', label: 'Wed', count: 70 },
-    { id: 'thu', label: 'Thu', count: 68 },
-    { id: 'fri', label: 'Fri', count: 68 },
-    { id: 'sat', label: 'Sat', count: 64 },
-    { id: 'sun', label: 'Sun', count: 0 },
+    { id: 'full', label: 'Full Week (Sen-Min)', count: filteredData.length },
+    { id: 'sen', label: 'Sen', count: filteredData.filter(c => c.activeDays?.sen).length },
+    { id: 'sel', label: 'Sel', count: filteredData.filter(c => c.activeDays?.sel).length },
+    { id: 'rab', label: 'Rab', count: filteredData.filter(c => c.activeDays?.rab).length },
+    { id: 'kam', label: 'Kam', count: filteredData.filter(c => c.activeDays?.kam).length },
+    { id: 'jum', label: 'Jum', count: filteredData.filter(c => c.activeDays?.jum).length },
+    { id: 'sab', label: 'Sab', count: filteredData.filter(c => c.activeDays?.sab).length },
+    { id: 'min', label: 'Min', count: filteredData.filter(c => c.activeDays?.min).length },
   ];
 
   const handleFilterChange = (filterName, value) => {
@@ -253,7 +253,7 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
       {/* Day Tabs */}
       <div className="px-6 py-3 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center gap-2 overflow-x-auto">
-          <span className="text-xs font-semibold text-gray-500 uppercase mr-2">DAYS (MON-SUN):</span>
+          <span className="text-xs font-semibold text-gray-500 uppercase mr-2">HARI (SEN-MIN):</span>
           {dayTabs.map(tab => (
             <button
               key={tab.id}
@@ -507,19 +507,27 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
                   {/* Active Days */}
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-center gap-1">
-                      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => {
-                        const isActive = courier.activeDays?.[day.toLowerCase()] || false;
+                      {[
+                        { key: 'sen', label: 'S' },  // Senin
+                        { key: 'sel', label: 'S' },  // Selasa
+                        { key: 'rab', label: 'R' },  // Rabu
+                        { key: 'kam', label: 'K' },  // Kamis
+                        { key: 'jum', label: 'J' },  // Jumat
+                        { key: 'sab', label: 'S' },  // Sabtu
+                        { key: 'min', label: 'M' }   // Minggu
+                      ].map(day => {
+                        const isActive = courier.activeDays?.[day.key] || false;
                         return (
                           <div
-                            key={day}
+                            key={day.key}
                             className={`w-6 h-6 rounded flex items-center justify-center text-xs font-medium ${
                               isActive 
                                 ? 'bg-green-100 text-green-700' 
                                 : 'bg-gray-100 text-gray-400'
                             }`}
-                            title={`${day}: ${isActive ? 'Active' : 'Inactive'}`}
+                            title={`${day.key.charAt(0).toUpperCase() + day.key.slice(1)}: ${isActive ? 'Aktif' : 'Tidak Aktif'}`}
                           >
-                            {day[0]}
+                            {day.label}
                           </div>
                         );
                       })}

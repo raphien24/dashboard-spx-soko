@@ -186,9 +186,13 @@ function Dashboard({ autoRefreshEnabled = true }) {
           <WeeklyScheduleTable 
             data={courierSchedule}
             onWeekChange={(direction, weekRange) => {
-              console.log('Week changed:', direction, weekRange);
-              // TODO: Fetch data for selected week from API
-              // fetchCourierSchedule({ startDate: weekRange.monday, endDate: weekRange.sunday });
+              const dateRange = { 
+                start: weekRange.monday, 
+                end: weekRange.sunday 
+              };
+              // Fetch both dashboard data and courier schedule for the selected week
+              fetchDashboardData(dateRange);
+              fetchCourierSchedule(dateRange);
             }}
           />
         )}
