@@ -122,6 +122,7 @@ class GoogleSheetsService {
    */
   filterByDateRange(records, dateRange) {
     if (!dateRange || !dateRange.start || !dateRange.end) {
+      console.log('[filterByDateRange] No date range filter, returning all', records.length, 'records');
       return records; // No filter, return all
     }
     
@@ -131,14 +132,41 @@ class GoogleSheetsService {
     const endDate = new Date(dateRange.end);
     endDate.setHours(23, 59, 59, 999);
     
-    return records.filter(row => {
+    console.log('[filterByDateRange] Filtering records between:', {
+      start: startDate.toISOString(),
+      end: endDate.toISOString(),
+      totalRecords: records.length
+    });
+    
+    let matchCount = 0;
+    const filtered = records.filter(row => {
       const dateStr = row[3]; // Date column
       const recordDate = this.parseDate(dateStr);
       
-      if (!recordDate) return false;
+      if (!recordDate) {
+        return false;
+      }
       
-      return recordDate >= startDate && recordDate <= endDate;
+      const isInRange = recordDate >= startDate && recordDate <= endDate;
+      
+      if (isInRange) {
+        matchCount++;
+        // Log first 3 matches only to avoid console spam
+        if (matchCount <= 3) {
+          console.log('[filterByDateRange] Sample match', matchCount, ':', {
+            dateStr,
+            recordDate: recordDate.toISOString(),
+            courier: row[2]
+          });
+        }
+      }
+      
+      return isInRange;
     });
+    
+    console.log('[filterByDateRange] Result:', filtered.length, 'records matched out of', records.length);
+    
+    return filtered;
   }
 
   /**

@@ -216,12 +216,32 @@ const useDashboardStore = create((set, get) => ({
   },
 
   /**
-   * Refresh data from API
+   * Refresh data from API (preserve active date range)
    */
   refreshDashboardData: async () => {
+    const { activeDateRange } = get();
     set({ isRefreshing: true });
-    await get().loadRawData();
-    set({ isRefreshing: false });
+    
+    try {
+      console.log('[Store] Refreshing data, preserving date range:', activeDateRange);
+      const rawData = await googleSheetsService.getRange('raw!A2:Z1000');
+      console.log('[Store] Refreshed', rawData?.length || 0, 'rows');
+      
+      set({
+        rawCourierData: rawData,
+        lastUpdated: new Date(),
+        error: null,
+      });
+      
+      // Recompute with preserved date range
+      await get().computeDashboardData(activeDateRange);
+      
+    } catch (error) {
+      console.error('[Store] Error refreshing data:', error);
+      set({ error: error.message || 'Failed to refresh data' });
+    } finally {
+      set({ isRefreshing: false });
+    }
   },
 
   /**
