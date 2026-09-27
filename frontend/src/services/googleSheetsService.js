@@ -134,13 +134,23 @@ class GoogleSheetsService {
     
     console.log('[filterByDateRange] Filtering records between:', {
       start: startDate.toISOString(),
+      startLocal: startDate.toString(),
       end: endDate.toISOString(),
+      endLocal: endDate.toString(),
       totalRecords: records.length
     });
     
     let matchCount = 0;
-    const filtered = records.filter(row => {
+    let sampleDates = [];
+    
+    const filtered = records.filter((row, index) => {
       const dateStr = row[3]; // Date column
+      
+      // Log first 5 raw dates to see format
+      if (index < 5) {
+        sampleDates.push(dateStr);
+      }
+      
       const recordDate = this.parseDate(dateStr);
       
       if (!recordDate) {
@@ -156,6 +166,7 @@ class GoogleSheetsService {
           console.log('[filterByDateRange] Sample match', matchCount, ':', {
             dateStr,
             recordDate: recordDate.toISOString(),
+            recordDateLocal: recordDate.toString(),
             courier: row[2]
           });
         }
@@ -164,6 +175,7 @@ class GoogleSheetsService {
       return isInRange;
     });
     
+    console.log('[filterByDateRange] Sample raw dates from data:', sampleDates);
     console.log('[filterByDateRange] Result:', filtered.length, 'records matched out of', records.length);
     
     return filtered;
