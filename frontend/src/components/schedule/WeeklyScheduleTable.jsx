@@ -21,33 +21,38 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0); // 0 = current week, -1 = prev week, +1 = next week
   const itemsPerPage = 10;
 
-  // Calculate week range based on offset
-  const getWeekRange = (offset) => {
-    const today = new Date();
-    const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc
-    const daysFromMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1; // Convert to Monday-based week
-    
-    // Get Monday of current week
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - daysFromMonday + (offset * 7));
-    monday.setHours(0, 0, 0, 0);
-    
-    // Get Sunday of current week
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    sunday.setHours(23, 59, 59, 999);
-    
-    return { monday, sunday };
-  };
+  // Calculate week range based on offset - use useMemo to ensure it updates when offset changes
+  const getWeekRange = useMemo(() => {
+    return (offset) => {
+      const today = new Date();
+      const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc
+      const daysFromMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1; // Convert to Monday-based week
+      
+      // Get Monday of current week
+      const monday = new Date(today);
+      monday.setDate(today.getDate() - daysFromMonday + (offset * 7));
+      monday.setHours(0, 0, 0, 0);
+      
+      // Get Sunday of current week
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+      
+      return { monday, sunday };
+    };
+  }, []); // Empty deps - function never changes
 
-  const currentWeekRange = getWeekRange(currentWeekOffset);
+  // Calculate current week range whenever offset changes
+  const currentWeekRange = useMemo(() => {
+    return getWeekRange(currentWeekOffset);
+  }, [currentWeekOffset, getWeekRange]);
   
-  const formatWeekLabel = () => {
+  const formatWeekLabel = useMemo(() => {
     const { monday, sunday } = currentWeekRange;
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     
     return `${monday.getDate()} ${monthNames[monday.getMonth()]} — ${sunday.getDate()} ${monthNames[sunday.getMonth()]}, ${sunday.getFullYear()}`;
-  };
+  }, [currentWeekRange]);
 
   const handleWeekChange = (direction) => {
     const newOffset = direction === 'prev' ? currentWeekOffset - 1 : currentWeekOffset + 1;
@@ -218,7 +223,7 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
             <div className="flex flex-col items-center">
               <div className="px-4 py-2 bg-gray-50 rounded-lg border border-gray-200 min-w-[280px]">
                 <p className="text-sm font-semibold text-gray-900 text-center">
-                  Week: {formatWeekLabel()}
+                  Week: {formatWeekLabel}
                 </p>
                 <p className="text-xs text-gray-500 text-center mt-0.5">
                   {currentWeekOffset === 0 
@@ -254,7 +259,7 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
         <div className="text-xs text-gray-500 bg-blue-50 px-3 py-2 rounded-lg inline-block">
           Active Week: Mon {currentWeekRange.monday.toLocaleDateString('en-GB')} to Sun {currentWeekRange.sunday.toLocaleDateString('en-GB')} | 
           <span className="font-medium text-blue-700 ml-1">
-            {currentWeekOffset === 0 ? 'Current Week' : formatWeekLabel()}
+            {currentWeekOffset === 0 ? 'Current Week' : formatWeekLabel}
           </span> | 
           <span className="text-gray-600 ml-1">({filteredData.length} unique couriers evaluated)</span>
         </div>
