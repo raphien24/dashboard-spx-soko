@@ -221,7 +221,7 @@ class GoogleSheetsService {
       //          Delivery Progress(11), Handed Over(12), Delivered(13), Delivered(%)(14), 
       //          Delivering(#)(15), Delivering(%)(16), Failed Delivery(#)(17), Failed Delivery(%)(18),
       //          Stuck at Delivering(19), Onhold(20)
-      const data = await this.getRange('raw!A2:Z1000'); // Skip header row
+      const data = await this.getRange('raw!A2:Z'); // Skip header row
       
       if (!data || data.length === 0) {
         return this.getMockKPIData();
@@ -363,7 +363,7 @@ class GoogleSheetsService {
    */
   async getSummaryMetrics(filters = {}) {
     try {
-      const data = await this.getRange('raw!A2:Z1000');
+      const data = await this.getRange('raw!A2:Z');
       
       if (!data || data.length === 0) {
         return this.getMockSummaryData();
@@ -551,7 +551,7 @@ class GoogleSheetsService {
    */
   async getPerformanceByContract(filters = {}) {
     try {
-      const data = await this.getRange('raw!A2:Z1000');
+      const data = await this.getRange('raw!A2:Z');
       
       if (!data || data.length === 0) {
         return this.getMockPerformanceData();
@@ -624,7 +624,7 @@ class GoogleSheetsService {
    */
   async getTopZones(filters = {}) {
     try {
-      const data = await this.getRange('raw!A2:Z1000');
+      const data = await this.getRange('raw!A2:Z');
       
       if (!data || data.length === 0) {
         return this.getMockZonesData();
@@ -696,7 +696,7 @@ class GoogleSheetsService {
    */
   async getFleetComposition() {
     try {
-      const data = await this.getRange('raw!A2:Z1000');
+      const data = await this.getRange('raw!A2:Z');
       
       if (!data || data.length === 0) {
         return this.getMockFleetData();
@@ -793,7 +793,7 @@ class GoogleSheetsService {
    */
   async getCourierSchedule(filters = {}) {
     try {
-      const data = await this.getRange('raw!A2:Z1000');
+      const data = await this.getRange('raw!A2:Z');
       
       if (!data || data.length === 0) {
         return this.getMockCourierData();

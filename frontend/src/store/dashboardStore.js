@@ -48,8 +48,15 @@ const useDashboardStore = create((set, get) => ({
     
     try {
       console.log('[Store] Loading ALL raw data from Google Sheets...');
-      const rawData = await googleSheetsService.getRange('raw!A2:Z1000');
+      const rawData = await googleSheetsService.getRange('raw!A2:Z'); // No row limit - fetch all data
       console.log('[Store] Loaded', rawData?.length || 0, 'rows');
+      
+      // Log first and last row dates to verify full range
+      if (rawData && rawData.length > 0) {
+        const firstDate = rawData[0][3]; // First row date
+        const lastDate = rawData[rawData.length - 1][3]; // Last row date
+        console.log('[Store] Data date range:', { firstDate, lastDate, totalRows: rawData.length });
+      }
       
       // Detect date range from actual data
       const dateRange = get().detectDateRangeFromData(rawData);
@@ -263,8 +270,15 @@ const useDashboardStore = create((set, get) => ({
     
     try {
       console.log('[Store] Refreshing data, preserving date range:', activeDateRange);
-      const rawData = await googleSheetsService.getRange('raw!A2:Z1000');
+      const rawData = await googleSheetsService.getRange('raw!A2:Z'); // No row limit - fetch all data
       console.log('[Store] Refreshed', rawData?.length || 0, 'rows');
+      
+      // Log first and last row dates to verify full range
+      if (rawData && rawData.length > 0) {
+        const firstDate = rawData[0][3]; // First row date
+        const lastDate = rawData[rawData.length - 1][3]; // Last row date
+        console.log('[Store] Data date range after refresh:', { firstDate, lastDate, totalRows: rawData.length });
+      }
       
       set({
         rawCourierData: rawData,
