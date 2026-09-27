@@ -59,14 +59,18 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
   const handleWeekChange = (direction) => {
     const newOffset = direction === 'prev' ? currentWeekOffset - 1 : currentWeekOffset + 1;
     console.log('[WeeklyScheduleTable] Week changed:', { direction, oldOffset: currentWeekOffset, newOffset });
-    setCurrentWeekOffset(newOffset);
     
+    // Calculate BEFORE setState to ensure correct value is passed to callback
     const newWeekRange = getWeekRange(newOffset);
     console.log('[WeeklyScheduleTable] New week range:', {
       monday: newWeekRange.monday.toISOString(),
       sunday: newWeekRange.sunday.toISOString()
     });
     
+    // Update state AFTER calculating range
+    setCurrentWeekOffset(newOffset);
+    
+    // Call callback with correct range
     if (onWeekChange) {
       onWeekChange(direction, newWeekRange);
     }
@@ -74,9 +78,10 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
 
   const goToCurrentWeek = () => {
     console.log('[WeeklyScheduleTable] Go to current week');
+    const newWeekRange = getWeekRange(0);
     setCurrentWeekOffset(0);
     if (onWeekChange) {
-      onWeekChange('current', getWeekRange(0));
+      onWeekChange('current', newWeekRange);
     }
   };
 
