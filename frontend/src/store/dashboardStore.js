@@ -3,10 +3,13 @@ import googleSheetsService from '../services/googleSheetsService';
 
 /**
  * Dashboard Store using Zustand
- * Manages global state for dashboard data and loading states
+ * Strategy: Load ALL raw data once, filter client-side for instant week navigation
  */
 const useDashboardStore = create((set, get) => ({
-  // Data states
+  // Raw data cache (loaded once)
+  rawCourierData: null,
+  
+  // Computed/filtered data
   kpiMetrics: null,
   summaryMetrics: null,
   performanceData: null,
@@ -22,6 +25,9 @@ const useDashboardStore = create((set, get) => ({
   // Last updated timestamp
   lastUpdated: null,
 
+  // Current active date range filter
+  activeDateRange: null,
+
   // Filter states
   filters: {
     dateRange: {
@@ -35,109 +41,121 @@ const useDashboardStore = create((set, get) => ({
   },
 
   /**
-   * Set date range filter
+   * Load ALL raw data from Google Sheets once
+   */
+  loadRawData: async () => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      console.log('[Store] Loading ALL raw data from Google Sheets...');
+      const rawData = await googleSheetsService.getRange('raw!A2:Z1000');
+      console.log('[Store] Loaded', rawData?.length || 0, 'rows');
+      
+      set({
+        rawCourierData: rawData,
+        isLoading: false,
+        lastUpdated: new Date(),
+        error: null,
+      });
+      
+      // Compute initial metrics (no date filter = show all data)
+      get().computeCourierSchedule(null);
+      
+      return true;
+    } catch (error) {
+      console.error('[Store] Error loading raw data:', error);
+      set({
+        isLoading: false,
+        error: error.message || 'Failed to load raw data',
+      });
+      return false;
+    }
+  },
+
+  /**
+   * Compute courier schedule from cached raw data (INSTANT - no API call)
+   */
+  computeCourierSchedule: (dateRange) => {
+    const { rawCourierData } = get();
+    
+    if (!rawCourierData || rawCourierData.length === 0) {
+      console.warn('[Store] No raw data available to compute schedule');
+      set({ courierSchedule: [] });
+      return;
+    }
+    
+    console.log('[Store] Computing courier schedule for date range:', dateRange);
+    const startTime = performance.now();
+    
+    try {
+      // Process courier schedule with client-side filtering
+      const schedule = googleSheetsService.processCourierScheduleFromRaw(rawCourierData, dateRange);
+      
+      const endTime = performance.now();
+      console.log('[Store] Schedule computed in', (endTime - startTime).toFixed(2), 'ms');
+      console.log('[Store] Result:', schedule.length, 'couriers');
+      
+      set({
+        courierSchedule: schedule,
+        activeDateRange: dateRange,
+        lastUpdated: new Date(),
+      });
+    } catch (error) {
+      console.error('[Store] Error computing schedule:', error);
+      set({ courierSchedule: [] });
+    }
+  },
+
+  /**
+   * Set date range and recompute (INSTANT - no loading)
    */
   setDateRange: (startDate, endDate) => {
+    const dateRange = startDate && endDate ? { start: startDate, end: endDate } : null;
+    
+    console.log('[Store] Setting date range:', dateRange);
+    
     set({ 
       filters: { 
         ...get().filters, 
-        dateRange: { start: startDate, end: endDate } 
+        dateRange: dateRange 
       } 
     });
+    
+    // Recompute schedule instantly
+    get().computeCourierSchedule(dateRange);
   },
 
   /**
-   * Fetch all dashboard data with optional date range
+   * Legacy compatibility - redirect to new flow
    */
   fetchDashboardData: async (dateRange = null) => {
-    set({ isLoading: true, error: null });
-    
-    try {
-      const filters = dateRange ? { dateRange } : { dateRange: get().filters.dateRange };
-      
-      const [kpi, summary, performance, zones, fleet] = await Promise.all([
-        googleSheetsService.getKPIMetrics(filters),
-        googleSheetsService.getSummaryMetrics(filters),
-        googleSheetsService.getPerformanceByContract(filters),
-        googleSheetsService.getTopZones(filters),
-        googleSheetsService.getFleetComposition(filters),
-      ]);
-
-      set({
-        kpiMetrics: kpi,
-        summaryMetrics: summary,
-        performanceData: performance,
-        zonesData: zones,
-        fleetData: fleet,
-        isLoading: false,
-        lastUpdated: new Date(),
-        error: null,
-      });
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      set({
-        isLoading: false,
-        error: error.message || 'Failed to fetch dashboard data',
-      });
+    if (!get().rawCourierData) {
+      await get().loadRawData();
+    }
+    if (dateRange) {
+      get().computeCourierSchedule(dateRange);
     }
   },
 
   /**
-   * Refresh dashboard data (non-blocking)
-   */
-  refreshDashboardData: async (dateRange = null) => {
-    set({ isRefreshing: true });
-    
-    try {
-      const filters = dateRange ? { dateRange } : { dateRange: get().filters.dateRange };
-      
-      const [kpi, summary, performance, zones, fleet] = await Promise.all([
-        googleSheetsService.getKPIMetrics(filters),
-        googleSheetsService.getSummaryMetrics(filters),
-        googleSheetsService.getPerformanceByContract(filters),
-        googleSheetsService.getTopZones(filters),
-        googleSheetsService.getFleetComposition(filters),
-      ]);
-
-      set({
-        kpiMetrics: kpi,
-        summaryMetrics: summary,
-        performanceData: performance,
-        zonesData: zones,
-        fleetData: fleet,
-        isRefreshing: false,
-        lastUpdated: new Date(),
-        error: null,
-      });
-    } catch (error) {
-      console.error('Error refreshing dashboard data:', error);
-      set({ isRefreshing: false });
-    }
-  },
-
-  /**
-   * Fetch courier schedule data with filters
+   * Legacy compatibility
    */
   fetchCourierSchedule: async (dateRange = null) => {
-    const filters = dateRange ? { dateRange } : get().filters;
-    set({ isLoading: true, error: null });
-    
-    try {
-      const couriers = await googleSheetsService.getCourierSchedule(filters);
-      
-      set({
-        courierSchedule: couriers,
-        isLoading: false,
-        lastUpdated: new Date(),
-        error: null,
-      });
-    } catch (error) {
-      console.error('Error fetching courier schedule:', error);
-      set({
-        isLoading: false,
-        error: error.message || 'Failed to fetch courier schedule',
-      });
+    if (!get().rawCourierData) {
+      await get().loadRawData();
     }
+    if (dateRange) {
+      get().computeCourierSchedule(dateRange);
+    }
+  },
+
+  /**
+   * Refresh data from API
+   */
+  refreshDashboardData: async () => {
+    set({ isRefreshing: true });
+    await get().loadRawData();
+    set({ isRefreshing: false });
   },
 
   /**

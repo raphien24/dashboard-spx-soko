@@ -913,6 +913,143 @@ class GoogleSheetsService {
   }
 
   /**
+   * Process courier schedule data from raw data cache (client-side filtering)
+   * This is the core method for instant week navigation without API calls
+   * @param {Array} rawData - Full raw data array (already loaded once)
+   * @param {Object} dateRange - { start: Date, end: Date }
+   * @param {Object} filters - { zone, contract, vehicle }
+   * @returns {Array} - Processed courier schedule data
+   */
+  processCourierScheduleFromRaw(rawData, dateRange, filters = {}) {
+    if (!rawData || rawData.length === 0) {
+      console.warn('[processCourierScheduleFromRaw] No raw data provided');
+      return [];
+    }
+
+    console.log('[processCourierScheduleFromRaw] Processing', {
+      totalRows: rawData.length,
+      dateRange: dateRange ? {
+        start: dateRange.start?.toISOString(),
+        end: dateRange.end?.toISOString()
+      } : null,
+      filters
+    });
+
+    // Filter active records only (Delivered > 0)
+    let activeRecords = rawData.filter(row => 
+      row[13] && this.parseNumeric(row[13]) > 0
+    );
+
+    console.log('[processCourierScheduleFromRaw] Active records (Delivered > 0):', activeRecords.length);
+
+    // Apply date range filter if provided
+    if (dateRange) {
+      activeRecords = this.filterByDateRange(activeRecords, dateRange);
+      console.log('[processCourierScheduleFromRaw] After date filter:', activeRecords.length);
+    }
+
+    // Deduplicate: 1 courier per date only
+    activeRecords = this.deduplicateByIdAndDate(activeRecords);
+    console.log('[processCourierScheduleFromRaw] After deduplication:', activeRecords.length);
+
+    // Map day names to Indonesian
+    const dayNames = ['sen', 'sel', 'rab', 'kam', 'jum', 'sab', 'min'];
+    
+    // Group by courier ID for weekly aggregation
+    const courierGroups = {};
+    activeRecords.forEach(row => {
+      const courierId = row[1]; // ID column
+      if (!courierId) return;
+
+      if (!courierGroups[courierId]) {
+        courierGroups[courierId] = {
+          id: courierId,
+          name: row[2] || '', // Name
+          district: row[0] || '', // District
+          zone: row[7] || '', // Zone ID
+          contract: row[5] || '', // Contract Type
+          vehicle: row[6] || '', // Vehicle Type
+          shifts: [],
+          totalDelivered: 0,
+          totalHandedOver: 0,
+          activeDays: {
+            sen: false,  // Senin
+            sel: false,  // Selasa
+            rab: false,  // Rabu
+            kam: false,  // Kamis
+            jum: false,  // Jumat
+            sab: false,  // Sabtu
+            min: false   // Minggu
+          }
+        };
+      }
+
+      // Add shift data (now guaranteed unique per date)
+      const delivered = this.parseNumeric(row[13]);
+      const handedOver = this.parseNumeric(row[12]);
+      const dateStr = row[3]; // Date
+      const recordDate = this.parseDate(dateStr);
+      
+      courierGroups[courierId].shifts.push({
+        delivered,
+        handedOver,
+        date: dateStr,
+        parsedDate: recordDate
+      });
+      courierGroups[courierId].totalDelivered += delivered;
+      courierGroups[courierId].totalHandedOver += handedOver;
+
+      // Mark active days based on actual date (0=Minggu, 1=Senin, etc)
+      if (recordDate) {
+        const dayIndex = recordDate.getDay(); // 0 = Sunday, 1 = Monday, etc
+        // Convert to our day mapping (Monday-based)
+        const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1; // 0=Mon, 1=Tue, ..., 6=Sun
+        const dayKey = dayNames[adjustedIndex];
+        courierGroups[courierId].activeDays[dayKey] = true;
+      }
+    });
+
+    // Calculate metrics for each courier
+    let couriers = Object.values(courierGroups).map(courier => {
+      const shiftsCount = courier.shifts.length;
+      const avgDaily = shiftsCount > 0 ? courier.totalDelivered / shiftsCount : 0;
+      const target = this.getTargetByContractAndVehicle(courier.contract, courier.vehicle);
+      const productivityPercentage = target > 0 ? (avgDaily / target) * 100 : 0;
+      const successRate = courier.totalHandedOver > 0 
+        ? (courier.totalDelivered / courier.totalHandedOver) * 100 
+        : 0;
+
+      return {
+        ...courier,
+        shiftsCount,
+        avgDaily,
+        target,
+        productivityPercentage,
+        successRate,
+        totalWeekDeliv: courier.totalDelivered,
+      };
+    });
+
+    // Apply filters
+    if (filters.zone && filters.zone !== 'all') {
+      couriers = couriers.filter(c => c.zone === filters.zone);
+    }
+    if (filters.contract && filters.contract !== 'all') {
+      couriers = couriers.filter(c => c.contract === filters.contract);
+    }
+    if (filters.vehicle && filters.vehicle !== 'all') {
+      couriers = couriers.filter(c => c.vehicle === filters.vehicle);
+    }
+
+    // Sort by productivity percentage descending
+    couriers.sort((a, b) => b.productivityPercentage - a.productivityPercentage);
+
+    console.log('[processCourierScheduleFromRaw] Final couriers:', couriers.length);
+
+    return couriers;
+  }
+
+  /**
    * Helper: Parse numeric value from cell
    * @param {string|number} value - Cell value
    * @returns {number} - Parsed number or 0

@@ -25,6 +25,7 @@ function Dashboard({ autoRefreshEnabled = true }) {
     fetchDashboardData,
     refreshDashboardData,
     fetchCourierSchedule,
+    setDateRange, // NEW: For instant week navigation
   } = useDashboardStore();
 
   // Initial data fetch
@@ -187,13 +188,11 @@ function Dashboard({ autoRefreshEnabled = true }) {
         <WeeklyScheduleTable 
           data={courierSchedule || []}
           onWeekChange={(direction, weekRange) => {
-            const dateRange = { 
+            // Use setDateRange for instant client-side filtering (no API call)
+            setDateRange({ 
               start: weekRange.monday, 
               end: weekRange.sunday 
-            };
-            // Fetch both dashboard data and courier schedule for the selected week
-            fetchDashboardData(dateRange);
-            fetchCourierSchedule(dateRange);
+            });
           }}
         />
       </ErrorBoundary>
