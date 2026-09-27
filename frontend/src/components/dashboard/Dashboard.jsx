@@ -182,20 +182,18 @@ function Dashboard({ autoRefreshEnabled = true }) {
 
       {/* Weekly Schedule Table */}
       <ErrorBoundary componentName="WeeklyScheduleTable">
-        {courierSchedule && courierSchedule.length > 0 && (
-          <WeeklyScheduleTable 
-            data={courierSchedule}
-            onWeekChange={(direction, weekRange) => {
-              const dateRange = { 
-                start: weekRange.monday, 
-                end: weekRange.sunday 
-              };
-              // Fetch both dashboard data and courier schedule for the selected week
-              fetchDashboardData(dateRange);
-              fetchCourierSchedule(dateRange);
-            }}
-          />
-        )}
+        <WeeklyScheduleTable 
+          data={courierSchedule || []}
+          onWeekChange={(direction, weekRange) => {
+            const dateRange = { 
+              start: weekRange.monday, 
+              end: weekRange.sunday 
+            };
+            // Fetch both dashboard data and courier schedule for the selected week
+            fetchDashboardData(dateRange);
+            fetchCourierSchedule(dateRange);
+          }}
+        />
       </ErrorBoundary>
 
       {/* Info Footer */}

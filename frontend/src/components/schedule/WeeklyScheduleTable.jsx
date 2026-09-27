@@ -64,24 +64,36 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
     }
   };
 
+  // Safely handle data
+  const safeData = data || [];
+  const hasData = safeData.length > 0;
+
   // Get unique values for filters
   const filterOptions = useMemo(() => {
-    if (!data || data.length === 0) return {};
+    if (!hasData) {
+      return {
+        districts: ['All Districts'],
+        zones: ['All Zones'],
+        contracts: ['All Contracts'],
+        vehicles: ['All Vehicles'],
+        targetStatuses: ['All Target Statuses', 'Met Target', 'Below Target'],
+      };
+    }
 
     return {
-      districts: ['All Districts', ...new Set(data.map(item => item.district).filter(Boolean))],
-      zones: ['All Zones', ...new Set(data.map(item => item.zone).filter(Boolean))],
-      contracts: ['All Contracts', ...new Set(data.map(item => item.contract).filter(Boolean))],
-      vehicles: ['All Vehicles', ...new Set(data.map(item => item.vehicle).filter(Boolean))],
+      districts: ['All Districts', ...new Set(safeData.map(item => item.district).filter(Boolean))],
+      zones: ['All Zones', ...new Set(safeData.map(item => item.zone).filter(Boolean))],
+      contracts: ['All Contracts', ...new Set(safeData.map(item => item.contract).filter(Boolean))],
+      vehicles: ['All Vehicles', ...new Set(safeData.map(item => item.vehicle).filter(Boolean))],
       targetStatuses: ['All Target Statuses', 'Met Target', 'Below Target'],
     };
-  }, [data]);
+  }, [safeData, hasData]);
 
   // Apply filters and search
   const filteredData = useMemo(() => {
-    if (!data) return [];
+    if (!hasData) return [];
 
-    return data.filter(item => {
+    return safeData.filter(item => {
       // Search filter
       if (searchQuery) {
         const search = searchQuery.toLowerCase();
@@ -122,7 +134,7 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
 
       return true;
     });
-  }, [data, filters, searchQuery]);
+  }, [safeData, hasData, filters, searchQuery]);
 
   // Pagination
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -160,17 +172,6 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
     setSearchQuery('');
     setCurrentPage(1);
   };
-
-  if (!data || data.length === 0) {
-    return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-        <div className="text-center text-gray-500">
-          <p className="text-lg mb-2">No schedule data available</p>
-          <p className="text-sm">Please check your data source</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -408,7 +409,47 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedData.map((courier, index) => {
+            {paginatedData.length === 0 ? (
+              <tr>
+                <td colSpan="12" className="px-4 py-12 text-center">
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                      </svg>
+                    </div>
+                    <p className="text-lg font-semibold text-gray-900 mb-2">
+                      {!hasData ? 'Tidak Ada Data untuk Week Ini' : 'Tidak Ada Data yang Sesuai Filter'}
+                    </p>
+                    <p className="text-sm text-gray-500 mb-4">
+                      {!hasData 
+                        ? 'Tidak ada courier dengan aktivitas pada rentang tanggal yang dipilih. Coba pilih week yang berbeda.'
+                        : 'Ubah filter atau pencarian untuk melihat data courier.'
+                      }
+                    </p>
+                    {!hasData && currentWeekOffset !== 0 && (
+                      <button
+                        onClick={goToCurrentWeek}
+                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                      >
+                        <Calendar className="w-4 h-4" />
+                        Kembali ke Week Saat Ini
+                      </button>
+                    )}
+                    {hasData && (
+                      <button
+                        onClick={resetFilters}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                      >
+                        <Filter className="w-4 h-4" />
+                        Reset Semua Filter
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              paginatedData.map((courier, index) => {
               const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
               const metTarget = (courier.productivityPercentage || 0) >= 100;
               const targetDiff = (courier.avgDaily || 0) - (courier.target || 0);
@@ -559,7 +600,8 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
                   </td>
                 </tr>
               );
-            })}
+            })
+            )}
           </tbody>
         </table>
       </div>
