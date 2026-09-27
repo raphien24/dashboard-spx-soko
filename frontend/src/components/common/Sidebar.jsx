@@ -171,6 +171,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
           <ChevronLeft className="w-4 h-4" />
         )}
       </button>
+      </div>
     </>
   );
 };
