@@ -59,7 +59,7 @@ const useDashboardStore = create((set, get) => ({
       });
       
       // Compute initial metrics (no date filter = show all data)
-      get().computeCourierSchedule(null);
+      await get().computeDashboardData(null);
       
       return true;
     } catch (error) {
@@ -69,6 +69,74 @@ const useDashboardStore = create((set, get) => ({
         error: error.message || 'Failed to load raw data',
       });
       return false;
+    }
+  },
+
+  /**
+   * Compute ALL dashboard data from cached raw data (INSTANT - no API call)
+   */
+  computeDashboardData: async (dateRange) => {
+    const { rawCourierData } = get();
+    
+    if (!rawCourierData || rawCourierData.length === 0) {
+      console.warn('[Store] No raw data available to compute dashboard');
+      set({ 
+        kpiMetrics: null,
+        summaryMetrics: null,
+        performanceData: null,
+        zonesData: null,
+        courierSchedule: [],
+      });
+      return;
+    }
+    
+    console.log('[Store] Computing dashboard data for date range:', dateRange);
+    const startTime = performance.now();
+    
+    try {
+      // For now, still use the service methods (they will call API)
+      // TODO: Refactor service methods to accept raw data
+      const filters = dateRange ? { dateRange } : {};
+      
+      // Compute all metrics - service methods will handle their own data fetching for now
+      const [kpiMetrics, summaryMetrics, performanceData, zonesData] = await Promise.all([
+        googleSheetsService.getKPIMetrics(filters),
+        googleSheetsService.getSummaryMetrics(filters),
+        googleSheetsService.getPerformanceByContract(filters),
+        googleSheetsService.getTopZones(filters),
+      ]);
+      
+      // Compute courier schedule from cached raw data (client-side filtering)
+      const courierSchedule = googleSheetsService.processCourierScheduleFromRaw(rawCourierData, dateRange);
+      
+      const endTime = performance.now();
+      console.log('[Store] Dashboard computed in', (endTime - startTime).toFixed(2), 'ms');
+      console.log('[Store] Results:', {
+        kpiMetrics: !!kpiMetrics,
+        summaryMetrics: !!summaryMetrics,
+        performanceData: performanceData?.length || 0,
+        zonesData: zonesData?.length || 0,
+        courierSchedule: courierSchedule?.length || 0,
+      });
+      
+      set({
+        kpiMetrics,
+        summaryMetrics,
+        performanceData,
+        zonesData,
+        courierSchedule,
+        activeDateRange: dateRange,
+        lastUpdated: new Date(),
+      });
+    } catch (error) {
+      console.error('[Store] Error computing dashboard:', error);
+      set({ 
+        kpiMetrics: null,
+        summaryMetrics: null,
+        performanceData: null,
+        zonesData: null,
+        courierSchedule: [],
+      });
     }
   },
 
@@ -109,8 +177,8 @@ const useDashboardStore = create((set, get) => ({
   /**
    * Set date range and recompute (INSTANT - no loading)
    */
-  setDateRange: (startDate, endDate) => {
-    const dateRange = startDate && endDate ? { start: startDate, end: endDate } : null;
+  setDateRange: (dateRangeObj) => {
+    const dateRange = dateRangeObj && dateRangeObj.start && dateRangeObj.end ? dateRangeObj : null;
     
     console.log('[Store] Setting date range:', dateRange);
     
@@ -121,8 +189,8 @@ const useDashboardStore = create((set, get) => ({
       } 
     });
     
-    // Recompute schedule instantly
-    get().computeCourierSchedule(dateRange);
+    // Recompute all dashboard data instantly
+    get().computeDashboardData(dateRange);
   },
 
   /**
@@ -131,9 +199,8 @@ const useDashboardStore = create((set, get) => ({
   fetchDashboardData: async (dateRange = null) => {
     if (!get().rawCourierData) {
       await get().loadRawData();
-    }
-    if (dateRange) {
-      get().computeCourierSchedule(dateRange);
+    } else if (dateRange) {
+      get().computeDashboardData(dateRange);
     }
   },
 
@@ -143,8 +210,7 @@ const useDashboardStore = create((set, get) => ({
   fetchCourierSchedule: async (dateRange = null) => {
     if (!get().rawCourierData) {
       await get().loadRawData();
-    }
-    if (dateRange) {
+    } else if (dateRange) {
       get().computeCourierSchedule(dateRange);
     }
   },
