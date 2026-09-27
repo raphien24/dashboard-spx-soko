@@ -29,24 +29,10 @@ function Dashboard({ autoRefreshEnabled = true }) {
 
   // Initial data fetch
   useEffect(() => {
-    // Calculate current week range for initial load
-    const today = new Date();
-    const currentDayOfWeek = today.getDay();
-    const daysFromMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
-    
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - daysFromMonday);
-    monday.setHours(0, 0, 0, 0);
-    
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    sunday.setHours(23, 59, 59, 999);
-    
-    const currentWeekRange = { start: monday, end: sunday };
-    
-    // Fetch data for current week
-    fetchDashboardData(currentWeekRange);
-    fetchCourierSchedule(currentWeekRange);
+    // For initial load, don't apply date filter - let user see all available data
+    // This way user can navigate to weeks that have data
+    fetchDashboardData(null); // null = no date filter
+    fetchCourierSchedule(null); // null = no date filter
   }, [fetchDashboardData, fetchCourierSchedule]);
 
   // Auto-refresh every 30 seconds (configurable and controllable)

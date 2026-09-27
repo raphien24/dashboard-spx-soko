@@ -51,13 +51,22 @@ function WeeklyScheduleTable({ data, onWeekChange }) {
 
   const handleWeekChange = (direction) => {
     const newOffset = direction === 'prev' ? currentWeekOffset - 1 : currentWeekOffset + 1;
+    console.log('[WeeklyScheduleTable] Week changed:', { direction, oldOffset: currentWeekOffset, newOffset });
     setCurrentWeekOffset(newOffset);
+    
+    const newWeekRange = getWeekRange(newOffset);
+    console.log('[WeeklyScheduleTable] New week range:', {
+      monday: newWeekRange.monday.toISOString(),
+      sunday: newWeekRange.sunday.toISOString()
+    });
+    
     if (onWeekChange) {
-      onWeekChange(direction, getWeekRange(newOffset));
+      onWeekChange(direction, newWeekRange);
     }
   };
 
   const goToCurrentWeek = () => {
+    console.log('[WeeklyScheduleTable] Go to current week');
     setCurrentWeekOffset(0);
     if (onWeekChange) {
       onWeekChange('current', getWeekRange(0));
