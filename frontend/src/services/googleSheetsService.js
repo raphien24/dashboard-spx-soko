@@ -140,6 +140,31 @@ class GoogleSheetsService {
   }
 
   /**
+   * Helper: Deduplicate records by courier ID + date
+   * If same courier has multiple entries on same date, keep only the first one
+   */
+  deduplicateByIdAndDate(records) {
+    const uniqueRecords = {};
+    
+    records.forEach(row => {
+      const courierId = row[1]; // ID column
+      const dateStr = row[3]; // Date column
+      
+      if (!courierId || !dateStr) return;
+      
+      // Create unique key: courierId + date
+      const uniqueKey = `${courierId}_${dateStr}`;
+      
+      // If duplicate, skip (keep the first one)
+      if (!uniqueRecords[uniqueKey]) {
+        uniqueRecords[uniqueKey] = row;
+      }
+    });
+    
+    return Object.values(uniqueRecords);
+  }
+
+  /**
    * Parse KPI data from raw sheet
    * Formulas based on canvas spreadsheet:
    * 1. WEEKLY AVG PRODUCTIVITY = Total Delivered ÷ Active Shifts
@@ -167,6 +192,9 @@ class GoogleSheetsService {
 
       // Apply date range filter if provided
       activeRecords = this.filterByDateRange(activeRecords, filters.dateRange);
+
+      // Deduplicate: 1 courier per date only
+      activeRecords = this.deduplicateByIdAndDate(activeRecords);
 
       if (activeRecords.length === 0) {
         return this.getMockKPIData();
@@ -306,6 +334,9 @@ class GoogleSheetsService {
 
       // Apply date range filter if provided
       activeRecords = this.filterByDateRange(activeRecords, filters.dateRange);
+
+      // Deduplicate: 1 courier per date only
+      activeRecords = this.deduplicateByIdAndDate(activeRecords);
 
       // UNIQUE HEADCOUNT: Unique couriers with Delivered > 0
       const uniqueCouriers = new Set(activeRecords.map(row => row[1])); // ID column
@@ -492,6 +523,9 @@ class GoogleSheetsService {
       // Apply date range filter if provided
       activeRecords = this.filterByDateRange(activeRecords, filters.dateRange);
 
+      // Deduplicate: 1 courier per date only
+      activeRecords = this.deduplicateByIdAndDate(activeRecords);
+
       // Group by contract type (column index 5)
       const contractGroups = {};
       activeRecords.forEach(row => {
@@ -561,6 +595,9 @@ class GoogleSheetsService {
 
       // Apply date range filter if provided
       activeRecords = this.filterByDateRange(activeRecords, filters.dateRange);
+
+      // Deduplicate: 1 courier per date only
+      activeRecords = this.deduplicateByIdAndDate(activeRecords);
 
       // Group by zone (column index 7)
       const zoneGroups = {};
@@ -733,9 +770,12 @@ class GoogleSheetsService {
       // Map day names to Indonesian
       const dayNames = ['sen', 'sel', 'rab', 'kam', 'jum', 'sab', 'min'];
       
-      // Group by courier ID
+      // Deduplicate: 1 courier per date only (using helper function)
+      const deduplicatedRecords = this.deduplicateByIdAndDate(activeRecords);
+      
+      // Group by courier ID for weekly aggregation
       const courierGroups = {};
-      activeRecords.forEach(row => {
+      deduplicatedRecords.forEach(row => {
         const courierId = row[1]; // ID column
         if (!courierId) return;
 
@@ -762,7 +802,7 @@ class GoogleSheetsService {
           };
         }
 
-        // Add shift data
+        // Add shift data (now guaranteed unique per date)
         const delivered = this.parseNumeric(row[13]);
         const handedOver = this.parseNumeric(row[12]);
         const dateStr = row[3]; // Date
