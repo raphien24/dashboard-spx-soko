@@ -912,33 +912,33 @@ class GoogleSheetsService {
   }
 
   /**
-   * Get target from Monday's "Assigned Target" for the week
-   * Strategy: Find Monday record EXACTLY on weekStartDate (the Monday of the selected week)
-   * This ensures all couriers with same contract+vehicle have same target for the week
+   * Get target map for ALL contract+vehicle combinations for a specific week
+   * Strategy: Find ONE sample Monday record for each contract+vehicle type, use that target for ALL couriers of that type
+   * This ensures perfect consistency - all Dedicated+2WH have same target, all Freelance+4WH have same target, etc.
    * 
-   * @param {Array} allRawRecords - ALL raw data (not filtered by week)
-   * @param {Date} weekStartDate - Monday date of the week we're calculating for
-   * @param {String} courierId - Courier ID to find target for
-   * @param {String} contractType - Fallback contract type
-   * @param {String} vehicleType - Fallback vehicle type
-   * @returns {Number} - Target value
+   * @param {Array} allRawRecords - ALL raw data
+   * @param {Date} weekStartDate - Monday date of the week
+   * @returns {Object} - Map of "contract-vehicle" -> target value
    */
-  getMondayTargetForWeek(allRawRecords, weekStartDate, courierId, contractType, vehicleType) {
-    // Normalize weekStartDate to start of day for accurate comparison
+  getTargetMapForWeek(allRawRecords, weekStartDate) {
+    if (!weekStartDate) {
+      console.warn('[getTargetMapForWeek] No weekStartDate provided');
+      return {};
+    }
+
+    // Normalize weekStartDate to start of day
     const normalizedWeekStart = new Date(weekStartDate);
     normalizedWeekStart.setHours(0, 0, 0, 0);
     
-    // Find Monday record for this courier EXACTLY on weekStartDate
-    const mondayRecord = allRawRecords.find(row => {
-      const rowCourierId = row[1]; // ID column
+    const targetMap = {};
+    
+    // Find all Monday records on the exact weekStartDate
+    const mondayRecords = allRawRecords.filter(row => {
       const dateStr = row[3]; // Date column
-      
-      if (rowCourierId !== courierId) return false;
-      
       const date = this.parseDate(dateStr);
       if (!date) return false;
       
-      // Normalize record date to start of day
+      // Normalize record date
       const normalizedRecordDate = new Date(date);
       normalizedRecordDate.setHours(0, 0, 0, 0);
       
@@ -950,38 +950,45 @@ class GoogleSheetsService {
       return isMonday && isSameDate;
     });
     
-    // If found Monday record on exact date, use its Assigned Target
-    if (mondayRecord) {
-      const assignedTarget = this.parseNumeric(mondayRecord[9]); // Assigned Target column (index 9)
+    console.log(`[getTargetMapForWeek] Found ${mondayRecords.length} Monday records on ${weekStartDate.toLocaleDateString('en-US')}`);
+    
+    // Group by contract+vehicle and pick first valid target for each combination
+    mondayRecords.forEach(row => {
+      const contractType = row[5]; // Contract column
+      const vehicleType = row[6]; // Vehicle column
+      const assignedTarget = this.parseNumeric(row[9]); // Assigned Target column
       
-      // Log for debugging
-      console.log(`[getMondayTargetForWeek] Courier ${courierId}:`, {
-        weekStart: weekStartDate.toLocaleDateString('en-US'),
-        mondayDate: mondayRecord[3],
-        assignedTargetRaw: mondayRecord[9],
-        assignedTargetParsed: assignedTarget,
-        contract: contractType,
-        vehicle: vehicleType,
-        source: 'Monday record'
-      });
+      const key = `${contractType}-${vehicleType}`;
       
-      if (assignedTarget > 0) {
-        return assignedTarget;
+      // Only set if not already set and target is valid
+      if (!targetMap[key] && assignedTarget > 0) {
+        targetMap[key] = assignedTarget;
+        console.log(`[getTargetMapForWeek] Sample target for ${key}: ${assignedTarget} (from courier ${row[1]})`);
       }
-    } else {
-      // No Monday record found for this exact date
-      console.warn(`[getMondayTargetForWeek] No Monday record on ${weekStartDate.toLocaleDateString('en-US')} for courier ${courierId}. Using fallback target.`);
+    });
+    
+    return targetMap;
+  }
+
+  /**
+   * Get target for a specific courier using the target map
+   * Falls back to static target if no sample found for this contract+vehicle type
+   * 
+   * @param {Object} targetMap - Pre-calculated target map from getTargetMapForWeek()
+   * @param {String} contractType - Contract type
+   * @param {String} vehicleType - Vehicle type
+   * @returns {Number} - Target value
+   */
+  getTargetFromMap(targetMap, contractType, vehicleType) {
+    const key = `${contractType}-${vehicleType}`;
+    
+    if (targetMap[key]) {
+      return targetMap[key];
     }
     
-    // Fallback: use static target by contract/vehicle
-    // This ensures all couriers with same contract+vehicle have same target
+    // No sample found for this type, use static fallback
     const fallbackTarget = this.getTargetByContractAndVehicle(contractType, vehicleType);
-    console.log(`[getMondayTargetForWeek] Using fallback target for ${courierId}:`, {
-      target: fallbackTarget,
-      contract: contractType,
-      vehicle: vehicleType,
-      source: 'static fallback'
-    });
+    console.warn(`[getTargetFromMap] No Monday sample found for ${key}, using fallback: ${fallbackTarget}`);
     return fallbackTarget;
   }
 
@@ -1125,18 +1132,20 @@ class GoogleSheetsService {
     });
 
     // Calculate metrics for each courier
+    // Get target map for the week ONCE for all couriers
+    let weekStartDate = null;
+    if (dateRange && dateRange.start) {
+      weekStartDate = new Date(dateRange.start);
+    }
+    const targetMap = weekStartDate ? this.getTargetMapForWeek(rawData, weekStartDate) : {};
+    
     let couriers = Object.values(courierGroups).map(courier => {
       const shiftsCount = courier.shifts.length;
       const avgDaily = shiftsCount > 0 ? courier.totalDelivered / shiftsCount : 0;
       
-      // Calculate target using Monday target (same logic as KPI cards)
-      let weekStartDate = null;
-      if (dateRange && dateRange.start) {
-        weekStartDate = new Date(dateRange.start);
-      }
-      
+      // Get target from map (ensures all same contract+vehicle have same target)
       const target = weekStartDate 
-        ? this.getMondayTargetForWeek(rawData, weekStartDate, courier.id, courier.contract, courier.vehicle)
+        ? this.getTargetFromMap(targetMap, courier.contract, courier.vehicle)
         : this.getTargetByContractAndVehicle(courier.contract, courier.vehicle);
         
       const productivityPercentage = target > 0 ? (avgDaily / target) * 100 : 0;
@@ -1270,14 +1279,15 @@ class GoogleSheetsService {
       weekStartDate = new Date(filters.dateRange.start);
     }
     
+    // Get target map for all contract+vehicle types
+    const targetMap = this.getTargetMapForWeek(rawData, weekStartDate);
+    
     let metQuota = 0;
     Object.keys(courierProductivity).forEach(courierId => {
       const courier = courierProductivity[courierId];
       const avgProductivity = courier.totalDelivered / courier.shifts;
-      const target = this.getMondayTargetForWeek(
-        rawData,       // Pass ALL raw data
-        weekStartDate, // Pass week start date
-        courierId,
+      const target = this.getTargetFromMap(
+        targetMap,
         courier.contractType, 
         courier.vehicleType
       );
@@ -1425,19 +1435,20 @@ class GoogleSheetsService {
       weekStartDate = new Date(filters.dateRange.start);
     }
     
-    // Group by courier to get Monday target per courier
+    // Get target map for all contract+vehicle types (ONE sample per type)
+    const targetMap = this.getTargetMapForWeek(rawData, weekStartDate);
+    
+    // Group by courier to get target per courier (using the target map)
     const courierTargets = {};
     activeRecords.forEach(row => {
       const courierId = row[1];
       if (!courierTargets[courierId]) {
-        const mondayTarget = this.getMondayTargetForWeek(
-          rawData,      // Pass ALL raw data
-          weekStartDate, // Pass week start date
-          courierId, 
+        const target = this.getTargetFromMap(
+          targetMap,
           row[5], // contract type
           row[6]  // vehicle type
         );
-        courierTargets[courierId] = mondayTarget;
+        courierTargets[courierId] = target;
       }
     });
     
