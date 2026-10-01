@@ -27,28 +27,6 @@ function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
     }
   }, [initialFilters]);
 
-  // Auto-apply default filter on mount (first load)
-  useEffect(() => {
-    // Only run once on mount
-    const isFirstLoad = !initialFilters || 
-      (initialFilters.contract === 'all' && initialFilters.vehicle === 'all');
-    
-    if (isFirstLoad && dataDateRange) {
-      // Auto-apply default filter: Dedicated + 2WH
-      const weekRange = getWeekRange(0);
-      onApplyFilter({
-        dateRange: {
-          start: weekRange.monday,
-          end: weekRange.sunday,
-        },
-        contract: 'Dedicated',
-        vehicle: '2WH',
-        weekOffset: 0,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataDateRange]); // Only run when data is loaded
-
   // Calculate week range based on offset
   const getWeekRange = (offset) => {
     const referenceDate = dataDateRange?.latest ? new Date(dataDateRange.latest) : new Date();

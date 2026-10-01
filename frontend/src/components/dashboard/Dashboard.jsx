@@ -46,12 +46,49 @@ function Dashboard({ autoRefreshEnabled = true }) {
     vehicle: '2WH',
   });
 
+  // Track if initial filter has been applied
+  const [initialFilterApplied, setInitialFilterApplied] = useState(false);
+
   // Initial data fetch
   useEffect(() => {
     // Only call fetchDashboardData - it already loads raw data and computes everything
     // fetchCourierSchedule is redundant as computeDashboardData already includes schedule
     fetchDashboardData(null); // null = no date filter, show all data
   }, [fetchDashboardData]);
+
+  // Auto-apply default filter after raw data is loaded
+  useEffect(() => {
+    // Only apply once when raw data is available and not yet applied
+    if (rawCourierData && dataDateRange && !initialFilterApplied && !isLoading) {
+      console.log('[Dashboard] Auto-applying default filter: Dedicated + 2WH');
+      
+      // Calculate latest week range
+      const referenceDate = new Date(dataDateRange.latest);
+      const currentDayOfWeek = referenceDate.getDay();
+      const daysFromMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+      
+      const monday = new Date(referenceDate);
+      monday.setDate(referenceDate.getDate() - daysFromMonday);
+      monday.setHours(0, 0, 0, 0);
+      
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+      
+      // Apply default filter
+      handleApplyFilter({
+        dateRange: {
+          start: monday,
+          end: sunday,
+        },
+        contract: 'Dedicated',
+        vehicle: '2WH',
+        weekOffset: 0,
+      });
+      
+      setInitialFilterApplied(true);
+    }
+  }, [rawCourierData, dataDateRange, initialFilterApplied, isLoading]);
 
   // Handle filter application
   const handleApplyFilter = async (filterData) => {
