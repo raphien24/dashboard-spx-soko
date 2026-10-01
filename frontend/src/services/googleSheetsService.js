@@ -1334,10 +1334,24 @@ class GoogleSheetsService {
       : 0;
 
     // === KPI 2: DEDICATED VS PLUS (2WH only) ===
-    const kurirPlus2WH = activeRecords.filter(row => 
+    // ⚠️ SPECIAL: This KPI is NOT affected by contract/vehicle filters
+    // Only date filter applies - always compare ALL Dedicated vs ALL Kurir Plus 2WH
+    let dedicatedVsPlusRecords = rawData.filter(row => 
+      row[13] && this.parseNumeric(row[13]) > 0
+    );
+    
+    // Apply ONLY date filter (ignore contract/vehicle filters)
+    if (filters.dateRange) {
+      dedicatedVsPlusRecords = this.filterByDateRange(dedicatedVsPlusRecords, filters.dateRange);
+    }
+    
+    // Deduplicate for DEDICATED VS PLUS calculation
+    dedicatedVsPlusRecords = this.deduplicateByIdAndDate(dedicatedVsPlusRecords);
+    
+    const kurirPlus2WH = dedicatedVsPlusRecords.filter(row => 
       row[5]?.includes('Kurir Plus') && row[6] === '2WH'
     );
-    const dedicated2WH = activeRecords.filter(row => 
+    const dedicated2WH = dedicatedVsPlusRecords.filter(row => 
       row[5] === 'Dedicated' && row[6] === '2WH'
     );
 
