@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Search, Filter, CheckCircle, XCircle, Eye, E
  * Weekly Schedule Table Component
  * Matches canvas spreadsheet table with all columns and features
  */
-function WeeklyScheduleTable({ data, onWeekChange, dataDateRange }) {
+function WeeklyScheduleTable({ data, onWeekChange, dataDateRange, onFilterChange }) {
   const [filters, setFilters] = useState({
     specificDate: 'All Specific Dates',
     district: 'All Districts',
@@ -181,6 +181,12 @@ function WeeklyScheduleTable({ data, onWeekChange, dataDateRange }) {
   const handleFilterChange = (filterName, value) => {
     setFilters(prev => ({ ...prev, [filterName]: value }));
     setCurrentPage(1); // Reset to first page
+    
+    // Notify parent (Dashboard) if contract or vehicle filter changes
+    // This will update KPI cards to match the filter
+    if ((filterName === 'contract' || filterName === 'vehicle') && onFilterChange) {
+      onFilterChange(filterName, value);
+    }
   };
 
   const resetFilters = () => {

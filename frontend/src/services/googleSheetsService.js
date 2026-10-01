@@ -1090,6 +1090,183 @@ class GoogleSheetsService {
   }
 
   /**
+   * Process KPI metrics from cached raw data (client-side filtering)
+   * This allows dynamic filtering by date, contract, and vehicle without API calls
+   * @param {Array} rawData - Full raw data array (already loaded once)
+   * @param {Object} filters - { dateRange, contract, vehicle }
+   * @returns {Object} - KPI metrics object
+   */
+  processKPIMetricsFromRaw(rawData, filters = {}) {
+    if (!rawData || rawData.length === 0) {
+      console.warn('[processKPIMetricsFromRaw] No raw data provided');
+      return this.getMockKPIData();
+    }
+
+    console.log('[processKPIMetricsFromRaw] Processing with filters:', filters);
+
+    // Filter active records (has Delivered value)
+    let activeRecords = rawData.filter(row => 
+      row[13] && this.parseNumeric(row[13]) > 0
+    );
+
+    console.log('[processKPIMetricsFromRaw] Active records (Delivered > 0):', activeRecords.length);
+
+    // Apply date range filter if provided
+    if (filters.dateRange) {
+      activeRecords = this.filterByDateRange(activeRecords, filters.dateRange);
+      console.log('[processKPIMetricsFromRaw] After date filter:', activeRecords.length);
+    }
+
+    // Apply contract type filter if provided
+    if (filters.contract && filters.contract !== 'all') {
+      activeRecords = activeRecords.filter(row => row[5] === filters.contract);
+      console.log('[processKPIMetricsFromRaw] After contract filter:', activeRecords.length);
+    }
+
+    // Apply vehicle type filter if provided
+    if (filters.vehicle && filters.vehicle !== 'all') {
+      activeRecords = activeRecords.filter(row => row[6] === filters.vehicle);
+      console.log('[processKPIMetricsFromRaw] After vehicle filter:', activeRecords.length);
+    }
+
+    // Deduplicate: 1 courier per date only
+    activeRecords = this.deduplicateByIdAndDate(activeRecords);
+    console.log('[processKPIMetricsFromRaw] After deduplication:', activeRecords.length);
+
+    if (activeRecords.length === 0) {
+      console.warn('[processKPIMetricsFromRaw] No data after filtering');
+      return this.getMockKPIData();
+    }
+
+    // === KPI 1: WEEKLY AVG PRODUCTIVITY ===
+    const totalDelivered = activeRecords.reduce((sum, row) => 
+      sum + this.parseNumeric(row[13]), 0
+    );
+    const totalActiveShifts = activeRecords.length;
+    const weeklyAvgProductivity = totalActiveShifts > 0 
+      ? totalDelivered / totalActiveShifts 
+      : 0;
+
+    // Calculate target (weighted average based on contract/vehicle distribution)
+    const avgTarget = activeRecords.reduce((sum, row) => {
+      const target = this.getTargetByContractAndVehicle(row[5], row[6]);
+      return sum + target;
+    }, 0) / totalActiveShifts;
+
+    const productivityProgress = avgTarget > 0 
+      ? (weeklyAvgProductivity / avgTarget) * 100 
+      : 0;
+
+    // === KPI 2: DEDICATED VS PLUS (2WH only) ===
+    const kurirPlus2WH = activeRecords.filter(row => 
+      row[5]?.includes('Kurir Plus') && row[6] === '2WH'
+    );
+    const dedicated2WH = activeRecords.filter(row => 
+      row[5] === 'Dedicated' && row[6] === '2WH'
+    );
+
+    const kurirPlusAvg = kurirPlus2WH.length > 0
+      ? kurirPlus2WH.reduce((sum, row) => sum + this.parseNumeric(row[13]), 0) / kurirPlus2WH.length
+      : 0;
+
+    const dedicatedAvg = dedicated2WH.length > 0
+      ? dedicated2WH.reduce((sum, row) => sum + this.parseNumeric(row[13]), 0) / dedicated2WH.length
+      : 0;
+
+    const dedicatedVsPlus = dedicatedAvg > 0 
+      ? (kurirPlusAvg / dedicatedAvg) * 100 
+      : 0;
+
+    const dedicatedVsPlusDiff = 100 - dedicatedVsPlus;
+
+    // === KPI 3: DAILY ACTIVE (2WH, Dedicated+Kurir Plus only, Deliv>0) ===
+    // Apply same filters to base data before calculating DAILY ACTIVE
+    let filtered2WHDedicatedPlus = rawData.filter(row => 
+      row[6] === '2WH' && 
+      (row[5] === 'Dedicated' || row[5]?.includes('Kurir Plus')) &&
+      row[13] && this.parseNumeric(row[13]) > 0
+    );
+
+    // Apply date filter
+    if (filters.dateRange) {
+      filtered2WHDedicatedPlus = this.filterByDateRange(filtered2WHDedicatedPlus, filters.dateRange);
+    }
+
+    // Apply contract filter (for DAILY ACTIVE calculation)
+    if (filters.contract && filters.contract !== 'all') {
+      filtered2WHDedicatedPlus = filtered2WHDedicatedPlus.filter(row => row[5] === filters.contract);
+    }
+
+    // Get unique couriers (by ID)
+    const uniqueCouriers = new Set(filtered2WHDedicatedPlus.map(row => row[1]));
+    const totalUniqueCouriers = uniqueCouriers.size;
+
+    // Get unique dates to determine operating days
+    const uniqueDates = new Set(filtered2WHDedicatedPlus.map(row => row[3]));
+    const operatingDays = uniqueDates.size || 6; // Default to 6 if can't determine
+
+    const activeShiftsFiltered = filtered2WHDedicatedPlus.length;
+    const dailyActiveRate = (totalUniqueCouriers > 0 && operatingDays > 0)
+      ? (activeShiftsFiltered / (totalUniqueCouriers * operatingDays)) * 100
+      : 0;
+
+    const avgCouriersPerDay = operatingDays > 0 
+      ? activeShiftsFiltered / operatingDays 
+      : 0;
+
+    console.log('[processKPIMetricsFromRaw] KPI results:', {
+      weeklyAvgProductivity: weeklyAvgProductivity.toFixed(1),
+      dedicatedVsPlus: dedicatedVsPlus.toFixed(1),
+      dailyActiveRate: dailyActiveRate.toFixed(1),
+    });
+
+    return {
+      weeklyProductivity: {
+        value: parseFloat(weeklyAvgProductivity.toFixed(1)),
+        target: parseFloat(avgTarget.toFixed(1)),
+        unit: 'DELIVERED / COURIER / SHIFT',
+        progress: parseFloat(productivityProgress.toFixed(1)),
+        label: 'WEEKLY AVG PRODUCTIVITY',
+        badge: 'CORE KPI',
+        subMetrics: {
+          totalVolume: totalDelivered,
+          activeShifts: totalActiveShifts,
+          shiftTarget: parseFloat(avgTarget.toFixed(1)),
+          formula: 'Total Deliv ÷ Total Active Shifts'
+        }
+      },
+      dedicatedVsPlus: {
+        value: parseFloat(dedicatedVsPlus.toFixed(1)),
+        unit: '%',
+        label: 'DEDICATED VS PLUS',
+        badge: '2WH FLEET',
+        diff: parseFloat(dedicatedVsPlusDiff.toFixed(1)),
+        subMetrics: {
+          kurirPlusAvg: parseFloat(kurirPlusAvg.toFixed(1)),
+          dedicatedAvg: parseFloat(dedicatedAvg.toFixed(1)),
+          kurirPlusCount: kurirPlus2WH.length,
+          dedicatedCount: dedicated2WH.length,
+          formula: '(2W Plus ÷ 2w Dedicated) × 100'
+        }
+      },
+      dailyActive: {
+        value: parseFloat(dailyActiveRate.toFixed(1)),
+        unit: '%',
+        label: 'DAILY ACTIVE',
+        badge: 'DELIV >0',
+        filters: '2W | D(0)+PLUS | DELIV >0',
+        subMetrics: {
+          activeShifts: activeShiftsFiltered,
+          totalCouriers: totalUniqueCouriers,
+          operatingDays: operatingDays,
+          avgCouriersPerDay: parseFloat(avgCouriersPerDay.toFixed(1)),
+          formula: 'Active Shifts ÷ (Unique Headcount × Op Days)'
+        }
+      }
+    };
+  }
+
+  /**
    * Helper: Parse numeric value from cell
    * @param {string|number} value - Cell value
    * @returns {number} - Parsed number or 0

@@ -41,6 +41,30 @@ const useDashboardStore = create((set, get) => ({
   },
 
   /**
+   * Set filter and recompute dashboard
+   */
+  setFilter: (filterName, filterValue) => {
+    console.log('[Store] Setting filter:', filterName, '=', filterValue);
+    
+    set({ 
+      filters: { 
+        ...get().filters, 
+        [filterName]: filterValue 
+      } 
+    });
+    
+    // Recompute with new filters
+    const { activeDateRange, filters } = get();
+    const updatedFilters = {
+      dateRange: activeDateRange,
+      contract: filterName === 'contract' ? filterValue : filters.contract,
+      vehicle: filterName === 'vehicle' ? filterValue : filters.vehicle,
+    };
+    
+    get().computeDashboardData(updatedFilters);
+  },
+
+  /**
    * Load ALL raw data from Google Sheets once
    */
   loadRawData: async () => {
@@ -121,8 +145,8 @@ const useDashboardStore = create((set, get) => ({
   /**
    * Compute ALL dashboard data from cached raw data (INSTANT - no API call)
    */
-  computeDashboardData: async (dateRange) => {
-    const { rawCourierData } = get();
+  computeDashboardData: async (filtersOrDateRange) => {
+    const { rawCourierData, filters: storeFilters } = get();
     
     if (!rawCourierData || rawCourierData.length === 0) {
       console.warn('[Store] No raw data available to compute dashboard');
@@ -136,24 +160,44 @@ const useDashboardStore = create((set, get) => ({
       return;
     }
     
-    console.log('[Store] Computing dashboard data for date range:', dateRange);
+    // Handle both old signature (dateRange only) and new signature (filters object)
+    let filters = {};
+    if (filtersOrDateRange && filtersOrDateRange.dateRange !== undefined) {
+      // New signature: full filters object
+      filters = filtersOrDateRange;
+    } else if (filtersOrDateRange && (filtersOrDateRange.start || filtersOrDateRange.end)) {
+      // Old signature: dateRange object only
+      filters = { dateRange: filtersOrDateRange };
+    } else {
+      // Use current store filters
+      filters = {
+        dateRange: filtersOrDateRange,
+        contract: storeFilters.contract,
+        vehicle: storeFilters.vehicle,
+      };
+    }
+    
+    console.log('[Store] Computing dashboard data with filters:', filters);
     const startTime = performance.now();
     
     try {
-      // For now, still use the service methods (they will call API)
-      // TODO: Refactor service methods to accept raw data
-      const filters = dateRange ? { dateRange } : {};
+      // Use client-side processing for KPI (respects all filters)
+      const kpiMetrics = googleSheetsService.processKPIMetricsFromRaw(rawCourierData, filters);
       
-      // Compute all metrics - service methods will handle their own data fetching for now
-      const [kpiMetrics, summaryMetrics, performanceData, zonesData] = await Promise.all([
-        googleSheetsService.getKPIMetrics(filters),
-        googleSheetsService.getSummaryMetrics(filters),
-        googleSheetsService.getPerformanceByContract(filters),
-        googleSheetsService.getTopZones(filters),
+      // Other metrics still use API for now (will refactor later)
+      const apiFilters = filters.dateRange ? { dateRange: filters.dateRange } : {};
+      const [summaryMetrics, performanceData, zonesData] = await Promise.all([
+        googleSheetsService.getSummaryMetrics(apiFilters),
+        googleSheetsService.getPerformanceByContract(apiFilters),
+        googleSheetsService.getTopZones(apiFilters),
       ]);
       
       // Compute courier schedule from cached raw data (client-side filtering)
-      const courierSchedule = googleSheetsService.processCourierScheduleFromRaw(rawCourierData, dateRange);
+      const courierSchedule = googleSheetsService.processCourierScheduleFromRaw(
+        rawCourierData, 
+        filters.dateRange,
+        { contract: filters.contract, vehicle: filters.vehicle }
+      );
       
       const endTime = performance.now();
       console.log('[Store] Dashboard computed in', (endTime - startTime).toFixed(2), 'ms');
@@ -171,7 +215,7 @@ const useDashboardStore = create((set, get) => ({
         performanceData,
         zonesData,
         courierSchedule,
-        activeDateRange: dateRange,
+        activeDateRange: filters.dateRange,
         lastUpdated: new Date(),
       });
     } catch (error) {
@@ -235,8 +279,13 @@ const useDashboardStore = create((set, get) => ({
       } 
     });
     
-    // Recompute all dashboard data instantly
-    get().computeDashboardData(dateRange);
+    // Recompute all dashboard data instantly with current filters
+    const { filters } = get();
+    get().computeDashboardData({
+      dateRange,
+      contract: filters.contract,
+      vehicle: filters.vehicle,
+    });
   },
 
   /**

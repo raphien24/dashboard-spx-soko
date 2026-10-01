@@ -26,6 +26,7 @@ function Dashboard({ autoRefreshEnabled = true }) {
     refreshDashboardData,
     fetchCourierSchedule,
     setDateRange, // NEW: For instant week navigation
+    setFilter, // NEW: For filter contract/vehicle
     detectDateRangeFromData, // NEW: Detect date range from data
     rawCourierData, // NEW: Access to raw data for date detection
   } = useDashboardStore();
@@ -48,8 +49,8 @@ function Dashboard({ autoRefreshEnabled = true }) {
     }
   }, 30000, autoRefreshEnabled);
 
-  // Loading state
-  if (isLoading) {
+  // Loading state - show loader until data is ready
+  if (isLoading || (!kpiMetrics && !error)) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <Loader className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
@@ -199,6 +200,11 @@ function Dashboard({ autoRefreshEnabled = true }) {
               start: weekRange.monday, 
               end: weekRange.sunday 
             });
+          }}
+          onFilterChange={(filterName, filterValue) => {
+            // Update store filter (contract or vehicle)
+            // This will recompute KPI cards to match the filter
+            setFilter(filterName, filterValue);
           }}
         />
       </ErrorBoundary>
