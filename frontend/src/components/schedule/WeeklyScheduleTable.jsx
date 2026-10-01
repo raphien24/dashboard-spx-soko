@@ -10,17 +10,48 @@ function WeeklyScheduleTable({ data }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDay, setSelectedDay] = useState('Full Week (Sen-Min)');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   // Safely handle data
   const safeData = data || [];
   const hasData = safeData.length > 0;
 
-  // Apply search filter only (other filters handled by DashboardFilters)
+  // Sorting function
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+    setCurrentPage(1); // Reset to first page when sorting
+  };
+
+  // Get sort icon
+  const getSortIcon = (columnKey) => {
+    if (sortConfig.key !== columnKey) {
+      return (
+        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        </svg>
+      );
+    }
+    return sortConfig.direction === 'asc' ? (
+      <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+      </svg>
+    ) : (
+      <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+      </svg>
+    );
+  };
+
+  // Apply search filter and sorting
   const filteredData = useMemo(() => {
     if (!hasData) return [];
 
-    return safeData.filter(item => {
+    let result = safeData.filter(item => {
       // Search filter
       if (searchQuery) {
         const search = searchQuery.toLowerCase();
@@ -34,7 +65,35 @@ function WeeklyScheduleTable({ data }) {
 
       return true;
     });
-  }, [safeData, hasData, searchQuery]);
+
+    // Apply sorting
+    if (sortConfig.key) {
+      result.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+
+        // Handle null/undefined values
+        if (aValue == null) aValue = '';
+        if (bValue == null) bValue = '';
+
+        // String comparison for text fields
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return result;
+  }, [safeData, hasData, searchQuery, sortConfig]);
 
   // Day tabs with counts (Indonesian)
   const dayTabs = [
@@ -134,32 +193,86 @@ function WeeklyScheduleTable({ data }) {
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 #
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[200px]">
-                Unique Courier
+              <th 
+                onClick={() => handleSort('name')}
+                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[200px] cursor-pointer hover:bg-gray-200 transition-colors"
+              >
+                <div className="flex items-center gap-1">
+                  Unique Courier
+                  {getSortIcon('name')}
+                </div>
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                District
+              <th 
+                onClick={() => handleSort('district')}
+                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+              >
+                <div className="flex items-center gap-1">
+                  District
+                  {getSortIcon('district')}
+                </div>
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Zone
+              <th 
+                onClick={() => handleSort('zone')}
+                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+              >
+                <div className="flex items-center gap-1">
+                  Zone
+                  {getSortIcon('zone')}
+                </div>
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Contract
+              <th 
+                onClick={() => handleSort('contract')}
+                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+              >
+                <div className="flex items-center gap-1">
+                  Contract
+                  {getSortIcon('contract')}
+                </div>
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Vehicle
+              <th 
+                onClick={() => handleSort('vehicle')}
+                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+              >
+                <div className="flex items-center gap-1">
+                  Vehicle
+                  {getSortIcon('vehicle')}
+                </div>
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[180px]">
-                Weekly Productivity vs Target
+              <th 
+                onClick={() => handleSort('productivityPercentage')}
+                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[180px] cursor-pointer hover:bg-gray-200 transition-colors"
+              >
+                <div className="flex items-center gap-1">
+                  Weekly Productivity vs Target
+                  {getSortIcon('productivityPercentage')}
+                </div>
               </th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Avg Daily / Target
+              <th 
+                onClick={() => handleSort('avgDaily')}
+                className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+              >
+                <div className="flex items-center justify-end gap-1">
+                  Avg Daily / Target
+                  {getSortIcon('avgDaily')}
+                </div>
               </th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Total Week Deliv
+              <th 
+                onClick={() => handleSort('totalWeekDeliv')}
+                className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+              >
+                <div className="flex items-center justify-end gap-1">
+                  Total Week Deliv
+                  {getSortIcon('totalWeekDeliv')}
+                </div>
               </th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Success %
+              <th 
+                onClick={() => handleSort('successRate')}
+                className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+              >
+                <div className="flex items-center justify-end gap-1">
+                  Success %
+                  {getSortIcon('successRate')}
+                </div>
               </th>
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Active Days
@@ -369,9 +482,32 @@ function WeeklyScheduleTable({ data }) {
 
       {/* Pagination */}
       <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredData.length)} of {filteredData.length} couriers
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-600">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredData.length)} of {filteredData.length} couriers
+            </div>
+            
+            {/* Rows per page selector */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="rows-per-page" className="text-sm text-gray-600">
+                Rows per page:
+              </label>
+              <select
+                id="rows-per-page"
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1); // Reset to first page
+                }}
+                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
           </div>
           
           <div className="flex items-center gap-2">

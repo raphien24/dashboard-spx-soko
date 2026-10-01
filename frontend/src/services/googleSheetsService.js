@@ -940,13 +940,27 @@ class GoogleSheetsService {
       const mondayRecord = mondayRecords[0];
       const assignedTarget = this.parseNumeric(mondayRecord[9]); // Assigned Target column (index 9)
       
+      // Log for debugging
+      console.log(`[getMondayTargetForWeek] Courier ${courierId}:`, {
+        mondayDate: mondayRecord[3],
+        assignedTargetRaw: mondayRecord[9],
+        assignedTargetParsed: assignedTarget,
+        contract: contractType,
+        vehicle: vehicleType,
+      });
+      
       if (assignedTarget > 0) {
         return assignedTarget;
       }
+    } else {
+      // No Monday record found - log for debugging
+      console.warn(`[getMondayTargetForWeek] No Monday record found for courier ${courierId}. Using fallback target.`);
     }
     
     // Fallback: use static target by contract/vehicle
-    return this.getTargetByContractAndVehicle(contractType, vehicleType);
+    const fallbackTarget = this.getTargetByContractAndVehicle(contractType, vehicleType);
+    console.log(`[getMondayTargetForWeek] Using fallback target for ${courierId}:`, fallbackTarget);
+    return fallbackTarget;
   }
 
   /**
