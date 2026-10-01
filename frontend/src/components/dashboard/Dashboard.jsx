@@ -75,12 +75,12 @@ function Dashboard({ autoRefreshEnabled = true }) {
     });
   };
 
-  // Auto-refresh every 30 seconds (configurable and controllable)
-  useAutoRefresh(() => {
-    if (autoRefreshEnabled) {
-      refreshDashboardData();
-    }
-  }, 30000, autoRefreshEnabled);
+  // Auto-refresh disabled - user can manually refresh by reloading browser tab
+  // useAutoRefresh(() => {
+  //   if (autoRefreshEnabled) {
+  //     refreshDashboardData();
+  //   }
+  // }, 30000, autoRefreshEnabled);
 
   // Loading state - show loader until data is ready
   if (isLoading || (!kpiMetrics && !error)) {

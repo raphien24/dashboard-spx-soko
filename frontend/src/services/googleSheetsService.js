@@ -912,7 +912,46 @@ class GoogleSheetsService {
   }
 
   /**
-   * Get target for courier based on contract type and vehicle type
+   * Get target from Monday's "Assigned Target" for the week
+   * @param {Array} records - Filtered records for the week
+   * @param {String} courierId - Courier ID to find target for
+   * @param {String} contractType - Fallback contract type
+   * @param {String} vehicleType - Fallback vehicle type
+   * @returns {Number} - Target value
+   */
+  getMondayTargetForWeek(records, courierId, contractType, vehicleType) {
+    // Find Monday record for this courier
+    const mondayRecords = records.filter(row => {
+      const rowCourierId = row[1]; // ID column
+      const dateStr = row[3]; // Date column
+      
+      if (rowCourierId !== courierId) return false;
+      
+      const date = this.parseDate(dateStr);
+      if (!date) return false;
+      
+      // Check if it's Monday (1 = Monday in JavaScript)
+      const dayOfWeek = date.getDay();
+      return dayOfWeek === 1; // 1 = Monday
+    });
+    
+    // If found Monday record, get Assigned Target from column 9
+    if (mondayRecords.length > 0) {
+      const mondayRecord = mondayRecords[0];
+      const assignedTarget = this.parseNumeric(mondayRecord[9]); // Assigned Target column (index 9)
+      
+      if (assignedTarget > 0) {
+        return assignedTarget;
+      }
+    }
+    
+    // Fallback: use static target by contract/vehicle
+    return this.getTargetByContractAndVehicle(contractType, vehicleType);
+  }
+
+  /**
+   * Get target for courier based on contract type and vehicle type (FALLBACK ONLY)
+   * This is now only used as fallback when Monday target is not available
    * Based on actual data analysis:
    * - Dedicated 2WH: 207-299 (avg 260.97)
    * - Dedicated 4WH: 53-104 (avg 78.75)
@@ -1178,11 +1217,14 @@ class GoogleSheetsService {
       courierProductivity[courierId].shifts++;
     });
 
-    // Count how many met target
+    // Count how many met target (use Monday target)
     let metQuota = 0;
-    Object.values(courierProductivity).forEach(courier => {
+    Object.keys(courierProductivity).forEach(courierId => {
+      const courier = courierProductivity[courierId];
       const avgProductivity = courier.totalDelivered / courier.shifts;
-      const target = this.getTargetByContractAndVehicle(
+      const target = this.getMondayTargetForWeek(
+        activeRecords,
+        courierId,
         courier.contractType, 
         courier.vehicleType
       );
@@ -1323,11 +1365,27 @@ class GoogleSheetsService {
       ? totalDelivered / totalActiveShifts 
       : 0;
 
-    // Calculate target (weighted average based on contract/vehicle distribution)
-    const avgTarget = activeRecords.reduce((sum, row) => {
-      const target = this.getTargetByContractAndVehicle(row[5], row[6]);
-      return sum + target;
-    }, 0) / totalActiveShifts;
+    // Calculate target (use Monday's Assigned Target for the week)
+    // Group by courier to get Monday target per courier
+    const courierTargets = {};
+    activeRecords.forEach(row => {
+      const courierId = row[1];
+      if (!courierTargets[courierId]) {
+        const mondayTarget = this.getMondayTargetForWeek(
+          activeRecords, 
+          courierId, 
+          row[5], // contract type
+          row[6]  // vehicle type
+        );
+        courierTargets[courierId] = mondayTarget;
+      }
+    });
+    
+    // Calculate weighted average target
+    const totalTargets = Object.values(courierTargets).reduce((sum, target) => sum + target, 0);
+    const avgTarget = Object.keys(courierTargets).length > 0 
+      ? totalTargets / Object.keys(courierTargets).length 
+      : 0;
 
     const productivityProgress = avgTarget > 0 
       ? (weeklyAvgProductivity / avgTarget) * 100 
