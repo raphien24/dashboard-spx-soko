@@ -913,15 +913,19 @@ class GoogleSheetsService {
 
   /**
    * Get target from Monday's "Assigned Target" for the week
-   * @param {Array} records - Filtered records for the week
+   * Strategy: Find the MOST RECENT Monday record for this courier that is <= week start date
+   * This handles cases where courier didn't work on Monday of the target week
+   * 
+   * @param {Array} allRawRecords - ALL raw data (not filtered by week)
+   * @param {Date} weekStartDate - Monday date of the week we're calculating for
    * @param {String} courierId - Courier ID to find target for
    * @param {String} contractType - Fallback contract type
    * @param {String} vehicleType - Fallback vehicle type
    * @returns {Number} - Target value
    */
-  getMondayTargetForWeek(records, courierId, contractType, vehicleType) {
-    // Find Monday record for this courier
-    const mondayRecords = records.filter(row => {
+  getMondayTargetForWeek(allRawRecords, weekStartDate, courierId, contractType, vehicleType) {
+    // Find ALL Monday records for this courier (across all time)
+    const mondayRecords = allRawRecords.filter(row => {
       const rowCourierId = row[1]; // ID column
       const dateStr = row[3]; // Date column
       
@@ -935,31 +939,58 @@ class GoogleSheetsService {
       return dayOfWeek === 1; // 1 = Monday
     });
     
-    // If found Monday record, get Assigned Target from column 9
-    if (mondayRecords.length > 0) {
-      const mondayRecord = mondayRecords[0];
-      const assignedTarget = this.parseNumeric(mondayRecord[9]); // Assigned Target column (index 9)
+    if (mondayRecords.length === 0) {
+      // No Monday records at all for this courier
+      console.warn(`[getMondayTargetForWeek] No Monday records found for courier ${courierId}. Using fallback target.`);
+      const fallbackTarget = this.getTargetByContractAndVehicle(contractType, vehicleType);
+      console.log(`[getMondayTargetForWeek] Using fallback target for ${courierId}:`, fallbackTarget);
+      return fallbackTarget;
+    }
+    
+    // Find the MOST RECENT Monday that is <= weekStartDate
+    let closestMonday = null;
+    let closestMondayDate = null;
+    
+    mondayRecords.forEach(record => {
+      const recordDate = this.parseDate(record[3]);
+      if (!recordDate) return;
       
-      // Log for debugging
-      console.log(`[getMondayTargetForWeek] Courier ${courierId}:`, {
-        mondayDate: mondayRecord[3],
-        assignedTargetRaw: mondayRecord[9],
-        assignedTargetParsed: assignedTarget,
-        contract: contractType,
-        vehicle: vehicleType,
-      });
-      
-      if (assignedTarget > 0) {
-        return assignedTarget;
+      // Check if this Monday is on or before the week start
+      if (recordDate <= weekStartDate) {
+        // Check if this is closer than our current closest
+        if (!closestMondayDate || recordDate > closestMondayDate) {
+          closestMonday = record;
+          closestMondayDate = recordDate;
+        }
       }
-    } else {
-      // No Monday record found - log for debugging
-      console.warn(`[getMondayTargetForWeek] No Monday record found for courier ${courierId}. Using fallback target.`);
+    });
+    
+    // If no Monday found before/on weekStartDate, use the first Monday available
+    if (!closestMonday) {
+      console.warn(`[getMondayTargetForWeek] No Monday found before ${weekStartDate.toISOString()} for ${courierId}, using first available Monday`);
+      closestMonday = mondayRecords[0];
+    }
+    
+    // Get Assigned Target from column 9
+    const assignedTarget = this.parseNumeric(closestMonday[9]); // Assigned Target column (index 9)
+    
+    // Log for debugging
+    console.log(`[getMondayTargetForWeek] Courier ${courierId}:`, {
+      weekStart: weekStartDate.toLocaleDateString('en-US'),
+      mondayDate: closestMonday[3],
+      assignedTargetRaw: closestMonday[9],
+      assignedTargetParsed: assignedTarget,
+      contract: contractType,
+      vehicle: vehicleType,
+    });
+    
+    if (assignedTarget > 0) {
+      return assignedTarget;
     }
     
     // Fallback: use static target by contract/vehicle
     const fallbackTarget = this.getTargetByContractAndVehicle(contractType, vehicleType);
-    console.log(`[getMondayTargetForWeek] Using fallback target for ${courierId}:`, fallbackTarget);
+    console.warn(`[getMondayTargetForWeek] Assigned target is 0 for ${courierId}, using fallback:`, fallbackTarget);
     return fallbackTarget;
   }
 
@@ -1106,7 +1137,17 @@ class GoogleSheetsService {
     let couriers = Object.values(courierGroups).map(courier => {
       const shiftsCount = courier.shifts.length;
       const avgDaily = shiftsCount > 0 ? courier.totalDelivered / shiftsCount : 0;
-      const target = this.getTargetByContractAndVehicle(courier.contract, courier.vehicle);
+      
+      // Calculate target using Monday target (same logic as KPI cards)
+      let weekStartDate = null;
+      if (dateRange && dateRange.start) {
+        weekStartDate = new Date(dateRange.start);
+      }
+      
+      const target = weekStartDate 
+        ? this.getMondayTargetForWeek(rawData, weekStartDate, courier.id, courier.contract, courier.vehicle)
+        : this.getTargetByContractAndVehicle(courier.contract, courier.vehicle);
+        
       const productivityPercentage = target > 0 ? (avgDaily / target) * 100 : 0;
       const successRate = courier.totalHandedOver > 0 
         ? (courier.totalDelivered / courier.totalHandedOver) * 100 
@@ -1232,12 +1273,19 @@ class GoogleSheetsService {
     });
 
     // Count how many met target (use Monday target)
+    // Determine week start date from filters
+    let weekStartDate = null;
+    if (filters.dateRange && filters.dateRange.start) {
+      weekStartDate = new Date(filters.dateRange.start);
+    }
+    
     let metQuota = 0;
     Object.keys(courierProductivity).forEach(courierId => {
       const courier = courierProductivity[courierId];
       const avgProductivity = courier.totalDelivered / courier.shifts;
       const target = this.getMondayTargetForWeek(
-        activeRecords,
+        rawData,       // Pass ALL raw data
+        weekStartDate, // Pass week start date
         courierId,
         courier.contractType, 
         courier.vehicleType
@@ -1380,13 +1428,20 @@ class GoogleSheetsService {
       : 0;
 
     // Calculate target (use Monday's Assigned Target for the week)
+    // Determine week start date from filters
+    let weekStartDate = null;
+    if (filters.dateRange && filters.dateRange.start) {
+      weekStartDate = new Date(filters.dateRange.start);
+    }
+    
     // Group by courier to get Monday target per courier
     const courierTargets = {};
     activeRecords.forEach(row => {
       const courierId = row[1];
       if (!courierTargets[courierId]) {
         const mondayTarget = this.getMondayTargetForWeek(
-          activeRecords, 
+          rawData,      // Pass ALL raw data
+          weekStartDate, // Pass week start date
           courierId, 
           row[5], // contract type
           row[6]  // vehicle type
