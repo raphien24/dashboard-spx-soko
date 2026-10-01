@@ -185,13 +185,13 @@ const useDashboardStore = create((set, get) => ({
     set({ isFiltering: true });
     
     try {
-      // Use client-side processing for KPI (respects all filters)
+      // Use client-side processing for KPI and Summary (respects all filters)
       const kpiMetrics = googleSheetsService.processKPIMetricsFromRaw(rawCourierData, filters);
+      const summaryMetrics = googleSheetsService.processSummaryMetricsFromRaw(rawCourierData, filters);
       
-      // Other metrics still use API for now (will refactor later)
+      // Charts still use API (only date filter - will refactor later if needed)
       const apiFilters = filters.dateRange ? { dateRange: filters.dateRange } : {};
-      const [summaryMetrics, performanceData, zonesData] = await Promise.all([
-        googleSheetsService.getSummaryMetrics(apiFilters),
+      const [performanceData, zonesData] = await Promise.all([
         googleSheetsService.getPerformanceByContract(apiFilters),
         googleSheetsService.getTopZones(apiFilters),
       ]);

@@ -1090,6 +1090,182 @@ class GoogleSheetsService {
   }
 
   /**
+   * Process Summary metrics from cached raw data (client-side filtering)
+   * @param {Array} rawData - Full raw data array (already loaded once)
+   * @param {Object} filters - { dateRange, contract, vehicle }
+   * @returns {Object} - Summary metrics object
+   */
+  processSummaryMetricsFromRaw(rawData, filters = {}) {
+    if (!rawData || rawData.length === 0) {
+      console.warn('[processSummaryMetricsFromRaw] No raw data provided');
+      return this.getMockSummaryData();
+    }
+
+    console.log('[processSummaryMetricsFromRaw] Processing with filters:', filters);
+
+    // Filter active records (has Delivered value)
+    let activeRecords = rawData.filter(row => 
+      row[13] && this.parseNumeric(row[13]) > 0
+    );
+
+    console.log('[processSummaryMetricsFromRaw] Active records (Delivered > 0):', activeRecords.length);
+
+    // Apply date range filter if provided
+    if (filters.dateRange) {
+      activeRecords = this.filterByDateRange(activeRecords, filters.dateRange);
+      console.log('[processSummaryMetricsFromRaw] After date filter:', activeRecords.length);
+    }
+
+    // Apply contract type filter if provided
+    if (filters.contract && filters.contract !== 'all') {
+      activeRecords = activeRecords.filter(row => row[5] === filters.contract);
+      console.log('[processSummaryMetricsFromRaw] After contract filter:', activeRecords.length);
+    }
+
+    // Apply vehicle type filter if provided
+    if (filters.vehicle && filters.vehicle !== 'all') {
+      activeRecords = activeRecords.filter(row => row[6] === filters.vehicle);
+      console.log('[processSummaryMetricsFromRaw] After vehicle filter:', activeRecords.length);
+    }
+
+    // Deduplicate: 1 courier per date only
+    activeRecords = this.deduplicateByIdAndDate(activeRecords);
+    console.log('[processSummaryMetricsFromRaw] After deduplication:', activeRecords.length);
+
+    if (activeRecords.length === 0) {
+      console.warn('[processSummaryMetricsFromRaw] No data after filtering');
+      return this.getMockSummaryData();
+    }
+
+    // UNIQUE HEADCOUNT: Unique couriers with Delivered > 0
+    const uniqueCouriers = new Set(activeRecords.map(row => row[1])); // ID column
+    const uniqueHeadcount = uniqueCouriers.size;
+    const activeShifts = activeRecords.length;
+
+    // TOTAL DELIVERED
+    const totalDelivered = activeRecords.reduce((sum, row) => 
+      sum + this.parseNumeric(row[13]), 0
+    );
+
+    // TOTAL HANDED OVER (use Handed Over as baseline)
+    const totalHandedOver = activeRecords.reduce((sum, row) => 
+      sum + this.parseNumeric(row[12]), 0
+    );
+
+    // Success Rate = Delivered / Handed Over
+    const successRate = totalHandedOver > 0 
+      ? (totalDelivered / totalHandedOver) * 100 
+      : 0;
+
+    // MET QUOTA: Count couriers who met target
+    // Group by courier ID and calculate avg productivity
+    const courierProductivity = {};
+    activeRecords.forEach(row => {
+      const courierId = row[1];
+      const delivered = this.parseNumeric(row[13]);
+      const contractType = row[5];
+      const vehicleType = row[6];
+      
+      if (!courierProductivity[courierId]) {
+        courierProductivity[courierId] = {
+          totalDelivered: 0,
+          shifts: 0,
+          contractType,
+          vehicleType
+        };
+      }
+      courierProductivity[courierId].totalDelivered += delivered;
+      courierProductivity[courierId].shifts++;
+    });
+
+    // Count how many met target
+    let metQuota = 0;
+    Object.values(courierProductivity).forEach(courier => {
+      const avgProductivity = courier.totalDelivered / courier.shifts;
+      const target = this.getTargetByContractAndVehicle(
+        courier.contractType, 
+        courier.vehicleType
+      );
+      if (avgProductivity >= target) {
+        metQuota++;
+      }
+    });
+
+    const metQuotaPercentage = uniqueHeadcount > 0 
+      ? (metQuota / uniqueHeadcount) * 100 
+      : 0;
+    const underTarget = uniqueHeadcount - metQuota;
+
+    // TOTAL ASSIGNED (for display)
+    const totalAssigned = activeRecords.reduce((sum, row) => 
+      sum + this.parseNumeric(row[8]), 0
+    );
+
+    // EXCEPTIONS: Failed Deliveries
+    const totalFailed = activeRecords.reduce((sum, row) => 
+      sum + this.parseNumeric(row[17]), 0 // Failed Delivery (#)
+    );
+
+    const failureRate = totalHandedOver > 0 
+      ? (totalFailed / totalHandedOver) * 100 
+      : 0;
+
+    // On-hold and stuck deliveries
+    const totalOnhold = activeRecords.reduce((sum, row) => 
+      sum + this.parseNumeric(row[20]), 0
+    );
+    const totalStuck = activeRecords.reduce((sum, row) => 
+      sum + this.parseNumeric(row[19]), 0
+    );
+
+    console.log('[processSummaryMetricsFromRaw] Summary results:', {
+      uniqueHeadcount,
+      totalDelivered,
+      metQuota,
+      totalAssigned,
+      totalFailed,
+    });
+
+    return {
+      uniqueHeadcount: {
+        value: uniqueHeadcount,
+        label: 'UNIQUE HEADCOUNT',
+        subtitle: 'Daily > 0',
+        detail: `${activeShifts} active shifts`,
+        detail2: 'Deliv > 0'
+      },
+      totalDelivered: {
+        value: totalDelivered,
+        label: 'TOTAL DELIVERED',
+        subtitle: `${successRate.toFixed(1)}%`,
+        detail: `of ${totalHandedOver.toLocaleString()} avg`,
+        detail2: 'Delivered'
+      },
+      metQuota: {
+        value: metQuota,
+        label: 'MET QUOTA',
+        subtitle: `${Math.round(metQuotaPercentage)}%`,
+        detail: `${underTarget} under tgt`,
+        detail2: 'Target Hit!'
+      },
+      totalAssigned: {
+        value: totalAssigned,
+        label: 'TOTAL ASSIGNED',
+        subtitle: 'Volume',
+        detail: `tgt ${totalHandedOver.toLocaleString()}`,
+        detail2: 'Assigned'
+      },
+      exceptions: {
+        value: totalFailed,
+        label: 'EXCEPTIONS',
+        subtitle: `${failureRate.toFixed(1)}%`,
+        detail: `${totalFailed} fail x ${totalOnhold} hld`,
+        detail2: `${totalStuck} stick`
+      }
+    };
+  }
+
+  /**
    * Process KPI metrics from cached raw data (client-side filtering)
    * This allows dynamic filtering by date, contract, and vehicle without API calls
    * @param {Array} rawData - Full raw data array (already loaded once)
