@@ -2,10 +2,23 @@ import { useState } from 'react';
 import { Play, Pause, RefreshCw } from 'lucide-react';
 import Sidebar from './components/common/Sidebar';
 import Dashboard from './components/dashboard/Dashboard';
+import useDashboardStore from './store/dashboardStore';
 
 function App() {
   const [activePage, setActivePage] = useState('productivity');
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
+  
+  // Get raw data to detect last update date
+  const { rawCourierData, detectDateRangeFromData } = useDashboardStore();
+  const dataDateRange = rawCourierData ? detectDateRangeFromData(rawCourierData) : null;
+  
+  // Format last update date
+  const formatLastUpdate = (date) => {
+    if (!date) return 'Loading...';
+    const d = new Date(date);
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+  };
 
   const handleNavigation = (pageId) => {
     setActivePage(pageId);
@@ -52,10 +65,12 @@ function App() {
               
               {/* Controls */}
               <div className="flex items-center gap-2 w-full sm:w-auto">
-                {/* Date Range Display - Hidden on Mobile, shown on tablet+ */}
+                {/* Last Update Display - Hidden on Mobile, shown on tablet+ */}
                 <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
-                  <span className="text-sm text-gray-600">Scope:</span>
-                  <span className="text-sm font-semibold text-gray-900">21 Sep – 27 Sep</span>
+                  <span className="text-sm text-gray-600">Last Update:</span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    {dataDateRange?.latest ? formatLastUpdate(dataDateRange.latest) : 'Loading...'}
+                  </span>
                 </div>
 
                 {/* Auto-refresh Toggle */}
