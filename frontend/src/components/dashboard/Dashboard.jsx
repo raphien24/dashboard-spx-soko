@@ -27,9 +27,9 @@ function Dashboard({ autoRefreshEnabled = true }) {
     lastUpdated,
     fetchDashboardData,
     refreshDashboardData,
-    fetchCourierSchedule,
-    setDateRange, // NEW: For instant week navigation
-    setFilter, // NEW: For filter contract/vehicle
+    // fetchCourierSchedule, // REMOVED: Not needed, fetchDashboardData handles everything
+    // setDateRange, // REMOVED: Using computeDashboardData directly via handleApplyFilter
+    // setFilter, // REMOVED: Using computeDashboardData directly
     detectDateRangeFromData, // NEW: Detect date range from data
     rawCourierData, // NEW: Access to raw data for date detection
     filters, // Current filters
@@ -48,11 +48,10 @@ function Dashboard({ autoRefreshEnabled = true }) {
 
   // Initial data fetch
   useEffect(() => {
-    // For initial load, don't apply date filter - let user see all available data
-    // This way user can navigate to weeks that have data
-    fetchDashboardData(null); // null = no date filter
-    fetchCourierSchedule(null); // null = no date filter
-  }, [fetchDashboardData, fetchCourierSchedule]);
+    // Only call fetchDashboardData - it already loads raw data and computes everything
+    // fetchCourierSchedule is redundant as computeDashboardData already includes schedule
+    fetchDashboardData(null); // null = no date filter, show all data
+  }, [fetchDashboardData]);
 
   // Handle filter application
   const handleApplyFilter = async (filterData) => {
