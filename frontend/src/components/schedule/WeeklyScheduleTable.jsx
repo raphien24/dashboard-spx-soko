@@ -3,116 +3,20 @@ import { ChevronLeft, ChevronRight, Search, Filter, CheckCircle, XCircle, Eye, E
 
 /**
  * Weekly Schedule Table Component
- * Matches canvas spreadsheet table with all columns and features
+ * Displays courier schedule data in table format
+ * Filters are now managed by DashboardFilters component
  */
-function WeeklyScheduleTable({ data, onWeekChange, dataDateRange, onFilterChange }) {
-  const [filters, setFilters] = useState({
-    specificDate: 'All Specific Dates',
-    district: 'All Districts',
-    zone: 'All Zones',
-    contract: 'All Contracts',
-    vehicle: 'All Vehicles',
-    targetStatus: 'All Target Statuses',
-  });
-
+function WeeklyScheduleTable({ data }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDay, setSelectedDay] = useState('Full Week (Mon-Sun)');
+  const [selectedDay, setSelectedDay] = useState('Full Week (Sen-Min)');
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentWeekOffset, setCurrentWeekOffset] = useState(0); // 0 = latest week, -1 = prev week, +1 = next week
   const itemsPerPage = 10;
-
-  // Calculate week range based on offset - use latest date from data as reference
-  const getWeekRange = (offset) => {
-    // Use latest date from data as reference, fallback to today
-    const referenceDate = dataDateRange?.latest ? new Date(dataDateRange.latest) : new Date();
-    
-    const currentDayOfWeek = referenceDate.getDay(); // 0 = Sunday, 1 = Monday, etc
-    const daysFromMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1; // Convert to Monday-based week
-    
-    // Get Monday of reference week
-    const monday = new Date(referenceDate);
-    monday.setDate(referenceDate.getDate() - daysFromMonday + (offset * 7));
-    monday.setHours(0, 0, 0, 0);
-    
-    // Get Sunday of reference week
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    sunday.setHours(23, 59, 59, 999);
-    
-    return { monday, sunday };
-  };
-
-  // Calculate current week range whenever offset changes
-  const currentWeekRange = useMemo(() => {
-    const range = getWeekRange(currentWeekOffset);
-    console.log('[WeeklyScheduleTable] Computed week range for offset', currentWeekOffset, ':', range);
-    return range;
-  }, [currentWeekOffset]); // Remove getWeekRange from dependencies
-  
-  const formatWeekLabel = useMemo(() => {
-    const { monday, sunday } = currentWeekRange;
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
-    const label = `${monday.getDate()} ${monthNames[monday.getMonth()]} — ${sunday.getDate()} ${monthNames[sunday.getMonth()]}, ${sunday.getFullYear()}`;
-    console.log('[WeeklyScheduleTable] Computed week label:', label, 'from range:', currentWeekRange);
-    return label;
-  }, [currentWeekRange]);
-
-  const handleWeekChange = (direction) => {
-    const newOffset = direction === 'prev' ? currentWeekOffset - 1 : currentWeekOffset + 1;
-    console.log('[WeeklyScheduleTable] Week changed:', { direction, oldOffset: currentWeekOffset, newOffset });
-    
-    // Calculate BEFORE setState to ensure correct value is passed to callback
-    const newWeekRange = getWeekRange(newOffset);
-    console.log('[WeeklyScheduleTable] New week range:', {
-      monday: newWeekRange.monday.toISOString(),
-      sunday: newWeekRange.sunday.toISOString()
-    });
-    
-    // Update state AFTER calculating range
-    setCurrentWeekOffset(newOffset);
-    
-    // Call callback with correct range
-    if (onWeekChange) {
-      onWeekChange(direction, newWeekRange);
-    }
-  };
-
-  const goToCurrentWeek = () => {
-    console.log('[WeeklyScheduleTable] Go to current week');
-    const newWeekRange = getWeekRange(0);
-    setCurrentWeekOffset(0);
-    if (onWeekChange) {
-      onWeekChange('current', newWeekRange);
-    }
-  };
 
   // Safely handle data
   const safeData = data || [];
   const hasData = safeData.length > 0;
 
-  // Get unique values for filters
-  const filterOptions = useMemo(() => {
-    if (!hasData) {
-      return {
-        districts: ['All Districts'],
-        zones: ['All Zones'],
-        contracts: ['All Contracts'],
-        vehicles: ['All Vehicles'],
-        targetStatuses: ['All Target Statuses', 'Met Target', 'Below Target'],
-      };
-    }
-
-    return {
-      districts: ['All Districts', ...new Set(safeData.map(item => item.district).filter(Boolean))],
-      zones: ['All Zones', ...new Set(safeData.map(item => item.zone).filter(Boolean))],
-      contracts: ['All Contracts', ...new Set(safeData.map(item => item.contract).filter(Boolean))],
-      vehicles: ['All Vehicles', ...new Set(safeData.map(item => item.vehicle).filter(Boolean))],
-      targetStatuses: ['All Target Statuses', 'Met Target', 'Below Target'],
-    };
-  }, [safeData, hasData]);
-
-  // Apply filters and search
+  // Apply search filter only (other filters handled by DashboardFilters)
   const filteredData = useMemo(() => {
     if (!hasData) return [];
 
@@ -128,43 +32,9 @@ function WeeklyScheduleTable({ data, onWeekChange, dataDateRange, onFilterChange
         if (!matchesSearch) return false;
       }
 
-      // District filter
-      if (filters.district !== 'All Districts' && item.district !== filters.district) {
-        return false;
-      }
-
-      // Zone filter
-      if (filters.zone !== 'All Zones' && item.zone !== filters.zone) {
-        return false;
-      }
-
-      // Contract filter
-      if (filters.contract !== 'All Contracts' && item.contract !== filters.contract) {
-        return false;
-      }
-
-      // Vehicle filter
-      if (filters.vehicle !== 'All Vehicles' && item.vehicle !== filters.vehicle) {
-        return false;
-      }
-
-      // Target status filter
-      if (filters.targetStatus !== 'All Target Statuses') {
-        const metTarget = item.productivityPercentage >= 100;
-        if (filters.targetStatus === 'Met Target' && !metTarget) return false;
-        if (filters.targetStatus === 'Below Target' && metTarget) return false;
-      }
-
       return true;
     });
-  }, [safeData, hasData, filters, searchQuery]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  }, [safeData, hasData, searchQuery]);
 
   // Day tabs with counts (Indonesian)
   const dayTabs = [
@@ -178,105 +48,31 @@ function WeeklyScheduleTable({ data, onWeekChange, dataDateRange, onFilterChange
     { id: 'min', label: 'Min', count: filteredData.filter(c => c.activeDays?.min).length },
   ];
 
-  const handleFilterChange = (filterName, value) => {
-    setFilters(prev => ({ ...prev, [filterName]: value }));
-    setCurrentPage(1); // Reset to first page
-    
-    // Notify parent (Dashboard) if contract or vehicle filter changes
-    // This will update KPI cards to match the filter
-    if ((filterName === 'contract' || filterName === 'vehicle') && onFilterChange) {
-      onFilterChange(filterName, value);
-    }
-  };
-
-  const resetFilters = () => {
-    setFilters({
-      specificDate: 'All Specific Dates',
-      district: 'All Districts',
-      zone: 'All Zones',
-      contract: 'All Contracts',
-      vehicle: 'All Vehicles',
-      targetStatus: 'All Target Statuses',
-    });
-    setSearchQuery('');
-    setCurrentPage(1);
-  };
+  // Pagination
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+            <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">Weekly Schedule Filter</h3>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-sm text-indigo-600 font-medium">Monday - Sunday</span>
-                  <span className="text-sm text-gray-400">•</span>
-                  <span className="text-sm text-green-600 font-medium">Unique Names • Weekly Avg Productivity</span>
-                </div>
-              </div>
+            <h3 className="text-lg font-bold text-gray-900">Weekly Courier Schedule</h3>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-sm text-indigo-600 font-medium">Productivity Overview</span>
+              <span className="text-sm text-gray-400">•</span>
+              <span className="text-sm text-green-600 font-medium">{filteredData.length} couriers</span>
             </div>
           </div>
-
-          {/* Week Navigation */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => handleWeekChange('prev')}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Previous Week"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            
-            <div className="flex flex-col items-center">
-              <div className="px-4 py-2 bg-gray-50 rounded-lg border border-gray-200 min-w-[280px]">
-                <p className="text-sm font-semibold text-gray-900 text-center">
-                  Week: {formatWeekLabel}
-                </p>
-                <p className="text-xs text-gray-500 text-center mt-0.5">
-                  {currentWeekOffset === 0 
-                    ? 'Current Week' 
-                    : currentWeekOffset < 0 
-                    ? `${Math.abs(currentWeekOffset)} week${Math.abs(currentWeekOffset) > 1 ? 's' : ''} ago`
-                    : `${currentWeekOffset} week${currentWeekOffset > 1 ? 's' : ''} ahead`
-                  }
-                </p>
-              </div>
-              {currentWeekOffset !== 0 && (
-                <button
-                  onClick={goToCurrentWeek}
-                  className="mt-1 flex items-center gap-1 px-2 py-1 text-xs text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded transition-colors"
-                >
-                  <Calendar className="w-3 h-3" />
-                  Go to Current Week
-                </button>
-              )}
-            </div>
-
-            <button
-              onClick={() => handleWeekChange('next')}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Next Week"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
-            </button>
-          </div>
-        </div>
-
-        {/* Active Week Info */}
-        <div className="text-xs text-gray-500 bg-blue-50 px-3 py-2 rounded-lg inline-block">
-          Active Week: Mon {currentWeekRange.monday.toLocaleDateString('en-GB')} to Sun {currentWeekRange.sunday.toLocaleDateString('en-GB')} | 
-          <span className="font-medium text-blue-700 ml-1">
-            {currentWeekOffset === 0 ? 'Current Week' : formatWeekLabel}
-          </span> | 
-          <span className="text-gray-600 ml-1">({filteredData.length} unique couriers evaluated)</span>
         </div>
       </div>
 

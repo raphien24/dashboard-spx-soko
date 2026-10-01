@@ -3,6 +3,7 @@ import { Loader, RefreshCw, AlertCircle } from 'lucide-react';
 import useDashboardStore from '../../store/dashboardStore';
 import useAutoRefresh from '../../hooks/useAutoRefresh';
 import ErrorBoundary from '../common/ErrorBoundary';
+import FilteringLoader from '../common/FilteringLoader';
 import DashboardFilters from '../filters/DashboardFilters';
 import KPICardsSection from './KPICardsSection';
 import SecondaryMetricsSection from './SecondaryMetricsSection';
@@ -21,6 +22,7 @@ function Dashboard({ autoRefreshEnabled = true }) {
     courierSchedule,
     isLoading,
     isRefreshing,
+    isFiltering, // NEW: Loading state when applying filters
     error,
     lastUpdated,
     fetchDashboardData,
@@ -31,6 +33,7 @@ function Dashboard({ autoRefreshEnabled = true }) {
     detectDateRangeFromData, // NEW: Detect date range from data
     rawCourierData, // NEW: Access to raw data for date detection
     filters, // Current filters
+    computeDashboardData, // NEW: Direct access to compute method
   } = useDashboardStore();
 
   // Detect date range from loaded data
@@ -52,21 +55,18 @@ function Dashboard({ autoRefreshEnabled = true }) {
   }, [fetchDashboardData, fetchCourierSchedule]);
 
   // Handle filter application
-  const handleApplyFilter = (filterData) => {
+  const handleApplyFilter = async (filterData) => {
     console.log('[Dashboard] Applying filters:', filterData);
     
-    // Update store with new filters
-    if (filterData.dateRange) {
-      setDateRange(filterData.dateRange);
-    }
+    // Build filters object for dashboard computation
+    const filters = {
+      dateRange: filterData.dateRange,
+      contract: filterData.contract,
+      vehicle: filterData.vehicle,
+    };
     
-    if (filterData.contract && filterData.contract !== filters.contract) {
-      setFilter('contract', filterData.contract);
-    }
-    
-    if (filterData.vehicle && filterData.vehicle !== filters.vehicle) {
-      setFilter('vehicle', filterData.vehicle);
-    }
+    // Compute dashboard with all filters at once
+    await computeDashboardData(filters);
     
     // Update applied filters for UI
     setAppliedFilters({
@@ -142,6 +142,9 @@ function Dashboard({ autoRefreshEnabled = true }) {
 
   return (
     <div className="space-y-6">
+      {/* Filtering Loader Overlay */}
+      {isFiltering && <FilteringLoader />}
+
       {/* Dashboard Filters - At the top */}
       <ErrorBoundary componentName="DashboardFilters">
         <DashboardFilters 

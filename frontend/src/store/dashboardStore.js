@@ -20,6 +20,7 @@ const useDashboardStore = create((set, get) => ({
   // Loading states
   isLoading: false,
   isRefreshing: false,
+  isFiltering: false, // NEW: Loading state for filter application
   error: null,
 
   // Last updated timestamp
@@ -180,6 +181,9 @@ const useDashboardStore = create((set, get) => ({
     console.log('[Store] Computing dashboard data with filters:', filters);
     const startTime = performance.now();
     
+    // Set filtering state
+    set({ isFiltering: true });
+    
     try {
       // Use client-side processing for KPI (respects all filters)
       const kpiMetrics = googleSheetsService.processKPIMetricsFromRaw(rawCourierData, filters);
@@ -217,6 +221,7 @@ const useDashboardStore = create((set, get) => ({
         courierSchedule,
         activeDateRange: filters.dateRange,
         lastUpdated: new Date(),
+        isFiltering: false, // Clear filtering state
       });
     } catch (error) {
       console.error('[Store] Error computing dashboard:', error);
@@ -226,6 +231,7 @@ const useDashboardStore = create((set, get) => ({
         performanceData: null,
         zonesData: null,
         courierSchedule: [],
+        isFiltering: false, // Clear filtering state even on error
       });
     }
   },
