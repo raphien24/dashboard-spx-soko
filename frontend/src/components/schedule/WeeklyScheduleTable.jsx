@@ -101,85 +101,21 @@ function WeeklyScheduleTable({ data }) {
         </div>
       </div>
 
-      {/* Search & Filters */}
+      {/* Search Bar */}
       <div className="p-6 bg-gray-50 border-b border-gray-200">
-        {/* Search Bar */}
-        <div className="mb-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search unique couriers by Name, Driver ID, District, or Zone..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-        </div>
-
-        {/* Filter Dropdowns */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <select
-            value={filters.district}
-            onChange={(e) => handleFilterChange('district', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            {filterOptions.districts?.map(opt => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
-          </select>
-
-          <select
-            value={filters.zone}
-            onChange={(e) => handleFilterChange('zone', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            {filterOptions.zones?.map(opt => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
-          </select>
-
-          <select
-            value={filters.contract}
-            onChange={(e) => handleFilterChange('contract', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            {filterOptions.contracts?.map(opt => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
-          </select>
-
-          <select
-            value={filters.vehicle}
-            onChange={(e) => handleFilterChange('vehicle', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            {filterOptions.vehicles?.map(opt => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
-          </select>
-
-          <select
-            value={filters.targetStatus}
-            onChange={(e) => handleFilterChange('targetStatus', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            {filterOptions.targetStatuses?.map(opt => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
-          </select>
-
-          <button
-            onClick={resetFilters}
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-          >
-            <Filter className="w-4 h-4" />
-            Reset Filters
-          </button>
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search couriers by Name, Driver ID, District, or Zone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
         </div>
 
         {/* Active Filters Info */}
-        <div className="mt-3 flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-2 text-xs">
           <span className="text-gray-500">Showing {paginatedData.length} of {filteredData.length} couriers</span>
           <div className="flex items-center gap-1">
             <CheckCircle className="w-3 h-3 text-green-600" />
