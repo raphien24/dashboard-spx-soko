@@ -39,11 +39,11 @@ function Dashboard({ autoRefreshEnabled = true }) {
   // Detect date range from loaded data
   const dataDateRange = rawCourierData ? useDashboardStore.getState().detectDateRangeFromData(rawCourierData) : null;
 
-  // Track current applied filters for UI
+  // Track current applied filters for UI (default: Dedicated + 2WH)
   const [appliedFilters, setAppliedFilters] = useState({
     weekOffset: 0,
-    contract: 'all',
-    vehicle: 'all',
+    contract: 'Dedicated',
+    vehicle: '2WH',
   });
 
   // Initial data fetch

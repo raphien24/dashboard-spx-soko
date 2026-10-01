@@ -9,8 +9,8 @@ import { Filter, X, Calendar } from 'lucide-react';
 function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
   const [tempFilters, setTempFilters] = useState({
     weekOffset: 0,
-    contract: 'all',
-    vehicle: 'all',
+    contract: 'Dedicated', // Default: Dedicated
+    vehicle: '2WH',        // Default: 2WH
   });
 
   const [hasChanges, setHasChanges] = useState(false);
@@ -20,12 +20,34 @@ function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
     if (initialFilters) {
       setTempFilters({
         weekOffset: initialFilters.weekOffset || 0,
-        contract: initialFilters.contract || 'all',
-        vehicle: initialFilters.vehicle || 'all',
+        contract: initialFilters.contract || 'Dedicated',
+        vehicle: initialFilters.vehicle || '2WH',
       });
       setHasChanges(false);
     }
   }, [initialFilters]);
+
+  // Auto-apply default filter on mount (first load)
+  useEffect(() => {
+    // Only run once on mount
+    const isFirstLoad = !initialFilters || 
+      (initialFilters.contract === 'all' && initialFilters.vehicle === 'all');
+    
+    if (isFirstLoad && dataDateRange) {
+      // Auto-apply default filter: Dedicated + 2WH
+      const weekRange = getWeekRange(0);
+      onApplyFilter({
+        dateRange: {
+          start: weekRange.monday,
+          end: weekRange.sunday,
+        },
+        contract: 'Dedicated',
+        vehicle: '2WH',
+        weekOffset: 0,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataDateRange]); // Only run when data is loaded
 
   // Calculate week range based on offset
   const getWeekRange = (offset) => {

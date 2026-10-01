@@ -8,7 +8,8 @@ import {
   ChevronRight,
   Package,
   Menu,
-  X
+  X,
+  ClipboardCheck
 } from 'lucide-react';
 
 const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
@@ -21,6 +22,14 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       label: 'Productivity',
       icon: TrendingUp,
       active: true,
+    },
+    {
+      id: 'attendance',
+      label: 'Attendance',
+      icon: ClipboardCheck,
+      active: false,
+      external: true,
+      url: 'https://absensi.spxsoko.online/admin',
     },
     {
       id: 'fleet',
@@ -45,10 +54,18 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
     },
   ];
 
-  const handleNavigate = (itemId) => {
-    if (onNavigate && !menuItems.find(item => item.id === itemId)?.disabled) {
-      onNavigate(itemId);
-      setIsMobileOpen(false); // Close mobile menu after navigation
+  const handleNavigate = (item) => {
+    // If external link, open in new tab
+    if (item.external && item.url) {
+      window.open(item.url, '_blank', 'noopener,noreferrer');
+      setIsMobileOpen(false);
+      return;
+    }
+    
+    // Internal navigation
+    if (onNavigate && !item.disabled) {
+      onNavigate(item.id);
+      setIsMobileOpen(false);
     }
   };
 
@@ -107,11 +124,12 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
           const Icon = item.icon;
           const isActive = item.id === activePage;
           const isDisabled = item.disabled;
+          const isExternal = item.external;
 
           return (
             <button
               key={item.id}
-              onClick={() => handleNavigate(item.id)}
+              onClick={() => handleNavigate(item)}
               disabled={isDisabled}
               className={`
                 w-full flex items-center space-x-3 px-4 py-3 rounded-lg
@@ -134,6 +152,11 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                       Soon
                     </span>
                   )}
+                  {isExternal && (
+                    <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  )}
                 </>
               )}
               
@@ -142,6 +165,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                 <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
                   {item.label}
                   {isDisabled && <span className="ml-2 text-gray-400">(Soon)</span>}
+                  {isExternal && <span className="ml-2 text-gray-400">(External)</span>}
                 </div>
               )}
             </button>
