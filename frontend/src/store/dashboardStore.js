@@ -29,7 +29,14 @@ const useDashboardStore = create((set, get) => ({
   // Current active date range filter
   activeDateRange: null,
 
-  // Filter states
+  // Active filters (applied filters)
+  activeFilters: {
+    dateRange: null,
+    contract: 'all',
+    vehicle: 'all',
+  },
+
+  // Filter states (for UI compatibility - may be deprecated)
   filters: {
     dateRange: {
       start: null,
@@ -220,6 +227,7 @@ const useDashboardStore = create((set, get) => ({
         zonesData,
         courierSchedule,
         activeDateRange: filters.dateRange,
+        activeFilters: filters, // ✅ Save all active filters for refresh
         lastUpdated: new Date(),
         isFiltering: false, // Clear filtering state
       });
@@ -317,14 +325,14 @@ const useDashboardStore = create((set, get) => ({
   },
 
   /**
-   * Refresh data from API (preserve active date range)
+   * Refresh data from API (preserve ALL active filters)
    */
   refreshDashboardData: async () => {
-    const { activeDateRange } = get();
+    const { activeFilters } = get(); // ✅ Get all active filters
     set({ isRefreshing: true });
     
     try {
-      console.log('[Store] Refreshing data, preserving date range:', activeDateRange);
+      console.log('[Store] Refreshing data, preserving filters:', activeFilters);
       const rawData = await googleSheetsService.getRange('raw!A2:Z'); // No row limit - fetch all data
       console.log('[Store] Refreshed', rawData?.length || 0, 'rows');
       
@@ -341,8 +349,8 @@ const useDashboardStore = create((set, get) => ({
         error: null,
       });
       
-      // Recompute with preserved date range
-      await get().computeDashboardData(activeDateRange);
+      // Recompute with ALL preserved filters (date + contract + vehicle)
+      await get().computeDashboardData(activeFilters);
       
     } catch (error) {
       console.error('[Store] Error refreshing data:', error);
