@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader, RefreshCw, AlertCircle } from 'lucide-react';
 import useDashboardStore from '../../store/dashboardStore';
 import useAutoRefresh from '../../hooks/useAutoRefresh';
 import ErrorBoundary from '../common/ErrorBoundary';
+import DashboardFilters from '../filters/DashboardFilters';
 import KPICardsSection from './KPICardsSection';
 import SecondaryMetricsSection from './SecondaryMetricsSection';
 import PerformanceByContractChart from '../charts/PerformanceByContractChart';
@@ -29,10 +30,18 @@ function Dashboard({ autoRefreshEnabled = true }) {
     setFilter, // NEW: For filter contract/vehicle
     detectDateRangeFromData, // NEW: Detect date range from data
     rawCourierData, // NEW: Access to raw data for date detection
+    filters, // Current filters
   } = useDashboardStore();
 
   // Detect date range from loaded data
   const dataDateRange = rawCourierData ? useDashboardStore.getState().detectDateRangeFromData(rawCourierData) : null;
+
+  // Track current applied filters for UI
+  const [appliedFilters, setAppliedFilters] = useState({
+    weekOffset: 0,
+    contract: 'all',
+    vehicle: 'all',
+  });
 
   // Initial data fetch
   useEffect(() => {
@@ -41,6 +50,31 @@ function Dashboard({ autoRefreshEnabled = true }) {
     fetchDashboardData(null); // null = no date filter
     fetchCourierSchedule(null); // null = no date filter
   }, [fetchDashboardData, fetchCourierSchedule]);
+
+  // Handle filter application
+  const handleApplyFilter = (filterData) => {
+    console.log('[Dashboard] Applying filters:', filterData);
+    
+    // Update store with new filters
+    if (filterData.dateRange) {
+      setDateRange(filterData.dateRange);
+    }
+    
+    if (filterData.contract && filterData.contract !== filters.contract) {
+      setFilter('contract', filterData.contract);
+    }
+    
+    if (filterData.vehicle && filterData.vehicle !== filters.vehicle) {
+      setFilter('vehicle', filterData.vehicle);
+    }
+    
+    // Update applied filters for UI
+    setAppliedFilters({
+      weekOffset: filterData.weekOffset,
+      contract: filterData.contract,
+      vehicle: filterData.vehicle,
+    });
+  };
 
   // Auto-refresh every 30 seconds (configurable and controllable)
   useAutoRefresh(() => {
@@ -108,6 +142,15 @@ function Dashboard({ autoRefreshEnabled = true }) {
 
   return (
     <div className="space-y-6">
+      {/* Dashboard Filters - At the top */}
+      <ErrorBoundary componentName="DashboardFilters">
+        <DashboardFilters 
+          onApplyFilter={handleApplyFilter}
+          initialFilters={appliedFilters}
+          dataDateRange={dataDateRange}
+        />
+      </ErrorBoundary>
+
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
         <div>
@@ -193,19 +236,6 @@ function Dashboard({ autoRefreshEnabled = true }) {
       <ErrorBoundary componentName="WeeklyScheduleTable">
         <WeeklyScheduleTable 
           data={courierSchedule || []}
-          dataDateRange={dataDateRange}
-          onWeekChange={(direction, weekRange) => {
-            // Use setDateRange for instant client-side filtering (no API call)
-            setDateRange({ 
-              start: weekRange.monday, 
-              end: weekRange.sunday 
-            });
-          }}
-          onFilterChange={(filterName, filterValue) => {
-            // Update store filter (contract or vehicle)
-            // This will recompute KPI cards to match the filter
-            setFilter(filterName, filterValue);
-          }}
         />
       </ErrorBoundary>
 
