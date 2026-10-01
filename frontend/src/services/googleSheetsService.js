@@ -913,8 +913,8 @@ class GoogleSheetsService {
 
   /**
    * Get target from Monday's "Assigned Target" for the week
-   * Strategy: Find the MOST RECENT Monday record for this courier that is <= week start date
-   * This handles cases where courier didn't work on Monday of the target week
+   * Strategy: Find Monday record EXACTLY on weekStartDate (the Monday of the selected week)
+   * This ensures all couriers with same contract+vehicle have same target for the week
    * 
    * @param {Array} allRawRecords - ALL raw data (not filtered by week)
    * @param {Date} weekStartDate - Monday date of the week we're calculating for
@@ -924,8 +924,12 @@ class GoogleSheetsService {
    * @returns {Number} - Target value
    */
   getMondayTargetForWeek(allRawRecords, weekStartDate, courierId, contractType, vehicleType) {
-    // Find ALL Monday records for this courier (across all time)
-    const mondayRecords = allRawRecords.filter(row => {
+    // Normalize weekStartDate to start of day for accurate comparison
+    const normalizedWeekStart = new Date(weekStartDate);
+    normalizedWeekStart.setHours(0, 0, 0, 0);
+    
+    // Find Monday record for this courier EXACTLY on weekStartDate
+    const mondayRecord = allRawRecords.find(row => {
       const rowCourierId = row[1]; // ID column
       const dateStr = row[3]; // Date column
       
@@ -934,63 +938,50 @@ class GoogleSheetsService {
       const date = this.parseDate(dateStr);
       if (!date) return false;
       
-      // Check if it's Monday (1 = Monday in JavaScript)
-      const dayOfWeek = date.getDay();
-      return dayOfWeek === 1; // 1 = Monday
-    });
-    
-    if (mondayRecords.length === 0) {
-      // No Monday records at all for this courier
-      console.warn(`[getMondayTargetForWeek] No Monday records found for courier ${courierId}. Using fallback target.`);
-      const fallbackTarget = this.getTargetByContractAndVehicle(contractType, vehicleType);
-      console.log(`[getMondayTargetForWeek] Using fallback target for ${courierId}:`, fallbackTarget);
-      return fallbackTarget;
-    }
-    
-    // Find the MOST RECENT Monday that is <= weekStartDate
-    let closestMonday = null;
-    let closestMondayDate = null;
-    
-    mondayRecords.forEach(record => {
-      const recordDate = this.parseDate(record[3]);
-      if (!recordDate) return;
+      // Normalize record date to start of day
+      const normalizedRecordDate = new Date(date);
+      normalizedRecordDate.setHours(0, 0, 0, 0);
       
-      // Check if this Monday is on or before the week start
-      if (recordDate <= weekStartDate) {
-        // Check if this is closer than our current closest
-        if (!closestMondayDate || recordDate > closestMondayDate) {
-          closestMonday = record;
-          closestMondayDate = recordDate;
-        }
+      // Check if it's Monday AND matches weekStartDate exactly
+      const dayOfWeek = date.getDay();
+      const isMonday = dayOfWeek === 1;
+      const isSameDate = normalizedRecordDate.getTime() === normalizedWeekStart.getTime();
+      
+      return isMonday && isSameDate;
+    });
+    
+    // If found Monday record on exact date, use its Assigned Target
+    if (mondayRecord) {
+      const assignedTarget = this.parseNumeric(mondayRecord[9]); // Assigned Target column (index 9)
+      
+      // Log for debugging
+      console.log(`[getMondayTargetForWeek] Courier ${courierId}:`, {
+        weekStart: weekStartDate.toLocaleDateString('en-US'),
+        mondayDate: mondayRecord[3],
+        assignedTargetRaw: mondayRecord[9],
+        assignedTargetParsed: assignedTarget,
+        contract: contractType,
+        vehicle: vehicleType,
+        source: 'Monday record'
+      });
+      
+      if (assignedTarget > 0) {
+        return assignedTarget;
       }
-    });
-    
-    // If no Monday found before/on weekStartDate, use the first Monday available
-    if (!closestMonday) {
-      console.warn(`[getMondayTargetForWeek] No Monday found before ${weekStartDate.toISOString()} for ${courierId}, using first available Monday`);
-      closestMonday = mondayRecords[0];
-    }
-    
-    // Get Assigned Target from column 9
-    const assignedTarget = this.parseNumeric(closestMonday[9]); // Assigned Target column (index 9)
-    
-    // Log for debugging
-    console.log(`[getMondayTargetForWeek] Courier ${courierId}:`, {
-      weekStart: weekStartDate.toLocaleDateString('en-US'),
-      mondayDate: closestMonday[3],
-      assignedTargetRaw: closestMonday[9],
-      assignedTargetParsed: assignedTarget,
-      contract: contractType,
-      vehicle: vehicleType,
-    });
-    
-    if (assignedTarget > 0) {
-      return assignedTarget;
+    } else {
+      // No Monday record found for this exact date
+      console.warn(`[getMondayTargetForWeek] No Monday record on ${weekStartDate.toLocaleDateString('en-US')} for courier ${courierId}. Using fallback target.`);
     }
     
     // Fallback: use static target by contract/vehicle
+    // This ensures all couriers with same contract+vehicle have same target
     const fallbackTarget = this.getTargetByContractAndVehicle(contractType, vehicleType);
-    console.warn(`[getMondayTargetForWeek] Assigned target is 0 for ${courierId}, using fallback:`, fallbackTarget);
+    console.log(`[getMondayTargetForWeek] Using fallback target for ${courierId}:`, {
+      target: fallbackTarget,
+      contract: contractType,
+      vehicle: vehicleType,
+      source: 'static fallback'
+    });
     return fallbackTarget;
   }
 
