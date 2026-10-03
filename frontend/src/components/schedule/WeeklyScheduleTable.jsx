@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Search, Filter, CheckCircle, XCircle, Calendar } from 'lucide-react';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, Search, Filter, CheckCircle, XCircle, Calendar, Download, ChevronDown } from 'lucide-react';
 import CourierDetailModal from './CourierDetailModal';
+import html2canvas from 'html2canvas';
 
 /**
  * Weekly Schedule Table Component
@@ -14,10 +15,25 @@ function WeeklyScheduleTable({ data }) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [selectedCourier, setSelectedCourier] = useState(null);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const tableRef = useRef(null);
 
   // Safely handle data
   const safeData = data || [];
   const hasData = safeData.length > 0;
+
+  // Close export menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showExportMenu && !event.target.closest('.export-menu-container')) {
+        setShowExportMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showExportMenu]);
 
   // Sorting function
   const handleSort = (key) => {
@@ -116,23 +132,236 @@ function WeeklyScheduleTable({ data }) {
     currentPage * itemsPerPage
   );
 
+  // Export functions
+  const exportToImage = async (filterType) => {
+    setIsExporting(true);
+    setShowExportMenu(false);
+
+    try {
+      // Determine which couriers to export based on filter
+      let exportData = [];
+      let exportLabel = '';
+      
+      switch(filterType) {
+        case 'achieved':
+          exportData = filteredData.filter(c => (c.productivityPercentage || 0) >= 100);
+          exportLabel = 'Achieved Target';
+          break;
+        case 'not-achieved':
+          exportData = filteredData.filter(c => (c.productivityPercentage || 0) < 100);
+          exportLabel = 'Not Achieved Target';
+          break;
+        case 'all':
+        default:
+          exportData = filteredData;
+          exportLabel = 'All Filtered';
+          break;
+      }
+
+      if (exportData.length === 0) {
+        alert(`No couriers found for: ${exportLabel}`);
+        setIsExporting(false);
+        return;
+      }
+
+      // Create temporary container for export
+      const exportContainer = document.createElement('div');
+      exportContainer.style.position = 'fixed';
+      exportContainer.style.left = '-9999px';
+      exportContainer.style.top = '0';
+      exportContainer.style.width = '1400px';
+      exportContainer.style.backgroundColor = 'white';
+      exportContainer.style.padding = '20px';
+      document.body.appendChild(exportContainer);
+
+      // Build export HTML
+      const currentDate = new Date().toLocaleDateString('id-ID', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+
+      exportContainer.innerHTML = `
+        <div style="font-family: system-ui, -apple-system, sans-serif;">
+          <!-- Header -->
+          <div style="border-bottom: 3px solid #4F46E5; padding-bottom: 16px; margin-bottom: 20px;">
+            <h1 style="font-size: 24px; font-weight: bold; color: #1F2937; margin: 0 0 8px 0;">
+              SPX SOKO - Weekly Courier Schedule
+            </h1>
+            <div style="display: flex; gap: 16px; font-size: 14px; color: #6B7280;">
+              <span><strong>Export Type:</strong> ${exportLabel}</span>
+              <span>•</span>
+              <span><strong>Total Couriers:</strong> ${exportData.length}</span>
+              <span>•</span>
+              <span><strong>Date:</strong> ${currentDate}</span>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+              <tr style="background-color: #F3F4F6; border-bottom: 2px solid #E5E7EB;">
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #374151;">#</th>
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #374151;">Courier Name</th>
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #374151;">ID</th>
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #374151;">District</th>
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #374151;">Zone</th>
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #374151;">Contract</th>
+                <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #374151;">Vehicle</th>
+                <th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #374151;">Avg Daily</th>
+                <th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #374151;">Target</th>
+                <th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #374151;">Productivity</th>
+                <th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #374151;">Total Deliv</th>
+                <th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #374151;">Success %</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${exportData.map((courier, index) => {
+                const metTarget = (courier.productivityPercentage || 0) >= 100;
+                const bgColor = index % 2 === 0 ? '#FFFFFF' : '#F9FAFB';
+                const prodColor = metTarget ? '#059669' : '#EA580C';
+                
+                return `
+                  <tr style="background-color: ${bgColor}; border-bottom: 1px solid #E5E7EB;">
+                    <td style="padding: 10px 8px; color: #6B7280;">${index + 1}</td>
+                    <td style="padding: 10px 8px; font-weight: 600; color: #111827;">${courier.name || 'Unknown'}</td>
+                    <td style="padding: 10px 8px; color: #6B7280;">${courier.id || '-'}</td>
+                    <td style="padding: 10px 8px; color: #6B7280;">${courier.district || '-'}</td>
+                    <td style="padding: 10px 8px; color: #6B7280;">${courier.zone || 'N/A'}</td>
+                    <td style="padding: 10px 8px; color: #6B7280;">${courier.contract || 'N/A'}</td>
+                    <td style="padding: 10px 8px; color: #6B7280;">${courier.vehicle || 'N/A'}</td>
+                    <td style="padding: 10px 8px; text-align: right; font-weight: 600; color: #4F46E5;">${courier.avgDaily?.toFixed(1) || 0}</td>
+                    <td style="padding: 10px 8px; text-align: right; color: #6B7280;">${courier.target?.toFixed(0) || 0}</td>
+                    <td style="padding: 10px 8px; text-align: right; font-weight: 700; color: ${prodColor};">${courier.productivityPercentage?.toFixed(1) || 0}%</td>
+                    <td style="padding: 10px 8px; text-align: right; font-weight: 600; color: #111827;">${courier.totalWeekDeliv || 0}</td>
+                    <td style="padding: 10px 8px; text-align: right; font-weight: 600; color: ${courier.successRate >= 95 ? '#059669' : '#D97706'};">${courier.successRate?.toFixed(1) || 0}%</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+
+          <!-- Footer -->
+          <div style="margin-top: 20px; padding-top: 16px; border-top: 2px solid #E5E7EB; font-size: 11px; color: #6B7280; text-align: center;">
+            Generated from SPX SOKO Dashboard • ${currentDate}
+          </div>
+        </div>
+      `;
+
+      // Capture with html2canvas
+      const canvas = await html2canvas(exportContainer, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        logging: false,
+        windowWidth: 1400,
+      });
+
+      // Remove temp container
+      document.body.removeChild(exportContainer);
+
+      // Download image
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString().slice(0, 10);
+      link.download = `SPX-SOKO-Couriers-${exportLabel.replace(/\s+/g, '-')}-${timestamp}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Failed to export image. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-            <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-900">Weekly Courier Schedule</h3>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-sm text-indigo-600 font-medium">Productivity Overview</span>
-              <span className="text-sm text-gray-400">•</span>
-              <span className="text-sm text-green-600 font-medium">{filteredData.length} couriers</span>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
             </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Weekly Courier Schedule</h3>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-sm text-indigo-600 font-medium">Productivity Overview</span>
+                <span className="text-sm text-gray-400">•</span>
+                <span className="text-sm text-green-600 font-medium">{filteredData.length} couriers</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Export Button with Dropdown */}
+          <div className="relative export-menu-container">
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              disabled={isExporting || filteredData.length === 0}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            >
+              <Download className="w-4 h-4" />
+              {isExporting ? 'Exporting...' : 'Export to Image'}
+              <ChevronDown className="w-4 h-4" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {showExportMenu && !isExporting && (
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                <div className="p-2">
+                  <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100">
+                    Export Options
+                  </div>
+                  
+                  <button
+                    onClick={() => exportToImage('achieved')}
+                    className="w-full flex items-start gap-3 px-3 py-3 hover:bg-green-50 rounded-lg transition-colors text-left"
+                  >
+                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">Achieved Target</p>
+                      <p className="text-xs text-gray-500">
+                        {filteredData.filter(c => (c.productivityPercentage || 0) >= 100).length} couriers
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => exportToImage('not-achieved')}
+                    className="w-full flex items-start gap-3 px-3 py-3 hover:bg-orange-50 rounded-lg transition-colors text-left"
+                  >
+                    <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <XCircle className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">Not Achieved Target</p>
+                      <p className="text-xs text-gray-500">
+                        {filteredData.filter(c => (c.productivityPercentage || 0) < 100).length} couriers
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => exportToImage('all')}
+                    className="w-full flex items-start gap-3 px-3 py-3 hover:bg-indigo-50 rounded-lg transition-colors text-left"
+                  >
+                    <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Filter className="w-5 h-5 text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">All Filtered Couriers</p>
+                      <p className="text-xs text-gray-500">
+                        {filteredData.length} couriers
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
