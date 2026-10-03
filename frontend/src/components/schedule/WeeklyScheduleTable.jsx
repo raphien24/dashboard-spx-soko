@@ -178,7 +178,9 @@ function WeeklyScheduleTable({ data }) {
       const currentDate = new Date().toLocaleDateString('id-ID', { 
         year: 'numeric', 
         month: 'long', 
-        day: 'numeric' 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
       });
 
       exportContainer.innerHTML = `
@@ -186,14 +188,14 @@ function WeeklyScheduleTable({ data }) {
           <!-- Header -->
           <div style="border-bottom: 3px solid #4F46E5; padding-bottom: 16px; margin-bottom: 20px;">
             <h1 style="font-size: 24px; font-weight: bold; color: #1F2937; margin: 0 0 8px 0;">
-              SPX SOKO - Weekly Courier Schedule
+              SPX SOKO - Weekly Courier Productivity
             </h1>
             <div style="display: flex; gap: 16px; font-size: 14px; color: #6B7280;">
               <span><strong>Export Type:</strong> ${exportLabel}</span>
               <span>•</span>
               <span><strong>Total Couriers:</strong> ${exportData.length}</span>
               <span>•</span>
-              <span><strong>Date:</strong> ${currentDate}</span>
+              <span><strong>Last Updated:</strong> ${currentDate}</span>
             </div>
           </div>
 
@@ -209,9 +211,10 @@ function WeeklyScheduleTable({ data }) {
                 <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #374151;">Contract</th>
                 <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #374151;">Vehicle</th>
                 <th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #374151;">Avg Daily</th>
-                <th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #374151;">Target</th>
+                <th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #374151;">+/- Per Day</th>
                 <th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #374151;">Productivity</th>
                 <th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #374151;">Total Deliv</th>
+                ${filterType === 'not-achieved' ? '<th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #374151;">Pkgs Needed</th>' : ''}
                 <th style="padding: 12px 8px; text-align: right; font-weight: 600; color: #374151;">Success %</th>
               </tr>
             </thead>
@@ -220,6 +223,17 @@ function WeeklyScheduleTable({ data }) {
                 const metTarget = (courier.productivityPercentage || 0) >= 100;
                 const bgColor = index % 2 === 0 ? '#FFFFFF' : '#F9FAFB';
                 const prodColor = metTarget ? '#059669' : '#EA580C';
+                
+                // Calculate +/- per day
+                const diffPerDay = (courier.avgDaily || 0) - (courier.target || 0);
+                const diffColor = diffPerDay >= 0 ? '#059669' : '#EA580C';
+                const diffSign = diffPerDay >= 0 ? '+' : '';
+                
+                // Calculate packages needed to achieve target (for not achieved only)
+                const shiftsLeft = courier.shiftsCount || 0;
+                const currentTotal = courier.totalWeekDeliv || 0;
+                const targetWeekly = (courier.target || 0) * shiftsLeft;
+                const packagesNeeded = Math.max(0, Math.ceil(targetWeekly - currentTotal));
                 
                 return `
                   <tr style="background-color: ${bgColor}; border-bottom: 1px solid #E5E7EB;">
@@ -231,9 +245,10 @@ function WeeklyScheduleTable({ data }) {
                     <td style="padding: 10px 8px; color: #6B7280;">${courier.contract || 'N/A'}</td>
                     <td style="padding: 10px 8px; color: #6B7280;">${courier.vehicle || 'N/A'}</td>
                     <td style="padding: 10px 8px; text-align: right; font-weight: 600; color: #4F46E5;">${courier.avgDaily?.toFixed(1) || 0}</td>
-                    <td style="padding: 10px 8px; text-align: right; color: #6B7280;">${courier.target?.toFixed(0) || 0}</td>
+                    <td style="padding: 10px 8px; text-align: right; font-weight: 700; color: ${diffColor};">${diffSign}${diffPerDay.toFixed(1)}</td>
                     <td style="padding: 10px 8px; text-align: right; font-weight: 700; color: ${prodColor};">${courier.productivityPercentage?.toFixed(1) || 0}%</td>
                     <td style="padding: 10px 8px; text-align: right; font-weight: 600; color: #111827;">${courier.totalWeekDeliv || 0}</td>
+                    ${filterType === 'not-achieved' ? `<td style="padding: 10px 8px; text-align: right; font-weight: 700; color: #DC2626;">${packagesNeeded}</td>` : ''}
                     <td style="padding: 10px 8px; text-align: right; font-weight: 600; color: ${courier.successRate >= 95 ? '#059669' : '#D97706'};">${courier.successRate?.toFixed(1) || 0}%</td>
                   </tr>
                 `;
