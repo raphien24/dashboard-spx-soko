@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Search, Filter, CheckCircle, XCircle, Eye, Edit, Trash2, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Filter, CheckCircle, XCircle, Calendar } from 'lucide-react';
 
 /**
  * Weekly Schedule Table Component
@@ -277,15 +277,12 @@ function WeeklyScheduleTable({ data }) {
               <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 Active Days
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                Actions
-              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedData.length === 0 ? (
               <tr>
-                <td colSpan="12" className="px-4 py-12 text-center">
+                <td colSpan="11" className="px-4 py-12 text-center">
                   <div className="flex flex-col items-center justify-center">
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                       <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -446,30 +443,6 @@ function WeeklyScheduleTable({ data }) {
                           </div>
                         );
                       })}
-                    </div>
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-4 py-4">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        className="p-1 hover:bg-blue-50 rounded transition-colors"
-                        title="View Details"
-                      >
-                        <Eye className="w-4 h-4 text-blue-600" />
-                      </button>
-                      <button
-                        className="p-1 hover:bg-yellow-50 rounded transition-colors"
-                        title="Edit"
-                      >
-                        <Edit className="w-4 h-4 text-yellow-600" />
-                      </button>
-                      <button
-                        className="p-1 hover:bg-red-50 rounded transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600" />
-                      </button>
                     </div>
                   </td>
                 </tr>
