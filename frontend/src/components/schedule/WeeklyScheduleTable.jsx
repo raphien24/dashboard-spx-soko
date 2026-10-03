@@ -174,14 +174,10 @@ function WeeklyScheduleTable({ data }) {
       exportContainer.style.padding = '20px';
       document.body.appendChild(exportContainer);
 
-      // Build export HTML
-      const currentDate = new Date().toLocaleDateString('id-ID', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+      // Format date same as dashboard header: "2 Oct 2026"
+      const now = new Date();
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const currentDate = `${now.getDate()} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
 
       exportContainer.innerHTML = `
         <div style="font-family: system-ui, -apple-system, sans-serif;">
