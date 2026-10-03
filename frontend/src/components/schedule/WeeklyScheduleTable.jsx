@@ -164,6 +164,25 @@ function WeeklyScheduleTable({ data }) {
         return;
       }
 
+      // Find latest date from courier shifts data
+      let latestDate = null;
+      exportData.forEach(courier => {
+        if (courier.shifts && courier.shifts.length > 0) {
+          courier.shifts.forEach(shift => {
+            const shiftDate = shift.parsedDate || new Date(shift.date);
+            if (!latestDate || shiftDate > latestDate) {
+              latestDate = shiftDate;
+            }
+          });
+        }
+      });
+
+      // Format date same as dashboard header: "2 Oct 2026"
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const lastUpdateDate = latestDate 
+        ? `${latestDate.getDate()} ${monthNames[latestDate.getMonth()]} ${latestDate.getFullYear()}`
+        : 'N/A';
+
       // Create temporary container for export
       const exportContainer = document.createElement('div');
       exportContainer.style.position = 'fixed';
@@ -173,11 +192,6 @@ function WeeklyScheduleTable({ data }) {
       exportContainer.style.backgroundColor = 'white';
       exportContainer.style.padding = '20px';
       document.body.appendChild(exportContainer);
-
-      // Format date same as dashboard header: "2 Oct 2026"
-      const now = new Date();
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const currentDate = `${now.getDate()} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
 
       exportContainer.innerHTML = `
         <div style="font-family: system-ui, -apple-system, sans-serif;">
@@ -191,7 +205,7 @@ function WeeklyScheduleTable({ data }) {
               <span>•</span>
               <span><strong>Total Couriers:</strong> ${exportData.length}</span>
               <span>•</span>
-              <span><strong>Last Updated:</strong> ${currentDate}</span>
+              <span><strong>Last Updated:</strong> ${lastUpdateDate}</span>
             </div>
           </div>
 
@@ -254,7 +268,7 @@ function WeeklyScheduleTable({ data }) {
 
           <!-- Footer -->
           <div style="margin-top: 20px; padding-top: 16px; border-top: 2px solid #E5E7EB; font-size: 11px; color: #6B7280; text-align: center;">
-            Generated from SPX SOKO Dashboard • ${currentDate}
+            Generated from SPX SOKO Dashboard • Last Updated: ${lastUpdateDate}
           </div>
         </div>
       `;
