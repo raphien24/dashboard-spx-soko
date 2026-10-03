@@ -2,19 +2,19 @@
  * ===============================================
  * TriggerHandler.gs — Message Queue via Spreadsheet
  * ===============================================
- * Cara kerja (TIME-BASED POLLING):
+ * Cara kerja (onChange trigger):
  * 1. Dashboard menulis "RUN" ke cell Trigger!A1 via Cloudflare Worker
- * 2. Time-based trigger checkAndRun() berjalan setiap 1 menit
- * 3. checkAndRun() cek A1 — kalau ada "RUN" → jalankan scraper
- * 4. Progress ditulis ke Trigger!A2 setiap update
+ * 2. onChange trigger terpicu — termasuk perubahan via API ✅
+ * 3. onChangeTrigger() cek A1 → jalankan scraper
+ * 4. Progress ditulis ke Trigger!A2 setiap update (real-time polling)
  *
  * SETUP:
- * 1. Di GAS editor: Triggers → Add Trigger:
- *    - Function: checkAndRun
- *    - Event source: Time-driven
- *    - Type: Minutes timer
- *    - Interval: Every minute
- * 2. HAPUS trigger onEditTrigger yang lama (tidak diperlukan lagi)
+ * 1. HAPUS trigger onEditTrigger yang lama
+ * 2. Tambah trigger baru:
+ *    - Function: onChangeTrigger
+ *    - Event source: From spreadsheet
+ *    - Event type: On change
+ *    - Save
  * ===============================================
  */
 
@@ -24,6 +24,7 @@ const TRIGGER_COMMAND_CELL   = 'A1';
 const TRIGGER_STATUS_CELL    = 'A2';
 const TRIGGER_UPDATED_CELL   = 'A3';
 
+// Cache referensi sheet agar tidak buka ulang setiap kali
 let _triggerSheet = null;
 
 function _getTriggerSheet() {
@@ -36,161 +37,37 @@ function _getTriggerSheet() {
 }
 
 /**
- * TIME-BASED TRIGGER — dipanggil setiap 1 menit
- * Cek apakah ada command RUN/RESUME di cell A1
- */
-function checkAndRun() {
-  const sheet = _getTriggerSheet();
-  if (!sheet) {
-    Logger.log('❌ Sheet Trigger tidak ditemukan');
-    return;
-  }
-
-  const command = String(sheet.getRange(TRIGGER_COMMAND_CELL).getValue() || '').trim().toUpperCase();
-
-  // Tidak ada command — skip
-  if (command !== 'RUN' && command !== 'RESUME') {
-    Logger.log('⏭️ checkAndRun: command = "' + command + '" — skip');
-    return;
-  }
-
-  Logger.log('🎯 Command detected: ' + command + ' — menjalankan scraper...');
-
-  // Set RUNNING agar tidak dobel jika trigger menit berikutnya datang
-  sheet.getRange(TRIGGER_COMMAND_CELL).setValue('RUNNING');
-  sheet.getRange(TRIGGER_STATUS_CELL).setValue('0|Memulai...');
-  sheet.getRange(TRIGGER_UPDATED_CELL).setValue('');
-  SpreadsheetApp.flush();
-
-  // Set sheet reference untuk override setProgress_
-  _triggerSheet = sheet;
-
-  try {
-    if (command === 'RUN') {
-      fetchExpediteData();
-    } else {
-      resumeExpediteScenarios();
-    }
-  } catch (err) {
-    setProgressError_(err.message);
-    Logger.log('❌ Scraper error: ' + err.message);
-  } finally {
-    sheet.getRange(TRIGGER_COMMAND_CELL).setValue('IDLE');
-    SpreadsheetApp.flush();
-    Logger.log('✅ checkAndRun selesai');
-  }
-}
-
-/**
- * onEdit trigger — DEPRECATED, tidak dipakai lagi
- * onEdit tidak terpicu oleh perubahan via API
- * Dibiarkan untuk tidak merusak trigger yang mungkin masih terpasang
- */
-function onEditTrigger(e) {
-  if (!e || !e.range) return;
-  Logger.log('⚠️ onEditTrigger dipanggil — tidak digunakan lagi, pakai checkAndRun');
-}
-
-/**
  * ============================================================
- * OVERRIDE setProgress_ / setProgressDone_ / setProgressError_
- * 
- * Fungsi-fungsi ini didefinisikan di doPost.gs (WebApp.gs)
- * untuk CacheService. Di sini kita OVERRIDE agar JUGA menulis
- * ke sheet Trigger!A2 — sehingga polling dari dashboard bisa
- * membaca progress secara real-time lintas eksekusi.
- * 
- * GAS menggunakan fungsi yang terdefinisi TERAKHIR dalam project,
- * jadi file ini harus diurutkan SETELAH doPost.gs/WebApp.gs.
- * (Atau bisa diatur dari Project Settings → file order)
+ * onChange TRIGGER — terpicu oleh semua perubahan spreadsheet,
+ * TERMASUK perubahan via API (berbeda dengan onEdit).
+ *
+ * PENTING: Dipasang sebagai installable trigger:
+ *   Triggers → Add Trigger → onChangeTrigger → On change
  * ============================================================
  */
-function setProgress_(percent, message) {
-  // 1. Tulis ke CacheService (untuk popup GAS jika ada)
-  try {
-    CacheService.getScriptCache().put(
-      PROGRESS_CACHE_KEY,
-      JSON.stringify({ percent, message, done: false, error: null }),
-      600
-    );
-  } catch (e) {}
-
-  // 2. Tulis ke sheet Trigger!A2 (untuk polling dashboard)
-  _writeTriggerStatus(percent, message);
-}
-
-function setProgressDone_(message) {
-  try {
-    CacheService.getScriptCache().put(
-      PROGRESS_CACHE_KEY,
-      JSON.stringify({ percent: 100, message, done: true, error: null }),
-      600
-    );
-  } catch (e) {}
-
-  _writeTriggerStatus(100, message);
-}
-
-function setProgressError_(message) {
-  try {
-    CacheService.getScriptCache().put(
-      PROGRESS_CACHE_KEY,
-      JSON.stringify({ percent: 0, message: '', done: true, error: message }),
-      600
-    );
-  } catch (e) {}
-
-  _writeTriggerStatus(0, '❌ ' + message);
-}
-
-/**
- * Tulis progress ke sheet Trigger!A2 dan timestamp ke A3
- * Format A2: "percent|message"
- */
-function _writeTriggerStatus(percent, message) {
+function onChangeTrigger(e) {
   try {
     const sheet = _getTriggerSheet();
-    if (!sheet) return;
-    const timestamp = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
-    sheet.getRange(TRIGGER_STATUS_CELL).setValue(percent + '|' + message);
-    sheet.getRange(TRIGGER_UPDATED_CELL).setValue(timestamp);
-    SpreadsheetApp.flush();
-  } catch (e) {
-    Logger.log('⚠️ _writeTriggerStatus error: ' + e.message);
-  }
-}
+    if (!sheet) {
+      Logger.log('❌ Sheet "Trigger" tidak ditemukan');
+      return;
+    }
 
-/**
- * onEdit trigger — dipasang sebagai installable trigger
- */
-function onEditTrigger(e) {
-  if (!e || !e.range) {
-    Logger.log('⚠️ onEditTrigger dipanggil tanpa event object — skip');
-    return;
-  }
+    // Baca command dari cell A1
+    const command = String(sheet.getRange(TRIGGER_COMMAND_CELL).getValue() || '').trim().toUpperCase();
 
-  try {
-    const sheet = e.range.getSheet();
-    if (sheet.getName() !== TRIGGER_SHEET_NAME) return;
-    if (e.range.getA1Notation() !== TRIGGER_COMMAND_CELL) return;
+    // Hanya proses RUN atau RESUME
+    if (command !== 'RUN' && command !== 'RESUME') {
+      return;
+    }
 
-    const command = String(e.value || '').trim().toUpperCase();
-    if (command !== 'RUN' && command !== 'RESUME') return;
+    Logger.log('🎯 onChange detected: command = ' + command);
 
-    Logger.log('🎯 Trigger detected: ' + command);
-
-    // Reset command ke RUNNING agar tidak trigger ulang
+    // Segera set RUNNING agar tidak dobel jika onChange terpicu lagi
     sheet.getRange(TRIGGER_COMMAND_CELL).setValue('RUNNING');
-    // Reset status cell agar polling tidak baca data lama
     sheet.getRange(TRIGGER_STATUS_CELL).setValue('0|Memulai...');
     sheet.getRange(TRIGGER_UPDATED_CELL).setValue('');
     SpreadsheetApp.flush();
-
-    // Reset cache sheet reference (fresh open untuk eksekusi baru)
-    _triggerSheet = sheet;
-
-    // Tulis status awal ke sheet (langsung, tanpa lewat setProgress_ dulu)
-    _writeTriggerStatus(0, 'Dimulai dari dashboard (' + command + ')...');
 
     try {
       if (command === 'RUN') {
@@ -204,118 +81,142 @@ function onEditTrigger(e) {
     } finally {
       sheet.getRange(TRIGGER_COMMAND_CELL).setValue('IDLE');
       SpreadsheetApp.flush();
+      Logger.log('✅ onChangeTrigger selesai');
     }
 
   } catch (outerErr) {
-    Logger.log('❌ onEditTrigger outer error: ' + outerErr.message);
+    Logger.log('❌ onChangeTrigger outer error: ' + outerErr.message);
   }
 }
 
 /**
- * Helper: tulis status ke sheet Trigger (DEPRECATED — diganti _writeTriggerStatus)
- * Dibiarkan untuk backward compatibility
+ * ============================================================
+ * OVERRIDE setProgress_ / setProgressDone_ / setProgressError_
+ *
+ * Didefinisikan ulang di sini agar JUGA menulis ke sheet Trigger!A2,
+ * sehingga dashboard bisa polling progress secara real-time.
+ * File ini harus diurutkan SETELAH WebApp.gs di project GAS.
+ * ============================================================
  */
-function _setTriggerStatus(sheet, percent, message) {
+function setProgress_(percent, message) {
+  try {
+    CacheService.getScriptCache().put(
+      PROGRESS_CACHE_KEY,
+      JSON.stringify({ percent, message, done: false, error: null }),
+      600
+    );
+  } catch (e) {}
   _writeTriggerStatus(percent, message);
 }
 
+function setProgressDone_(message) {
+  try {
+    CacheService.getScriptCache().put(
+      PROGRESS_CACHE_KEY,
+      JSON.stringify({ percent: 100, message, done: true, error: null }),
+      600
+    );
+  } catch (e) {}
+  _writeTriggerStatus(100, message);
+}
+
+function setProgressError_(message) {
+  try {
+    CacheService.getScriptCache().put(
+      PROGRESS_CACHE_KEY,
+      JSON.stringify({ percent: 0, message: '', done: true, error: message }),
+      600
+    );
+  } catch (e) {}
+  _writeTriggerStatus(0, '❌ ' + message);
+}
+
+function _writeTriggerStatus(percent, message) {
+  try {
+    const sheet = _getTriggerSheet();
+    if (!sheet) return;
+    const ts = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
+    sheet.getRange(TRIGGER_STATUS_CELL).setValue(percent + '|' + message);
+    sheet.getRange(TRIGGER_UPDATED_CELL).setValue(ts);
+    SpreadsheetApp.flush();
+  } catch (e) {
+    Logger.log('⚠️ _writeTriggerStatus error: ' + e.message);
+  }
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+
 /**
- * Setup: buat sheet Trigger jika belum ada
- * Jalankan SEKALI secara manual dari GAS editor
+ * Setup sheet Trigger — jalankan SEKALI dari GAS editor
  */
 function setupTriggerSheet() {
   const ss = SpreadsheetApp.openById(TRIGGER_SPREADSHEET_ID);
   let sheet = ss.getSheetByName(TRIGGER_SHEET_NAME);
-
   if (!sheet) {
     sheet = ss.insertSheet(TRIGGER_SHEET_NAME);
-    Logger.log('✅ Sheet "Trigger" berhasil dibuat');
+    Logger.log('✅ Sheet "Trigger" dibuat');
   } else {
     Logger.log('ℹ️ Sheet "Trigger" sudah ada');
   }
-
-  // Setup header dan initial values
   sheet.getRange('A1').setValue('IDLE');
   sheet.getRange('A2').setValue('0|Menunggu perintah...');
   sheet.getRange('A3').setValue('');
-
-  // Label di kolom B untuk keterbacaan
-  sheet.getRange('B1').setValue('Command (RUN / RESUME / IDLE)');
+  sheet.getRange('B1').setValue('Command (RUN/RESUME/IDLE/RUNNING)');
   sheet.getRange('B2').setValue('Status (percent|message)');
   sheet.getRange('B3').setValue('Last Updated');
-
-  // Format
-  sheet.getRange('A1:B3').setFontFamily('Courier New');
-  sheet.getRange('B1:B3').setFontColor('#888888').setFontStyle('italic');
-  sheet.autoResizeColumn(1);
-  sheet.autoResizeColumn(2);
-
   SpreadsheetApp.flush();
-  Logger.log('✅ Trigger sheet setup selesai!');
+  Logger.log('✅ Setup selesai');
   Logger.log('');
   Logger.log('📋 LANGKAH SELANJUTNYA:');
-  Logger.log('   1. Di GAS editor: klik ikon Triggers (jam)');
-  Logger.log('   2. Add Trigger:');
-  Logger.log('      - Function: onEditTrigger');
-  Logger.log('      - Event source: From spreadsheet');
-  Logger.log('      - Event type: On edit');
-  Logger.log('   3. Authorize → Save');
+  Logger.log('   1. Hapus trigger onEditTrigger (jika masih ada)');
+  Logger.log('   2. Triggers → Add Trigger → onChangeTrigger → On change → Save');
 }
 
 /**
- * TEST: Simulasi trigger secara manual dari editor
+ * Test manual dari editor (tanpa klik tombol di dashboard)
  */
 function testTriggerManually() {
-  Logger.log('🧪 TEST: Simulasi trigger RUN secara manual...');
+  Logger.log('🧪 TEST: simulasi RUN...');
+  const sheet = _getTriggerSheet();
+  if (!sheet) { Logger.log('❌ Sheet Trigger tidak ada'); return; }
 
-  const ss = SpreadsheetApp.openById(TRIGGER_SPREADSHEET_ID);
-  const sheet = ss.getSheetByName(TRIGGER_SHEET_NAME);
-
-  if (!sheet) {
-    Logger.log('❌ Sheet "Trigger" belum ada. Jalankan setupTriggerSheet() dulu!');
-    return;
-  }
-
-  // Set _triggerSheet agar override setProgress_ bisa menulis ke sheet
   _triggerSheet = sheet;
+  sheet.getRange(TRIGGER_COMMAND_CELL).setValue('RUN');
+  SpreadsheetApp.flush();
 
-  // Simulasi event object
-  const fakeEvent = {
-    range: sheet.getRange(TRIGGER_COMMAND_CELL),
-    value: 'RUN',
-  };
-
-  onEditTrigger(fakeEvent);
-  Logger.log('✅ Test selesai. Cek sheet Trigger dan execution log.');
+  // Simulasi onChange event
+  onChangeTrigger({});
+  Logger.log('✅ Test selesai');
 }
 
 /**
- * CHECK: Verifikasi trigger sudah terpasang dengan benar
+ * Verifikasi setup
  */
 function checkTriggerSetup() {
   Logger.log('🔍 Checking trigger setup...');
-
-  // Cek sheet Trigger
   const ss = SpreadsheetApp.openById(TRIGGER_SPREADSHEET_ID);
   const sheet = ss.getSheetByName(TRIGGER_SHEET_NAME);
   if (!sheet) {
     Logger.log('❌ Sheet "Trigger" BELUM ADA → jalankan setupTriggerSheet()');
   } else {
-    const command = sheet.getRange('A1').getValue();
-    const status  = sheet.getRange('A2').getValue();
     Logger.log('✅ Sheet "Trigger" ada');
-    Logger.log('   A1 (command): ' + command);
-    Logger.log('   A2 (status):  ' + status);
+    Logger.log('   A1: ' + sheet.getRange('A1').getValue());
+    Logger.log('   A2: ' + sheet.getRange('A2').getValue());
   }
 
-  // Cek installable triggers
   const triggers = ScriptApp.getProjectTriggers();
-  const editTrigger = triggers.find(t => t.getHandlerFunction() === 'onEditTrigger');
-  if (!editTrigger) {
-    Logger.log('❌ Installable trigger "onEditTrigger" BELUM TERPASANG');
-    Logger.log('   → Pergi ke Triggers (ikon jam) → Add Trigger → onEditTrigger → On edit');
+  const changeTrigger = triggers.find(t => t.getHandlerFunction() === 'onChangeTrigger');
+  const editTrigger   = triggers.find(t => t.getHandlerFunction() === 'onEditTrigger');
+
+  if (changeTrigger) {
+    Logger.log('✅ onChangeTrigger sudah terpasang — Event: ' + changeTrigger.getEventType());
   } else {
-    Logger.log('✅ Installable trigger "onEditTrigger" sudah terpasang');
-    Logger.log('   Event type: ' + editTrigger.getEventType());
+    Logger.log('❌ onChangeTrigger BELUM TERPASANG → Triggers → Add → onChangeTrigger → On change');
+  }
+
+  if (editTrigger) {
+    Logger.log('⚠️ onEditTrigger masih terpasang — sebaiknya dihapus (tidak berguna untuk API writes)');
   }
 }
