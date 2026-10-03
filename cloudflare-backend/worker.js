@@ -42,6 +42,11 @@ export default {
       return handleBatchRanges(body.ranges, env, corsHeaders);
     }
 
+    // Route: Get SP Record data (separate spreadsheet)
+    if (url.pathname === '/api/sp-record' && request.method === 'GET') {
+      return handleSPRecord(env, corsHeaders);
+    }
+
     // 404
     return new Response('Not Found', { 
       status: 404, 
@@ -137,6 +142,75 @@ async function handleBatchRanges(ranges, env, corsHeaders) {
     return new Response(JSON.stringify({
       success: true,
       data: result
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Handle SP Record data from separate spreadsheet
+ * Spreadsheet ID: 1sTSltnZ68zxkvqV6_IldXaW9XhddyribC6ne5jKMJFE
+ * Sheet: Database
+ */
+async function handleSPRecord(env, corsHeaders) {
+  try {
+    const accessToken = await getAccessToken(env);
+    const spreadsheetId = '1sTSltnZ68zxkvqV6_IldXaW9XhddyribC6ne5jKMJFE';
+    const range = 'Database!A1:Z';
+
+    const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}`;
+
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return new Response(JSON.stringify({
+        success: false,
+        error: error.error?.message || 'Failed to fetch SP Record data'
+      }), {
+        status: response.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const data = await response.json();
+    const rows = data.values || [];
+
+    if (rows.length === 0) {
+      return new Response(JSON.stringify({ success: true, data: [] }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Convert rows to array of objects using first row as headers
+    const headers = rows[0].map(h => String(h).trim());
+    const records = rows.slice(1)
+      .filter(row => row.some(cell => cell !== '' && cell !== undefined))
+      .map(row => {
+        const record = {};
+        headers.forEach((header, index) => {
+          record[header] = row[index] !== undefined ? row[index] : '';
+        });
+        return record;
+      });
+
+    return new Response(JSON.stringify({
+      success: true,
+      data: records
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

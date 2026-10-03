@@ -1701,44 +1701,33 @@ const googleSheetsService = new GoogleSheetsService();
 export default googleSheetsService;
 
 // ============================================================
-// SP Record: Fetch from separate spreadsheet (Database sheet)
-// Spreadsheet: https://docs.google.com/spreadsheets/d/1sTSltnZ68zxkvqV6_IldXaW9XhddyribC6ne5jKMJFE
+// SP Record: Fetch via Cloudflare Worker backend proxy
+// Worker endpoint: /api/sp-record
 // ============================================================
-const SP_RECORD_SPREADSHEET_ID = '1sTSltnZ68zxkvqV6_IldXaW9XhddyribC6ne5jKMJFE';
-
 export async function getSPRecordData() {
-  const apiKey = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY;
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SP_RECORD_SPREADSHEET_ID}/values/Database!A1:Z`;
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+
+  if (!backendUrl) {
+    throw new Error('Backend URL not configured. Please set VITE_API_BASE_URL.');
+  }
+
+  const url = `${backendUrl}/api/sp-record`;
 
   try {
-    const response = await fetch(`${url}?key=${apiKey}`);
+    const response = await fetch(url);
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Google Sheets API error: ${response.status} - ${errorText}`);
+      throw new Error(`Backend error: ${response.status} - ${errorText}`);
     }
 
     const json = await response.json();
-    const rows = json.values || [];
 
-    if (rows.length === 0) return [];
+    if (!json.success) {
+      throw new Error(json.error || 'Failed to fetch SP Record data');
+    }
 
-    // First row = headers
-    const headers = rows[0].map(h => String(h).trim());
-    const dataRows = rows.slice(1);
-
-    // Convert to array of objects
-    const records = dataRows
-      .filter(row => row.some(cell => cell !== '' && cell !== undefined))
-      .map(row => {
-        const record = {};
-        headers.forEach((header, index) => {
-          record[header] = row[index] !== undefined ? row[index] : '';
-        });
-        return record;
-      });
-
-    return records;
+    return json.data || [];
   } catch (error) {
     console.error('[getSPRecordData] Error:', error);
     throw error;
