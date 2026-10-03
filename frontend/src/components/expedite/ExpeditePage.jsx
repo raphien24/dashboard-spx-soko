@@ -142,12 +142,26 @@ const ExpeditePage = () => {
   const tagOptions    = useMemo(() => [...new Set(records.map(r => r['To Expedite Tag']).filter(Boolean))].sort(), [records]);
 
   // ── Summary stats ─────────────────────────────────────────
-  const stats = useMemo(() => ({
-    total:   records.length,
-    aging24: records.filter(r => parseFloat(r['Expedite Aging Time']) > 24).length,
-    aging12: records.filter(r => { const n = parseFloat(r['Expedite Aging Time']); return n > 12 && n <= 24; }).length,
-    zones:   new Set(records.map(r => r['Zone ID']).filter(Boolean)).size,
-  }), [records]);
+  const stats = useMemo(() => {
+    // Scenario breakdown — group by scenario value
+    const scenarioMap = {};
+    records.forEach(r => {
+      const s = r['Scenario'] ? String(r['Scenario']).trim() : '—';
+      scenarioMap[s] = (scenarioMap[s] || 0) + 1;
+    });
+    // Sort by count desc
+    const scenarioList = Object.entries(scenarioMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return {
+      total:        records.length,
+      aging24:      records.filter(r => parseFloat(r['Expedite Aging Time']) > 24).length,
+      aging12:      records.filter(r => { const n = parseFloat(r['Expedite Aging Time']); return n > 12 && n <= 24; }).length,
+      zones:        new Set(records.map(r => r['Zone ID']).filter(Boolean)).size,
+      scenarioList,
+    };
+  }, [records]);
 
   // ── Filtered + sorted ─────────────────────────────────────
   const filtered = useMemo(() => {
@@ -293,26 +307,59 @@ const ExpeditePage = () => {
           </div>
         </div>
 
-        {/* Progress bar — tampil saat running atau done */}
+        {/* Progress bar + error detail */}
         {scraperProgress && scraperState !== 'idle' && (
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
-              <span>{scraperProgress.percent}%</span>
-              {scraperProgress.done && !scraperProgress.error && (
-                <span className="text-green-600 font-medium">✓ Selesai</span>
-              )}
+          <div className="mt-4 space-y-2">
+            {/* Progress bar */}
+            <div>
+              <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                <span className={scraperProgress.message?.startsWith('❌') ? 'text-red-600 font-medium' : ''}>
+                  {scraperProgress.percent}%
+                </span>
+                {scraperProgress.updatedAt && (
+                  <span className="text-gray-400">Updated: {scraperProgress.updatedAt}</span>
+                )}
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className={`h-2 rounded-full transition-all duration-500 ${
+                    scraperProgress.message?.startsWith('❌') ? 'bg-red-500' :
+                    scraperState === 'done'                   ? 'bg-green-500' :
+                    scraperProgress.message?.startsWith('⚠️') ? 'bg-yellow-400' :
+                    'bg-indigo-500'
+                  }`}
+                  style={{ width: `${scraperProgress.percent}%` }}
+                />
+              </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-              <div
-                className={`h-2 rounded-full transition-all duration-500 ${
-                  scraperProgress.error    ? 'bg-red-500' :
-                  scraperProgress.done     ? 'bg-green-500' :
-                  scraperProgress.message?.startsWith('⚠️') ? 'bg-yellow-400' :
-                  'bg-indigo-500'
-                }`}
-                style={{ width: `${scraperProgress.percent}%` }}
-              />
-            </div>
+
+            {/* Error detail box */}
+            {scraperProgress.message?.startsWith('❌') && (
+              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                <p className="text-xs font-semibold text-red-700 mb-1">Detail Error:</p>
+                <p className="text-xs text-red-600 font-mono break-all">
+                  {scraperProgress.message.replace('❌ ', '')}
+                </p>
+                <div className="mt-2 text-xs text-red-500 space-y-0.5">
+                  <p>Kemungkinan penyebab:</p>
+                  <p>• Cookie expired → update cookie via bookmarklet lalu coba lagi</p>
+                  <p>• SPX API down → tunggu beberapa menit lalu coba lagi</p>
+                  <p>• Timeout → klik Resume untuk melanjutkan tanpa download ulang</p>
+                </div>
+              </div>
+            )}
+
+            {/* Warning detail box */}
+            {scraperProgress.message?.startsWith('⚠️') && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-3">
+                <p className="text-xs text-yellow-700">
+                  {scraperProgress.message}
+                </p>
+                <p className="text-xs text-yellow-600 mt-1">
+                  → Klik <strong>Resume</strong> untuk mengisi baris yang belum dapat scenario
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -367,6 +414,41 @@ const ExpeditePage = () => {
           </div>
         </div>
       </div>
+
+      {/* ── Scenario Breakdown ── */}
+      {stats.scenarioList.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wider">
+            Breakdown by Scenario
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {stats.scenarioList.map(({ name, count }) => {
+              const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
+              const isDash = name === '—' || name === '-';
+              return (
+                <div
+                  key={name}
+                  className={`rounded-lg border p-3 ${isDash ? 'border-gray-200 bg-gray-50' : 'border-indigo-100 bg-indigo-50'}`}
+                >
+                  <p className={`text-lg font-bold ${isDash ? 'text-gray-500' : 'text-indigo-700'}`}>
+                    {count}
+                  </p>
+                  <p className="text-xs font-medium text-gray-700 mt-0.5 leading-tight line-clamp-2" title={name}>
+                    {name}
+                  </p>
+                  <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
+                    <div
+                      className={`h-1.5 rounded-full ${isDash ? 'bg-gray-400' : 'bg-indigo-500'}`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">{pct}%</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ── Toolbar ── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
