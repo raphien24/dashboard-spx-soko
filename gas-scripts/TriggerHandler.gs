@@ -33,6 +33,12 @@ const TRIGGER_UPDATED_CELL   = 'A3';  // Timestamp terakhir update status
  * Simple trigger tidak punya authorization untuk UrlFetchApp.
  */
 function onEditTrigger(e) {
+  // Guard: kalau dipanggil manual dari editor (tanpa event object), skip
+  if (!e || !e.range) {
+    Logger.log('⚠️ onEditTrigger dipanggil tanpa event object — skip (jangan dijalankan manual)');
+    return;
+  }
+
   try {
     const sheet = e.range.getSheet();
 
@@ -53,8 +59,6 @@ function onEditTrigger(e) {
     // Update status cell
     _setTriggerStatus(sheet, 0, 'Dimulai dari dashboard (' + command + ')...');
 
-    const startedAt = Date.now();
-
     try {
       if (command === 'RUN') {
         fetchExpediteData();
@@ -69,7 +73,7 @@ function onEditTrigger(e) {
 
     } catch (err) {
       _setTriggerStatus(sheet, 0, '❌ Error: ' + err.message);
-      Logger.log('❌ onEditTrigger error: ' + err.message);
+      Logger.log('❌ onEditTrigger inner error: ' + err.message);
     } finally {
       // Reset command cell ke IDLE setelah selesai
       sheet.getRange(TRIGGER_COMMAND_CELL).setValue('IDLE');
@@ -136,4 +140,61 @@ function setupTriggerSheet() {
   Logger.log('      - Event source: From spreadsheet');
   Logger.log('      - Event type: On edit');
   Logger.log('   3. Authorize → Save');
+}
+
+/**
+ * TEST: Simulasi trigger secara manual dari editor
+ * Jalankan ini untuk test tanpa harus edit cell dari dashboard
+ */
+function testTriggerManually() {
+  Logger.log('🧪 TEST: Simulasi trigger RUN secara manual...');
+
+  const ss = SpreadsheetApp.openById(TRIGGER_SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(TRIGGER_SHEET_NAME);
+
+  if (!sheet) {
+    Logger.log('❌ Sheet "Trigger" belum ada. Jalankan setupTriggerSheet() dulu!');
+    return;
+  }
+
+  // Simulasi event object
+  const fakeEvent = {
+    range: sheet.getRange(TRIGGER_COMMAND_CELL),
+    value: 'RUN',
+  };
+
+  // Panggil handler dengan fake event
+  onEditTrigger(fakeEvent);
+  Logger.log('✅ Test selesai. Cek sheet Trigger dan execution log.');
+}
+
+/**
+ * CHECK: Verifikasi trigger sudah terpasang dengan benar
+ */
+function checkTriggerSetup() {
+  Logger.log('🔍 Checking trigger setup...');
+
+  // Cek sheet Trigger
+  const ss = SpreadsheetApp.openById(TRIGGER_SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(TRIGGER_SHEET_NAME);
+  if (!sheet) {
+    Logger.log('❌ Sheet "Trigger" BELUM ADA → jalankan setupTriggerSheet()');
+  } else {
+    const command = sheet.getRange('A1').getValue();
+    const status  = sheet.getRange('A2').getValue();
+    Logger.log('✅ Sheet "Trigger" ada');
+    Logger.log('   A1 (command): ' + command);
+    Logger.log('   A2 (status):  ' + status);
+  }
+
+  // Cek installable triggers
+  const triggers = ScriptApp.getProjectTriggers();
+  const editTrigger = triggers.find(t => t.getHandlerFunction() === 'onEditTrigger');
+  if (!editTrigger) {
+    Logger.log('❌ Installable trigger "onEditTrigger" BELUM TERPASANG');
+    Logger.log('   → Pergi ke Triggers (ikon jam) → Add Trigger → onEditTrigger → On edit');
+  } else {
+    Logger.log('✅ Installable trigger "onEditTrigger" sudah terpasang');
+    Logger.log('   Event type: ' + editTrigger.getEventType());
+  }
 }
