@@ -556,24 +556,6 @@ function WeeklyScheduleTable({ data }) {
                         : 'Ubah filter atau pencarian untuk melihat data courier.'
                       }
                     </p>
-                    {!hasData && currentWeekOffset !== 0 && (
-                      <button
-                        onClick={goToCurrentWeek}
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                      >
-                        <Calendar className="w-4 h-4" />
-                        Kembali ke Week Saat Ini
-                      </button>
-                    )}
-                    {hasData && (
-                      <button
-                        onClick={resetFilters}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                      >
-                        <Filter className="w-4 h-4" />
-                        Reset Semua Filter
-                      </button>
-                    )}
                   </div>
                 </td>
               </tr>
