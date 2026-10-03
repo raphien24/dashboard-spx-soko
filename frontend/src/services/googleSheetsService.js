@@ -1750,3 +1750,35 @@ export async function getExpediteData() {
 
   return { data: json.data || [], headers: json.headers || [] };
 }
+
+/**
+ * Trigger GAS Expedite scraper via Cloudflare Worker
+ * action: 'run' | 'resume'
+ */
+export async function runExpediteScaper(action = 'run') {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+
+  const response = await fetch(`${backendUrl}/api/run-expedite`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action }),
+  });
+
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to trigger scraper');
+  return json;
+}
+
+/**
+ * Poll GAS scraper progress/status
+ * Returns: { percent, message, done, error } or null
+ */
+export async function getExpediteScraperStatus() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+
+  const response = await fetch(`${backendUrl}/api/expedite-status`);
+  const json = await response.json();
+  return json?.data?.progress || null;
+}

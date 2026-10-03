@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
   RefreshCw, Search, X, Download,
-  ChevronUp, ChevronDown, Package, Clock, AlertTriangle
+  ChevronUp, ChevronDown, Package, Clock, AlertTriangle,
+  Play, RotateCcw, CheckCircle, XCircle, Loader2
 } from 'lucide-react';
-import { getExpediteData } from '../../services/googleSheetsService';
+import { getExpediteData, runExpediteScaper, getExpediteScraperStatus } from '../../services/googleSheetsService';
 
 // Columns to display
 const COLUMNS = [
@@ -45,6 +46,12 @@ const ExpeditePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error,     setError]     = useState(null);
 
+  // Scraper state
+  const [scraperState, setScraperState] = useState('idle'); // idle | running | done | error
+  const [scraperProgress, setScraperProgress] = useState(null); // { percent, message, done, error }
+  const [scraperError, setScraperError] = useState(null);
+  const pollRef = useState(null); // interval ref
+
   // Filters
   const [search,      setSearch]      = useState('');
   const [filterZone,  setFilterZone]  = useState('all');
@@ -75,6 +82,52 @@ const ExpeditePage = () => {
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  // ── Scraper trigger ───────────────────────────────────────
+  const startScraper = async (action = 'run') => {
+    setScraperState('running');
+    setScraperError(null);
+    setScraperProgress({ percent: 0, message: 'Menghubungi GAS...', done: false, error: null });
+
+    // Start polling status every 3s
+    const interval = setInterval(async () => {
+      try {
+        const progress = await getExpediteScraperStatus();
+        if (progress) {
+          setScraperProgress(progress);
+          if (progress.done || progress.error) {
+            clearInterval(interval);
+            setScraperState(progress.error ? 'error' : 'done');
+            if (!progress.error) {
+              // Auto refresh data after scraper done
+              setTimeout(() => fetchData(), 2000);
+            }
+          }
+        }
+      } catch (_) {}
+    }, 3000);
+    pollRef[0] = interval;
+
+    try {
+      // This call blocks until GAS finishes (up to 30 min)
+      await runExpediteScaper(action);
+      clearInterval(interval);
+      const finalProgress = await getExpediteScraperStatus();
+      setScraperProgress(finalProgress);
+      setScraperState(finalProgress?.error ? 'error' : 'done');
+      if (!finalProgress?.error) setTimeout(() => fetchData(), 1500);
+    } catch (err) {
+      clearInterval(interval);
+      setScraperError(err.message);
+      setScraperState('error');
+      setScraperProgress(prev => ({ ...prev, done: true, error: err.message }));
+    }
+  };
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => { if (pollRef[0]) clearInterval(pollRef[0]); };
+  }, []);
 
   // ── Filter options (dynamic) ──────────────────────────────
   const zoneOptions   = useMemo(() => [...new Set(records.map(r => r['Zone ID']).filter(Boolean))].sort(), [records]);
@@ -180,6 +233,82 @@ const ExpeditePage = () => {
   // ── Main ──────────────────────────────────────────────────
   return (
     <div className="space-y-4">
+
+      {/* ── Scraper Control Panel ── */}
+      <div className={`rounded-xl border p-4 ${
+        scraperState === 'running' ? 'bg-blue-50 border-blue-200' :
+        scraperState === 'done'    ? 'bg-green-50 border-green-200' :
+        scraperState === 'error'   ? 'bg-red-50 border-red-200' :
+        'bg-white border-gray-200'
+      } shadow-sm`}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            {scraperState === 'running' && <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />}
+            {scraperState === 'done'    && <CheckCircle className="w-5 h-5 text-green-600" />}
+            {scraperState === 'error'   && <XCircle className="w-5 h-5 text-red-600" />}
+            {scraperState === 'idle'    && <Play className="w-5 h-5 text-gray-400" />}
+            <div>
+              <p className="text-sm font-semibold text-gray-800">
+                {scraperState === 'idle'    && 'SPX Expedite Scraper'}
+                {scraperState === 'running' && 'Scraper sedang berjalan...'}
+                {scraperState === 'done'    && 'Scraper selesai!'}
+                {scraperState === 'error'   && 'Scraper gagal'}
+              </p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {scraperState === 'idle' && 'Klik "Run Scraper" untuk mengambil data terbaru dari SPX'}
+                {scraperProgress?.message && scraperState !== 'idle' && scraperProgress.message}
+              </p>
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={() => startScraper('run')}
+              disabled={scraperState === 'running'}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              {scraperState === 'running'
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <Play className="w-4 h-4" />
+              }
+              Run Scraper
+            </button>
+            <button
+              onClick={() => startScraper('resume')}
+              disabled={scraperState === 'running'}
+              title="Resume: isi hanya baris yang scenario-nya kosong, tanpa download ulang"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 rounded-lg text-sm font-medium transition-colors border border-gray-300"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Resume
+            </button>
+          </div>
+        </div>
+
+        {/* Progress bar — tampil saat running atau done */}
+        {scraperProgress && scraperState !== 'idle' && (
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+              <span>{scraperProgress.percent}%</span>
+              {scraperProgress.done && !scraperProgress.error && (
+                <span className="text-green-600 font-medium">✓ Selesai</span>
+              )}
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div
+                className={`h-2 rounded-full transition-all duration-500 ${
+                  scraperProgress.error    ? 'bg-red-500' :
+                  scraperProgress.done     ? 'bg-green-500' :
+                  scraperProgress.message?.startsWith('⚠️') ? 'bg-yellow-400' :
+                  'bg-indigo-500'
+                }`}
+                style={{ width: `${scraperProgress.percent}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* ── KPI Summary Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

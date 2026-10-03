@@ -52,6 +52,16 @@ export default {
       return handleExpeditData(env, corsHeaders);
     }
 
+    // Route: Trigger GAS Expedite scraper (run / resume)
+    if (url.pathname === '/api/run-expedite' && request.method === 'POST') {
+      const body = await request.json().catch(() => ({}));
+      return handleRunExpedite(body, env, corsHeaders);
+    }
+
+    // Route: Poll GAS scraper status
+    if (url.pathname === '/api/expedite-status' && request.method === 'GET') {
+      return handleExpediteStatus(env, corsHeaders);
+    }
     // 404
     return new Response('Not Found', { 
       status: 404, 
