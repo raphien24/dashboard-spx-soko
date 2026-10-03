@@ -126,6 +126,9 @@ function onEditTrigger(e) {
 
     // Reset command ke RUNNING agar tidak trigger ulang
     sheet.getRange(TRIGGER_COMMAND_CELL).setValue('RUNNING');
+    // Reset status cell agar polling tidak baca data lama
+    sheet.getRange(TRIGGER_STATUS_CELL).setValue('0|Memulai...');
+    sheet.getRange(TRIGGER_UPDATED_CELL).setValue('');
     SpreadsheetApp.flush();
 
     // Reset cache sheet reference (fresh open untuk eksekusi baru)

@@ -85,13 +85,23 @@ const ExpeditePage = () => {
 
   // ── Scraper trigger ───────────────────────────────────────
   const startScraper = async (action = 'run') => {
+    // Reset state dulu sebelum mulai
     setScraperState('running');
     setScraperError(null);
     setScraperProgress({ percent: 0, message: 'Mengirim perintah ke GAS...', updatedAt: '' });
 
+    // Stop polling lama jika masih jalan
+    if (pollRef[0]) {
+      clearInterval(pollRef[0]);
+      pollRef[0] = null;
+    }
+
     try {
       // Write RUN/RESUME to trigger cell via Worker
       await runExpediteScaper(action);
+
+      // Tunggu 3 detik beri waktu GAS reset cell status
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
       // Start polling status every 4s
       const interval = setInterval(async () => {
