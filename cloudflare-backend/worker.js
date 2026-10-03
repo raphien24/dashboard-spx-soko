@@ -52,6 +52,17 @@ export default {
       return handleExpeditData(env, corsHeaders);
     }
 
+    // Route: Trigger expedite scraper via spreadsheet cell (message queue)
+    if (url.pathname === '/api/trigger-expedite' && request.method === 'POST') {
+      const body = await request.json().catch(() => ({}));
+      return handleTriggerExpedite(body, env, corsHeaders);
+    }
+
+    // Route: Poll expedite scraper status from trigger sheet
+    if (url.pathname === '/api/expedite-status' && request.method === 'GET') {
+      return handleExpediteStatusFromSheet(env, corsHeaders);
+    }
+
     // Route: Trigger GAS Expedite scraper (run / resume)
     if (url.pathname === '/api/run-expedite' && request.method === 'POST') {
       const body = await request.json().catch(() => ({}));
@@ -167,6 +178,100 @@ async function handleBatchRanges(ranges, env, corsHeaders) {
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Trigger expedite scraper by writing command to Trigger sheet cell A1
+ * Uses existing service account — no GAS web app URL needed
+ */
+async function handleTriggerExpedite(body, env, corsHeaders) {
+  const EXPEDITE_SS_ID = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+  const TRIGGER_RANGE  = 'Trigger!A1';
+  const command        = (body.action === 'resume') ? 'RESUME' : 'RUN';
+
+  try {
+    const accessToken = await getAccessToken(env);
+    const writeUrl = `https://sheets.googleapis.com/v4/spreadsheets/${EXPEDITE_SS_ID}/values/${encodeURIComponent(TRIGGER_RANGE)}?valueInputOption=RAW`;
+
+    const writeRes = await fetch(writeUrl, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ values: [[command]] }),
+    });
+
+    if (!writeRes.ok) {
+      const err = await writeRes.json();
+      return new Response(JSON.stringify({
+        success: false,
+        error: err.error?.message || 'Failed to write trigger cell'
+      }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: `Command "${command}" sent to GAS trigger cell`,
+      command,
+    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Poll expedite scraper status from Trigger sheet cell A1:A3
+ */
+async function handleExpediteStatusFromSheet(env, corsHeaders) {
+  const EXPEDITE_SS_ID = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+  const STATUS_RANGE   = 'Trigger!A1:A3';
+
+  try {
+    const accessToken = await getAccessToken(env);
+    const readUrl = `https://sheets.googleapis.com/v4/spreadsheets/${EXPEDITE_SS_ID}/values/${encodeURIComponent(STATUS_RANGE)}`;
+    const readRes = await fetch(readUrl, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+
+    if (!readRes.ok) {
+      const err = await readRes.json();
+      return new Response(JSON.stringify({
+        success: false,
+        error: err.error?.message || 'Failed to read status cell'
+      }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    const data      = await readRes.json();
+    const values    = data.values || [];
+    const command   = values[0]?.[0] || 'IDLE';
+    const rawStatus = values[1]?.[0] || '0|Menunggu...';
+    const updatedAt = values[2]?.[0] || '';
+
+    // Parse "percent|message" format
+    const pipeIdx = rawStatus.indexOf('|');
+    const percent = pipeIdx > -1 ? parseInt(rawStatus.substring(0, pipeIdx)) || 0 : 0;
+    const message = pipeIdx > -1 ? rawStatus.substring(pipeIdx + 1) : rawStatus;
+
+    const isRunning = command === 'RUNNING' || command === 'RUN' || command === 'RESUME';
+    const isDone    = !isRunning && (message.startsWith('✅') || message.startsWith('❌'));
+
+    return new Response(JSON.stringify({
+      success: true,
+      command,
+      isRunning,
+      isDone,
+      status: { percent, message, updatedAt },
+    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 }

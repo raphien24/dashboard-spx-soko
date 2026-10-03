@@ -1752,14 +1752,14 @@ export async function getExpediteData() {
 }
 
 /**
- * Trigger GAS Expedite scraper via Cloudflare Worker
+ * Trigger GAS Expedite scraper via spreadsheet cell (message queue approach)
  * action: 'run' | 'resume'
  */
 export async function runExpediteScaper(action = 'run') {
   const backendUrl = import.meta.env.VITE_API_BASE_URL;
   if (!backendUrl) throw new Error('Backend URL not configured.');
 
-  const response = await fetch(`${backendUrl}/api/run-expedite`, {
+  const response = await fetch(`${backendUrl}/api/trigger-expedite`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action }),
@@ -1771,8 +1771,8 @@ export async function runExpediteScaper(action = 'run') {
 }
 
 /**
- * Poll GAS scraper progress/status
- * Returns: { percent, message, done, error } or null
+ * Poll GAS scraper status from Trigger sheet
+ * Returns: { command, isRunning, isDone, status: { percent, message, updatedAt } }
  */
 export async function getExpediteScraperStatus() {
   const backendUrl = import.meta.env.VITE_API_BASE_URL;
@@ -1780,5 +1780,6 @@ export async function getExpediteScraperStatus() {
 
   const response = await fetch(`${backendUrl}/api/expedite-status`);
   const json = await response.json();
-  return json?.data?.progress || null;
+  if (!json.success) return null;
+  return json;
 }

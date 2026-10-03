@@ -87,40 +87,37 @@ const ExpeditePage = () => {
   const startScraper = async (action = 'run') => {
     setScraperState('running');
     setScraperError(null);
-    setScraperProgress({ percent: 0, message: 'Menghubungi GAS...', done: false, error: null });
-
-    // Start polling status every 3s
-    const interval = setInterval(async () => {
-      try {
-        const progress = await getExpediteScraperStatus();
-        if (progress) {
-          setScraperProgress(progress);
-          if (progress.done || progress.error) {
-            clearInterval(interval);
-            setScraperState(progress.error ? 'error' : 'done');
-            if (!progress.error) {
-              // Auto refresh data after scraper done
-              setTimeout(() => fetchData(), 2000);
-            }
-          }
-        }
-      } catch (_) {}
-    }, 3000);
-    pollRef[0] = interval;
+    setScraperProgress({ percent: 0, message: 'Mengirim perintah ke GAS...', updatedAt: '' });
 
     try {
-      // This call blocks until GAS finishes (up to 30 min)
+      // Write RUN/RESUME to trigger cell via Worker
       await runExpediteScaper(action);
-      clearInterval(interval);
-      const finalProgress = await getExpediteScraperStatus();
-      setScraperProgress(finalProgress);
-      setScraperState(finalProgress?.error ? 'error' : 'done');
-      if (!finalProgress?.error) setTimeout(() => fetchData(), 1500);
+
+      // Start polling status every 4s
+      const interval = setInterval(async () => {
+        try {
+          const result = await getExpediteScraperStatus();
+          if (!result) return;
+
+          setScraperProgress(result.status);
+
+          if (result.isDone) {
+            clearInterval(interval);
+            pollRef[0] = null;
+            const isError = result.status?.message?.startsWith('❌');
+            setScraperState(isError ? 'error' : 'done');
+            if (!isError) setTimeout(() => fetchData(), 2000);
+          } else if (result.isRunning) {
+            setScraperState('running');
+          }
+        } catch (_) {}
+      }, 4000);
+      pollRef[0] = interval;
+
     } catch (err) {
-      clearInterval(interval);
       setScraperError(err.message);
       setScraperState('error');
-      setScraperProgress(prev => ({ ...prev, done: true, error: err.message }));
+      setScraperProgress({ percent: 0, message: '❌ ' + err.message, updatedAt: '' });
     }
   };
 
