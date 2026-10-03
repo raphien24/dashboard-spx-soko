@@ -101,7 +101,7 @@ const ExpeditePage = () => {
 
           setScraperProgress(result.status);
 
-          if (result.isDone) {
+          if (result.isDone || result.command === 'IDLE' && result.status?.percent === 100) {
             clearInterval(interval);
             pollRef[0] = null;
             const isError = result.status?.message?.startsWith('❌');

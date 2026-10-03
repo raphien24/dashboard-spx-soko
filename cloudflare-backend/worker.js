@@ -260,7 +260,13 @@ async function handleExpediteStatusFromSheet(env, corsHeaders) {
     const message = pipeIdx > -1 ? rawStatus.substring(pipeIdx + 1) : rawStatus;
 
     const isRunning = command === 'RUNNING' || command === 'RUN' || command === 'RESUME';
-    const isDone    = !isRunning && (message.startsWith('✅') || message.startsWith('❌'));
+    const isDone    = !isRunning && (
+      message.startsWith('✅') ||
+      message.startsWith('❌') ||
+      message.startsWith('Selesai') ||
+      message.startsWith('⚠️') ||
+      percent === 100
+    );
 
     return new Response(JSON.stringify({
       success: true,
