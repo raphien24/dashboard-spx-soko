@@ -47,6 +47,11 @@ export default {
       return handleSPRecord(env, corsHeaders);
     }
 
+    // Route: Get Expedite scraper data (separate spreadsheet)
+    if (url.pathname === '/api/expedite' && request.method === 'GET') {
+      return handleExpeditData(env, corsHeaders);
+    }
+
     // 404
     return new Response('Not Found', { 
       status: 404, 
@@ -142,6 +147,76 @@ async function handleBatchRanges(ranges, env, corsHeaders) {
     return new Response(JSON.stringify({
       success: true,
       data: result
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Handle Expedite scraper data from separate spreadsheet
+ * Spreadsheet ID: 1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0
+ * Sheet: Expedite
+ */
+async function handleExpeditData(env, corsHeaders) {
+  try {
+    const accessToken = await getAccessToken(env);
+    const spreadsheetId = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+    const range = 'Expedite!A1:Z';
+
+    const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}`;
+
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return new Response(JSON.stringify({
+        success: false,
+        error: error.error?.message || 'Failed to fetch Expedite data'
+      }), {
+        status: response.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const data = await response.json();
+    const rows = data.values || [];
+
+    if (rows.length === 0) {
+      return new Response(JSON.stringify({ success: true, data: [], headers: [] }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // First row = headers
+    const headers = rows[0].map(h => String(h).trim());
+    const records = rows.slice(1)
+      .filter(row => row.some(cell => cell !== '' && cell !== undefined))
+      .map(row => {
+        const record = {};
+        headers.forEach((header, index) => {
+          record[header] = row[index] !== undefined ? row[index] : '';
+        });
+        return record;
+      });
+
+    return new Response(JSON.stringify({
+      success: true,
+      headers,
+      data: records
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

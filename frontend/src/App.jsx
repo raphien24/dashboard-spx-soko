@@ -3,6 +3,7 @@ import { Play, Pause, RefreshCw } from 'lucide-react';
 import Sidebar from './components/common/Sidebar';
 import Dashboard from './components/dashboard/Dashboard';
 import PunishmentManagement from './components/punishment/PunishmentManagement';
+import ExpeditePage from './components/expedite/ExpeditePage';
 import useDashboardStore from './store/dashboardStore';
 
 function App() {
@@ -29,13 +30,15 @@ function App() {
   const pageTitles = {
     'productivity': 'Soko Hub Productivity Dashboard',
     'sp-generator': 'Punishment Management',
-    'sp-record': 'Punishment Management',
+    'sp-record':    'Punishment Management',
+    'expedite':     'Expedite Tracker',
   };
 
   const pageSubtitles = {
     'productivity': 'Fleet Operations Dashboard',
     'sp-generator': 'SP Generator — Surat Peringatan',
-    'sp-record': 'SP Record — Database',
+    'sp-record':    'SP Record — Database',
+    'expedite':     'Monitor & track paket expedite',
   };
 
   const currentTitle = pageTitles[activePage] || 'SPX SOKO Dashboard';
@@ -43,6 +46,7 @@ function App() {
 
   // Is the active page a punishment management sub-page?
   const isPunishmentPage = activePage === 'sp-generator' || activePage === 'sp-record';
+  const isExpeditePage   = activePage === 'expedite';
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -145,6 +149,9 @@ function App() {
             )}
             {isPunishmentPage && (
               <PunishmentManagement activeSubPage={activePage} />
+            )}
+            {isExpeditePage && (
+              <ExpeditePage />
             )}
           </div>
         </main>

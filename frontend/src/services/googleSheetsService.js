@@ -1733,3 +1733,20 @@ export async function getSPRecordData() {
     throw error;
   }
 }
+
+// ============================================================
+// Expedite: Fetch via Cloudflare Worker backend proxy
+// Worker endpoint: /api/expedite
+// ============================================================
+export async function getExpediteData() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+
+  const response = await fetch(`${backendUrl}/api/expedite`);
+  if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to fetch Expedite data');
+
+  return { data: json.data || [], headers: json.headers || [] };
+}

@@ -11,7 +11,8 @@ import {
   X,
   ClipboardCheck,
   AlertTriangle,
-  ChevronDown
+  ChevronDown,
+  Zap
 } from 'lucide-react';
 
 const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
@@ -41,17 +42,15 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       active: false,
       hasSubmenu: true,
       submenu: [
-        {
-          id: 'sp-generator',
-          label: 'SP Generator',
-          parent: 'punishment',
-        },
-        {
-          id: 'sp-record',
-          label: 'SP Record',
-          parent: 'punishment',
-        },
+        { id: 'sp-generator', label: 'SP Generator', parent: 'punishment' },
+        { id: 'sp-record',    label: 'SP Record',    parent: 'punishment' },
       ],
+    },
+    {
+      id: 'expedite',
+      label: 'Expedite Tracker',
+      icon: Zap,
+      active: false,
     },
     {
       id: 'fleet',
