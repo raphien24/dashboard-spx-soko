@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Search, Filter, CheckCircle, XCircle, Calendar } from 'lucide-react';
+import CourierDetailModal from './CourierDetailModal';
 
 /**
  * Weekly Schedule Table Component
@@ -12,6 +13,7 @@ function WeeklyScheduleTable({ data }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [selectedCourier, setSelectedCourier] = useState(null);
 
   // Safely handle data
   const safeData = data || [];
@@ -326,7 +328,11 @@ function WeeklyScheduleTable({ data }) {
               const targetDiff = (courier.avgDaily || 0) - (courier.target || 0);
 
               return (
-                <tr key={courier.id} className="hover:bg-gray-50 transition-colors">
+                <tr 
+                  key={courier.id} 
+                  onClick={() => setSelectedCourier(courier)}
+                  className="hover:bg-indigo-50 transition-colors cursor-pointer"
+                >
                   {/* Row Number */}
                   <td className="px-4 py-4 text-sm text-gray-500 font-medium">
                     {rowNumber}
@@ -525,6 +531,14 @@ function WeeklyScheduleTable({ data }) {
           </div>
         </div>
       </div>
+
+      {/* Courier Detail Modal */}
+      {selectedCourier && (
+        <CourierDetailModal 
+          courier={selectedCourier} 
+          onClose={() => setSelectedCourier(null)} 
+        />
+      )}
     </div>
   );
 }
