@@ -284,13 +284,14 @@ class GoogleSheetsService {
       const dedicatedVsPlusDiff = 100 - dedicatedVsPlus;
 
       // === KPI 3: DAILY ACTIVE (2WH, Dedicated+Kurir Plus only, Deliv>0) ===
+      // STATIC: Only count Dedicated 2WH + Kurir Plus 2WH couriers
       const filtered2WHDedicatedPlus = data.filter(row => 
         row[6] === '2WH' && 
         (row[5] === 'Dedicated' || row[5]?.includes('Kurir Plus')) &&
         row[13] && this.parseNumeric(row[13]) > 0
       );
 
-      // Get unique couriers (by ID)
+      // Get unique couriers from FILTERED data (only Dedicated 2WH + Plus 2WH)
       const uniqueCouriers = new Set(filtered2WHDedicatedPlus.map(row => row[1]));
       const totalUniqueCouriers = uniqueCouriers.size;
 
@@ -1499,24 +1500,16 @@ class GoogleSheetsService {
     const dedicatedVsPlusDiff = 100 - dedicatedVsPlus;
 
     // === KPI 3: DAILY ACTIVE (2WH, Dedicated+Kurir Plus only, Deliv>0) ===
-    // Apply same filters to base data before calculating DAILY ACTIVE
-    let filtered2WHDedicatedPlus = rawData.filter(row => 
+    // STATIC: Always calculate from ALL raw data (not affected by ANY filters)
+    // Always count ALL Dedicated 2WH + Kurir Plus 2WH regardless of user filters
+    const filtered2WHDedicatedPlus = rawData.filter(row => 
       row[6] === '2WH' && 
       (row[5] === 'Dedicated' || row[5]?.includes('Kurir Plus')) &&
       row[13] && this.parseNumeric(row[13]) > 0
     );
+    // NOTE: NO date filter, NO contract filter, NO vehicle filter applied here!
 
-    // Apply date filter
-    if (filters.dateRange) {
-      filtered2WHDedicatedPlus = this.filterByDateRange(filtered2WHDedicatedPlus, filters.dateRange);
-    }
-
-    // Apply contract filter (for DAILY ACTIVE calculation)
-    if (filters.contract && filters.contract !== 'all') {
-      filtered2WHDedicatedPlus = filtered2WHDedicatedPlus.filter(row => row[5] === filters.contract);
-    }
-
-    // Get unique couriers (by ID)
+    // Get unique couriers from ALL Dedicated 2WH + Plus 2WH data
     const uniqueCouriers = new Set(filtered2WHDedicatedPlus.map(row => row[1]));
     const totalUniqueCouriers = uniqueCouriers.size;
 

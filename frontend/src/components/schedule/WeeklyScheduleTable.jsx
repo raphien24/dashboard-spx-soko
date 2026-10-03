@@ -269,6 +269,8 @@ function WeeklyScheduleTable({ data }) {
           <!-- Footer -->
           <div style="margin-top: 20px; padding-top: 16px; border-top: 2px solid #E5E7EB; font-size: 11px; color: #6B7280; text-align: center;">
             Generated from SPX SOKO Dashboard • Last Updated: ${lastUpdateDate}
+            <br/>
+            <span style="color: #9CA3AF; margin-top: 4px; display: inline-block;">Made with ❤️</span>
           </div>
         </div>
       `;
