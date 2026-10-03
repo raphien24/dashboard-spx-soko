@@ -192,7 +192,8 @@ async function handleTriggerExpedite(body, env, corsHeaders) {
   const command        = (body.action === 'resume') ? 'RESUME' : 'RUN';
 
   try {
-    const accessToken = await getAccessToken(env);
+    // Write scope needed to update trigger cell
+    const accessToken = await getAccessToken(env, true);
     const writeUrl = `https://sheets.googleapis.com/v4/spreadsheets/${EXPEDITE_SS_ID}/values/${encodeURIComponent(TRIGGER_RANGE)}?valueInputOption=RAW`;
 
     const writeRes = await fetch(writeUrl, {
@@ -417,22 +418,24 @@ async function handleSPRecord(env, corsHeaders) {
 
 /**
  * Get Google OAuth Access Token from Service Account
+ * @param {object} env - Worker env
+ * @param {boolean} writeAccess - true = read+write scope, false = readonly (default)
  */
-async function getAccessToken(env) {
+async function getAccessToken(env, writeAccess = false) {
   // Decode service account credentials from base64
   const credentialsJson = atob(env.GOOGLE_SERVICE_ACCOUNT);
   const credentials = JSON.parse(credentialsJson);
   
   // Create JWT
   const now = Math.floor(Date.now() / 1000);
-  const header = {
-    alg: 'RS256',
-    typ: 'JWT'
-  };
+  const header = { alg: 'RS256', typ: 'JWT' };
   
   const claimSet = {
     iss: credentials.client_email,
-    scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+    // Use read+write scope when writing to trigger cell, readonly otherwise
+    scope: writeAccess
+      ? 'https://www.googleapis.com/auth/spreadsheets'
+      : 'https://www.googleapis.com/auth/spreadsheets.readonly',
     aud: 'https://oauth2.googleapis.com/token',
     exp: now + 3600,
     iat: now
