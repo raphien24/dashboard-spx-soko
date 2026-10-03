@@ -9,12 +9,15 @@ import {
   Package,
   Menu,
   X,
-  ClipboardCheck
+  ClipboardCheck,
+  AlertTriangle,
+  ChevronDown
 } from 'lucide-react';
 
 const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState({});
 
   const menuItems = [
     {
@@ -30,6 +33,25 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       active: false,
       external: true,
       url: 'https://absensi.spxsoko.online/admin',
+    },
+    {
+      id: 'punishment',
+      label: 'Punishment Management',
+      icon: AlertTriangle,
+      active: false,
+      hasSubmenu: true,
+      submenu: [
+        {
+          id: 'sp-generator',
+          label: 'SP Generator',
+          parent: 'punishment',
+        },
+        {
+          id: 'sp-record',
+          label: 'SP Record',
+          parent: 'punishment',
+        },
+      ],
     },
     {
       id: 'fleet',
@@ -62,11 +84,27 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       return;
     }
     
+    // If has submenu, toggle expansion
+    if (item.hasSubmenu) {
+      setExpandedMenus(prev => ({
+        ...prev,
+        [item.id]: !prev[item.id]
+      }));
+      return;
+    }
+    
     // Internal navigation
     if (onNavigate && !item.disabled) {
       onNavigate(item.id);
       setIsMobileOpen(false);
     }
+  };
+
+  const toggleSubmenu = (menuId) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [menuId]: !prev[menuId]
+    }));
   };
 
   return (
@@ -122,53 +160,93 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = item.id === activePage;
+          const isActive = item.id === activePage || (item.submenu && item.submenu.some(sub => sub.id === activePage));
           const isDisabled = item.disabled;
           const isExternal = item.external;
+          const hasSubmenu = item.hasSubmenu;
+          const isExpanded = expandedMenus[item.id];
 
           return (
-            <button
-              key={item.id}
-              onClick={() => handleNavigate(item)}
-              disabled={isDisabled}
-              className={`
-                w-full flex items-center space-x-3 px-4 py-3 rounded-lg
-                transition-all duration-200 group relative
-                ${isActive 
-                  ? 'bg-white text-indigo-900 shadow-lg' 
-                  : isDisabled
-                  ? 'text-indigo-400 cursor-not-allowed opacity-50'
-                  : 'text-indigo-100 hover:bg-indigo-700/50'
-                }
-                ${isCollapsed ? 'justify-center' : ''}
-              `}
-            >
-              <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-600' : ''}`} />
-              {!isCollapsed && (
-                <>
-                  <span className="flex-1 text-left font-medium">{item.label}</span>
-                  {isDisabled && (
-                    <span className="text-xs bg-indigo-700 px-2 py-0.5 rounded-full">
-                      Soon
-                    </span>
-                  )}
-                  {isExternal && (
-                    <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  )}
-                </>
-              )}
-              
-              {/* Tooltip for collapsed state */}
-              {isCollapsed && (
-                <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
-                  {item.label}
-                  {isDisabled && <span className="ml-2 text-gray-400">(Soon)</span>}
-                  {isExternal && <span className="ml-2 text-gray-400">(External)</span>}
+            <div key={item.id}>
+              {/* Main Menu Item */}
+              <button
+                onClick={() => handleNavigate(item)}
+                disabled={isDisabled}
+                className={`
+                  w-full flex items-center space-x-3 px-4 py-3 rounded-lg
+                  transition-all duration-200 group relative
+                  ${isActive 
+                    ? 'bg-white text-indigo-900 shadow-lg' 
+                    : isDisabled
+                    ? 'text-indigo-400 cursor-not-allowed opacity-50'
+                    : 'text-indigo-100 hover:bg-indigo-700/50'
+                  }
+                  ${isCollapsed ? 'justify-center' : ''}
+                `}
+              >
+                <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-600' : ''}`} />
+                {!isCollapsed && (
+                  <>
+                    <span className="flex-1 text-left font-medium">{item.label}</span>
+                    {isDisabled && (
+                      <span className="text-xs bg-indigo-700 px-2 py-0.5 rounded-full">
+                        Soon
+                      </span>
+                    )}
+                    {isExternal && (
+                      <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    )}
+                    {hasSubmenu && (
+                      <ChevronDown 
+                        className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      />
+                    )}
+                  </>
+                )}
+                
+                {/* Tooltip for collapsed state */}
+                {isCollapsed && (
+                  <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+                    {item.label}
+                    {isDisabled && <span className="ml-2 text-gray-400">(Soon)</span>}
+                    {isExternal && <span className="ml-2 text-gray-400">(External)</span>}
+                  </div>
+                )}
+              </button>
+
+              {/* Submenu Items */}
+              {hasSubmenu && isExpanded && !isCollapsed && item.submenu && (
+                <div className="mt-1 ml-4 space-y-1">
+                  {item.submenu.map((subItem) => {
+                    const isSubActive = subItem.id === activePage;
+                    return (
+                      <button
+                        key={subItem.id}
+                        onClick={() => {
+                          if (onNavigate) {
+                            onNavigate(subItem.id);
+                            setIsMobileOpen(false);
+                          }
+                        }}
+                        className={`
+                          w-full flex items-center space-x-3 px-4 py-2 rounded-lg
+                          transition-all duration-200 text-sm
+                          ${isSubActive
+                            ? 'bg-indigo-700 text-white'
+                            : 'text-indigo-200 hover:bg-indigo-700/30'
+                          }
+                        `}
+                      >
+                        <div className="w-1.5 h-1.5 rounded-full bg-current" />
+                        <span className="flex-1 text-left">{subItem.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
-            </button>
+            </div>
           );
         })}
       </nav>

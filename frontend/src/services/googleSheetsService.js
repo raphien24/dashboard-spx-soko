@@ -1699,3 +1699,48 @@ class GoogleSheetsService {
 // Export singleton instance
 const googleSheetsService = new GoogleSheetsService();
 export default googleSheetsService;
+
+// ============================================================
+// SP Record: Fetch from separate spreadsheet (Database sheet)
+// Spreadsheet: https://docs.google.com/spreadsheets/d/1sTSltnZ68zxkvqV6_IldXaW9XhddyribC6ne5jKMJFE
+// ============================================================
+const SP_RECORD_SPREADSHEET_ID = '1sTSltnZ68zxkvqV6_IldXaW9XhddyribC6ne5jKMJFE';
+
+export async function getSPRecordData() {
+  const apiKey = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SP_RECORD_SPREADSHEET_ID}/values/Database!A1:Z`;
+
+  try {
+    const response = await fetch(`${url}?key=${apiKey}`);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Google Sheets API error: ${response.status} - ${errorText}`);
+    }
+
+    const json = await response.json();
+    const rows = json.values || [];
+
+    if (rows.length === 0) return [];
+
+    // First row = headers
+    const headers = rows[0].map(h => String(h).trim());
+    const dataRows = rows.slice(1);
+
+    // Convert to array of objects
+    const records = dataRows
+      .filter(row => row.some(cell => cell !== '' && cell !== undefined))
+      .map(row => {
+        const record = {};
+        headers.forEach((header, index) => {
+          record[header] = row[index] !== undefined ? row[index] : '';
+        });
+        return record;
+      });
+
+    return records;
+  } catch (error) {
+    console.error('[getSPRecordData] Error:', error);
+    throw error;
+  }
+}
