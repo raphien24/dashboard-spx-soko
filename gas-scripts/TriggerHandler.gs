@@ -2,29 +2,28 @@
  * ===============================================
  * TriggerHandler.gs — Message Queue via Spreadsheet
  * ===============================================
- * Cara kerja:
- * 1. Dashboard menulis "RUN" atau "RESUME" ke cell Trigger!A1
- *    via Cloudflare Worker (Google Sheets API)
- * 2. onEdit trigger mendeteksi perubahan → jalankan scraper
- * 3. Progress ditulis ke Trigger!A2 setiap update (untuk polling)
+ * Cara kerja (TIME-BASED POLLING):
+ * 1. Dashboard menulis "RUN" ke cell Trigger!A1 via Cloudflare Worker
+ * 2. Time-based trigger checkAndRun() berjalan setiap 1 menit
+ * 3. checkAndRun() cek A1 — kalau ada "RUN" → jalankan scraper
+ * 4. Progress ditulis ke Trigger!A2 setiap update
  *
- * SETUP (wajib dilakukan SEKALI):
- * 1. Tambah sheet baru bernama "Trigger" di spreadsheet Expedite
- * 2. Di GAS editor: Triggers (ikon jam) → Add Trigger:
- *    - Function: onEditTrigger
- *    - Event source: From spreadsheet
- *    - Event type: On edit
- *    - Save
+ * SETUP:
+ * 1. Di GAS editor: Triggers → Add Trigger:
+ *    - Function: checkAndRun
+ *    - Event source: Time-driven
+ *    - Type: Minutes timer
+ *    - Interval: Every minute
+ * 2. HAPUS trigger onEditTrigger yang lama (tidak diperlukan lagi)
  * ===============================================
  */
 
 const TRIGGER_SPREADSHEET_ID = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
 const TRIGGER_SHEET_NAME     = 'Trigger';
-const TRIGGER_COMMAND_CELL   = 'A1';  // Dashboard tulis "RUN" / "RESUME" / "IDLE" di sini
-const TRIGGER_STATUS_CELL    = 'A2';  // Progress ditulis di sini (format: "percent|message")
-const TRIGGER_UPDATED_CELL   = 'A3';  // Timestamp terakhir update status
+const TRIGGER_COMMAND_CELL   = 'A1';
+const TRIGGER_STATUS_CELL    = 'A2';
+const TRIGGER_UPDATED_CELL   = 'A3';
 
-// Cache sheet Trigger supaya tidak buka spreadsheet berulang kali
 let _triggerSheet = null;
 
 function _getTriggerSheet() {
@@ -34,6 +33,62 @@ function _getTriggerSheet() {
       .getSheetByName(TRIGGER_SHEET_NAME);
   }
   return _triggerSheet;
+}
+
+/**
+ * TIME-BASED TRIGGER — dipanggil setiap 1 menit
+ * Cek apakah ada command RUN/RESUME di cell A1
+ */
+function checkAndRun() {
+  const sheet = _getTriggerSheet();
+  if (!sheet) {
+    Logger.log('❌ Sheet Trigger tidak ditemukan');
+    return;
+  }
+
+  const command = String(sheet.getRange(TRIGGER_COMMAND_CELL).getValue() || '').trim().toUpperCase();
+
+  // Tidak ada command — skip
+  if (command !== 'RUN' && command !== 'RESUME') {
+    Logger.log('⏭️ checkAndRun: command = "' + command + '" — skip');
+    return;
+  }
+
+  Logger.log('🎯 Command detected: ' + command + ' — menjalankan scraper...');
+
+  // Set RUNNING agar tidak dobel jika trigger menit berikutnya datang
+  sheet.getRange(TRIGGER_COMMAND_CELL).setValue('RUNNING');
+  sheet.getRange(TRIGGER_STATUS_CELL).setValue('0|Memulai...');
+  sheet.getRange(TRIGGER_UPDATED_CELL).setValue('');
+  SpreadsheetApp.flush();
+
+  // Set sheet reference untuk override setProgress_
+  _triggerSheet = sheet;
+
+  try {
+    if (command === 'RUN') {
+      fetchExpediteData();
+    } else {
+      resumeExpediteScenarios();
+    }
+  } catch (err) {
+    setProgressError_(err.message);
+    Logger.log('❌ Scraper error: ' + err.message);
+  } finally {
+    sheet.getRange(TRIGGER_COMMAND_CELL).setValue('IDLE');
+    SpreadsheetApp.flush();
+    Logger.log('✅ checkAndRun selesai');
+  }
+}
+
+/**
+ * onEdit trigger — DEPRECATED, tidak dipakai lagi
+ * onEdit tidak terpicu oleh perubahan via API
+ * Dibiarkan untuk tidak merusak trigger yang mungkin masih terpasang
+ */
+function onEditTrigger(e) {
+  if (!e || !e.range) return;
+  Logger.log('⚠️ onEditTrigger dipanggil — tidak digunakan lagi, pakai checkAndRun');
 }
 
 /**
