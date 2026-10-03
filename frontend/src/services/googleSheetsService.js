@@ -284,14 +284,21 @@ class GoogleSheetsService {
       const dedicatedVsPlusDiff = 100 - dedicatedVsPlus;
 
       // === KPI 3: DAILY ACTIVE (2WH, Dedicated+Kurir Plus only, Deliv>0) ===
-      // STATIC: Only count Dedicated 2WH + Kurir Plus 2WH couriers
-      const filtered2WHDedicatedPlus = data.filter(row => 
+      // STATIC for contract/vehicle filters, but DYNAMIC for date range filter
+      // Use ALL raw data, then apply date filter only
+      let filtered2WHDedicatedPlus = data.filter(row => 
         row[6] === '2WH' && 
         (row[5] === 'Dedicated' || row[5]?.includes('Kurir Plus')) &&
         row[13] && this.parseNumeric(row[13]) > 0
       );
 
-      // Get unique couriers from FILTERED data (only Dedicated 2WH + Plus 2WH)
+      // Apply date range filter (affected by week range selection)
+      if (filters.dateRange) {
+        filtered2WHDedicatedPlus = this.filterByDateRange(filtered2WHDedicatedPlus, filters.dateRange);
+      }
+      // NOTE: NO contract filter, NO vehicle filter applied!
+
+      // Get unique couriers from filtered data
       const uniqueCouriers = new Set(filtered2WHDedicatedPlus.map(row => row[1]));
       const totalUniqueCouriers = uniqueCouriers.size;
 
@@ -1500,16 +1507,21 @@ class GoogleSheetsService {
     const dedicatedVsPlusDiff = 100 - dedicatedVsPlus;
 
     // === KPI 3: DAILY ACTIVE (2WH, Dedicated+Kurir Plus only, Deliv>0) ===
-    // STATIC: Always calculate from ALL raw data (not affected by ANY filters)
-    // Always count ALL Dedicated 2WH + Kurir Plus 2WH regardless of user filters
-    const filtered2WHDedicatedPlus = rawData.filter(row => 
+    // STATIC for contract/vehicle filters, but DYNAMIC for date range filter
+    // Always count ALL Dedicated 2WH + Kurir Plus 2WH (ignore contract/vehicle filters)
+    let filtered2WHDedicatedPlus = rawData.filter(row => 
       row[6] === '2WH' && 
       (row[5] === 'Dedicated' || row[5]?.includes('Kurir Plus')) &&
       row[13] && this.parseNumeric(row[13]) > 0
     );
-    // NOTE: NO date filter, NO contract filter, NO vehicle filter applied here!
 
-    // Get unique couriers from ALL Dedicated 2WH + Plus 2WH data
+    // Apply date range filter ONLY (affected by week range, not by contract/vehicle)
+    if (filters.dateRange) {
+      filtered2WHDedicatedPlus = this.filterByDateRange(filtered2WHDedicatedPlus, filters.dateRange);
+    }
+    // NOTE: NO contract filter, NO vehicle filter applied here!
+
+    // Get unique couriers from filtered data
     const uniqueCouriers = new Set(filtered2WHDedicatedPlus.map(row => row[1]));
     const totalUniqueCouriers = uniqueCouriers.size;
 
