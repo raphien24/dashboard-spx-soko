@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   RefreshCw, Search, X, Download, Image,
   ChevronUp, ChevronDown, Package, Clock, AlertTriangle,
@@ -256,19 +256,112 @@ const BuyerRRPage = () => {
 
   useEffect(() => () => { if (pollRef[0]) clearInterval(pollRef[0]); }, []);
 
-  // ── Refs untuk export PNG ────────────────────────────────────
-  const createdTableRef  = useRef(null);
-  const assignedTableRef = useRef(null);
-
   // ── Export PNG ───────────────────────────────────────────────
-  const exportToPng = async (ref, filename) => {
-    if (!ref.current) return;
+  const exportToPng = async (type) => {
+    const isCreated  = type === 'created';
+    const rows       = isCreated ? filteredCreated : filteredAssigned;
+    const cols       = isCreated ? CREATED_COLS    : ASSIGNED_COLS;
+    const filename   = `BuyerRR-${isCreated ? 'Created' : 'Assigned'}-${new Date().toISOString().split('T')[0]}.png`;
+
+    if (!rows.length) return;
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('id-ID', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+    const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+    // Build table rows HTML
+    const tbodyHtml = rows.map((row, i) => `
+      <tr style="background:${i % 2 === 0 ? '#ffffff' : '#f8f9ff'};">
+        ${cols.map(col => {
+          const val = row[col.key] || '—';
+          const isAttempts = col.key === 'Pickup Attempts';
+          const n = parseInt(val);
+          const color = isAttempts
+            ? n >= 5 ? '#dc2626' : n >= 3 ? '#ea580c' : n >= 2 ? '#ca8a04' : '#374151'
+            : '#374151';
+          const weight = isAttempts && n >= 2 ? '600' : '400';
+          return `<td style="padding:8px 12px;font-size:12px;color:${color};font-weight:${weight};border-bottom:1px solid #e5e7eb;white-space:nowrap;">${val}</td>`;
+        }).join('')}
+      </tr>
+    `).join('');
+
+    const html = `
+      <div style="font-family:'Segoe UI',Arial,sans-serif;background:#fff;padding:0;width:100%;">
+
+        <!-- Header Banner -->
+        <div style="background:linear-gradient(135deg,#4338ca,#6366f1);padding:20px 24px;color:#fff;">
+          <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:.75;margin-bottom:6px;">
+            SPX SOKO — Buyer RR Tracker
+          </div>
+          <div style="font-size:18px;font-weight:700;line-height:1.3;">
+            Gantungan Paket RR — Status ${isCreated ? 'Created' : 'Assigned'}
+          </div>
+          <div style="font-size:12px;opacity:.85;margin-top:4px;">
+            ${dateStr} &nbsp;·&nbsp; Export: ${timeStr} WIB
+          </div>
+        </div>
+
+        <!-- Warning Banner -->
+        <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:12px 24px;display:flex;align-items:flex-start;gap:10px;">
+          <div style="font-size:18px;line-height:1;">⚠️</div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#92400e;">PERHATIAN — WAJIB DIPROSES SEBELUM 15:00 WIB</div>
+            <div style="font-size:11px;color:#92400e;margin-top:2px;">
+              Seluruh paket berikut harus di-<strong>pickup</strong> atau di-<strong>onhold</strong> sebelum pukul 15:00 WIB.
+              Jika onhold, <strong>wajib melampirkan bukti yang kuat dan valid</strong>.
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats bar -->
+        <div style="background:#f1f5f9;padding:10px 24px;display:flex;gap:24px;border-bottom:1px solid #e2e8f0;">
+          <span style="font-size:12px;color:#475569;">Total: <strong style="color:#1e293b;">${rows.length} paket</strong></span>
+          ${isCreated ? `
+          <span style="font-size:12px;color:#475569;">Multi-Attempts: <strong style="color:#dc2626;">${rows.filter(r => parseInt(r['Pickup Attempts']) > 1).length} paket</strong></span>
+          <span style="font-size:12px;color:#475569;">ETA Overdue &gt;48j: <strong style="color:#dc2626;">${rows.filter(r => r['ETA'] && (new Date() - new Date(r['ETA'])) / 3600000 > 48).length} paket</strong></span>
+          ` : `
+          <span style="font-size:12px;color:#475569;">Driver assigned: <strong style="color:#1e293b;">${new Set(rows.map(r => r['Driver']).filter(Boolean)).size}</strong></span>
+          `}
+        </div>
+
+        <!-- Table -->
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#4338ca;">
+              ${cols.map(col => `
+                <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">
+                  ${col.label}
+                </th>
+              `).join('')}
+            </tr>
+          </thead>
+          <tbody>${tbodyHtml}</tbody>
+        </table>
+
+        <!-- Footer -->
+        <div style="background:#f8fafc;border-top:2px solid #e2e8f0;padding:10px 24px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:11px;color:#94a3b8;">SPX SOKO Dashboard · spxsoko.online</span>
+          <span style="font-size:11px;color:#94a3b8;">Made with ❤️</span>
+        </div>
+      </div>
+    `;
+
+    // Render to offscreen div
+    const container = document.createElement('div');
+    container.style.cssText = 'position:fixed;left:-9999px;top:0;background:#fff;z-index:-1;';
+    container.innerHTML = html;
+    document.body.appendChild(container);
+
     try {
-      const canvas = await html2canvas(ref.current, {
+      const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
+        width: container.scrollWidth,
+        height: container.scrollHeight,
       });
       const link = document.createElement('a');
       link.download = filename;
@@ -276,6 +369,8 @@ const BuyerRRPage = () => {
       link.click();
     } catch (err) {
       console.error('Export PNG error:', err);
+    } finally {
+      document.body.removeChild(container);
     }
   };
 
@@ -457,7 +552,7 @@ const BuyerRRPage = () => {
       </div>
 
       {/* ── Tabel Created ── */}
-      <div ref={createdTableRef} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4 border-b border-gray-200">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
             <div>
@@ -501,7 +596,7 @@ const BuyerRRPage = () => {
                 className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
                 <Download className="w-4 h-4" /> Export CSV
               </button>
-              <button onClick={() => exportToPng(createdTableRef, `BuyerRR-Created-${new Date().toISOString().split('T')[0]}.png`)}
+              <button onClick={() => exportToPng('created')}
                 disabled={!filteredCreated.length}
                 className="flex items-center gap-1.5 px-3 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
                 <Image className="w-4 h-4" /> Export PNG
@@ -528,7 +623,7 @@ const BuyerRRPage = () => {
       </div>
 
       {/* ── Tabel Assigned ── */}
-      <div ref={assignedTableRef} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4 border-b border-gray-200">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
             <div>
@@ -564,7 +659,7 @@ const BuyerRRPage = () => {
                 className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
                 <Download className="w-4 h-4" /> Export CSV
               </button>
-              <button onClick={() => exportToPng(assignedTableRef, `BuyerRR-Assigned-${new Date().toISOString().split('T')[0]}.png`)}
+              <button onClick={() => exportToPng('assigned')}
                 disabled={!filteredAssigned.length}
                 className="flex items-center gap-1.5 px-3 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
                 <Image className="w-4 h-4" /> Export PNG
