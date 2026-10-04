@@ -15,13 +15,10 @@
  * ===============================================
  */
 
-// Sheet names — tambahan untuk Buyer RR
-const TRIGGER_BUYER_RR_NAME = 'Trigger_BuyerRR';
-
-// Cache referensi sheet agar tidak buka ulang setiap kali
-let _triggerSheet      = null;  // Expedite
-let _triggerBuyerRR    = null;  // Buyer RR
-let _activeTriggerSheet = null; // sheet yang sedang aktif digunakan scraper
+// Tambahan untuk Buyer RR
+const TRIGGER_BUYER_RR_NAME  = 'Trigger_BuyerRR';
+let _triggerBuyerRR          = null;
+let _activeTriggerSheet      = null;
 
 function _getTriggerSheet(sheetName) {
   const ss = SpreadsheetApp.openById(TRIGGER_SPREADSHEET_ID);
