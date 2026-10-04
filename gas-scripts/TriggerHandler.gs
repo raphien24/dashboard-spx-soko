@@ -106,7 +106,7 @@ function onChangeTrigger(e) {
       sheet.getRange('C3').setValue('');
       SpreadsheetApp.flush();
       try {
-        fetchMonitorSDHOData();
+        fetchSPXPickupOrders();
       } catch (err) {
         sdhoSetProgressError_(err.message);
         Logger.log('❌ Monitor SDHO error: ' + err.message);
@@ -202,25 +202,40 @@ function buyerRRSetProgressError_(message) {
  * OVERRIDE sdhoSetProgress_ — Monitor SDHO (kolom C)
  * ============================================================
  */
-function sdhoSetProgress_(percent, message) {
+function sdhoSetProgressError_(message) {
   try {
     CacheService.getScriptCache().put('SDHO_PROGRESS',
+      JSON.stringify({ percent: 0, message: '', done: true, error: message }), 600);
+  } catch (e) {}
+  _writeStatus('C', 0, '❌ ' + message);
+}
+
+/**
+ * ============================================================
+ * OVERRIDE setPickupProgress_ — Monitor SDHO pakai prefix ini
+ * Script MonitorSDHO.gs memanggil setPickupProgress_/Done_/Error_
+ * Di sini kita override agar JUGA tulis ke sheet Trigger kolom C
+ * ============================================================
+ */
+function setPickupProgress_(percent, message) {
+  try {
+    CacheService.getScriptCache().put('PICKUP_MONITOR_PROGRESS',
       JSON.stringify({ percent, message, done: false, error: null }), 600);
   } catch (e) {}
   _writeStatus('C', percent, message);
 }
 
-function sdhoSetProgressDone_(message) {
+function setPickupProgressDone_(message) {
   try {
-    CacheService.getScriptCache().put('SDHO_PROGRESS',
+    CacheService.getScriptCache().put('PICKUP_MONITOR_PROGRESS',
       JSON.stringify({ percent: 100, message, done: true, error: null }), 600);
   } catch (e) {}
   _writeStatus('C', 100, message);
 }
 
-function sdhoSetProgressError_(message) {
+function setPickupProgressError_(message) {
   try {
-    CacheService.getScriptCache().put('SDHO_PROGRESS',
+    CacheService.getScriptCache().put('PICKUP_MONITOR_PROGRESS',
       JSON.stringify({ percent: 0, message: '', done: true, error: message }), 600);
   } catch (e) {}
   _writeStatus('C', 0, '❌ ' + message);
