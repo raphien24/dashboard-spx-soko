@@ -57,15 +57,17 @@ export default {
       return handleSheetData(env, corsHeaders, '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Buyer RR');
     }
 
-    // Route: Trigger Buyer RR scraper
+    // Route: Trigger Buyer RR scraper (kolom B di sheet Trigger)
     if (url.pathname === '/api/trigger-buyer-rr' && request.method === 'POST') {
       const body = await request.json().catch(() => ({}));
-      return handleTriggerSheet(body, env, corsHeaders, '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger_BuyerRR');
+      return handleTriggerSheetCol(body, env, corsHeaders,
+        '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger', 'B1');
     }
 
-    // Route: Poll Buyer RR scraper status
+    // Route: Poll Buyer RR scraper status (kolom B)
     if (url.pathname === '/api/buyer-rr-status' && request.method === 'GET') {
-      return handleSheetStatus(env, corsHeaders, '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger_BuyerRR');
+      return handleSheetStatusCol(env, corsHeaders,
+        '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger', 'B1', 'B2', 'B3');
     }
 
     // Route: Trigger expedite scraper via spreadsheet cell (message queue)
@@ -292,6 +294,80 @@ async function handleExpediteStatusFromSheet(env, corsHeaders) {
       status: { percent, message, updatedAt },
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Generic: write RUN/RESUME to specific cell in a sheet
+ */
+async function handleTriggerSheetCol(body, env, corsHeaders, spreadsheetId, sheetName, commandCell) {
+  const command = (body.action === 'resume') ? 'RESUME' : 'RUN';
+  const range   = `${sheetName}!${commandCell}`;
+  try {
+    const accessToken = await getAccessToken(env, true);
+    const writeUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}?valueInputOption=RAW`;
+    const writeRes = await fetch(writeUrl, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values: [[command]] }),
+    });
+    if (!writeRes.ok) {
+      const err = await writeRes.json();
+      return new Response(JSON.stringify({ success: false, error: err.error?.message || 'Failed to write trigger' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    return new Response(JSON.stringify({ success: true, message: `Command "${command}" sent`, command }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Generic: read status from specific cells in a sheet
+ */
+async function handleSheetStatusCol(env, corsHeaders, spreadsheetId, sheetName, commandCell, statusCell, updatedCell) {
+  const range = `${sheetName}!${commandCell}:${updatedCell}`;
+  try {
+    const accessToken = await getAccessToken(env);
+    // Fetch each cell individually to handle non-contiguous cols (A vs B)
+    const colLetter = commandCell.charAt(0);
+    const batchRange = `${sheetName}!${colLetter}1:${colLetter}3`;
+    const readUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(batchRange)}`;
+    const readRes = await fetch(readUrl, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    if (!readRes.ok) {
+      const err = await readRes.json();
+      return new Response(JSON.stringify({ success: false, error: err.error?.message }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    const data      = await readRes.json();
+    const values    = data.values || [];
+    const command   = values[0]?.[0] || 'IDLE';
+    const rawStatus = values[1]?.[0] || '0|Menunggu...';
+    const updatedAt = values[2]?.[0] || '';
+    const pipeIdx   = rawStatus.indexOf('|');
+    const percent   = pipeIdx > -1 ? parseInt(rawStatus.substring(0, pipeIdx)) || 0 : 0;
+    const message   = pipeIdx > -1 ? rawStatus.substring(pipeIdx + 1) : rawStatus;
+    const isRunning = command === 'RUNNING' || command === 'RUN' || command === 'RESUME';
+    const isDone    = !isRunning && (
+      message.startsWith('✅') || message.startsWith('❌') ||
+      message.startsWith('Selesai') || message.startsWith('⚠️') || percent === 100
+    );
+    return new Response(JSON.stringify({
+      success: true, command, isRunning, isDone,
+      status: { percent, message, updatedAt },
+    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (err) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
