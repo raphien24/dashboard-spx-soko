@@ -12,7 +12,8 @@ import {
   ClipboardCheck,
   AlertTriangle,
   ChevronDown,
-  Zap
+  Zap,
+  Truck
 } from 'lucide-react';
 
 const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
@@ -50,6 +51,12 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       id: 'expedite',
       label: 'Expedite Tracker',
       icon: Zap,
+      active: false,
+    },
+    {
+      id: 'buyer-rr',
+      label: 'Buyer RR',
+      icon: Truck,
       active: false,
     },
     {

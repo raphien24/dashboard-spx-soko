@@ -52,6 +52,22 @@ export default {
       return handleExpeditData(env, corsHeaders);
     }
 
+    // Route: Get Buyer RR data
+    if (url.pathname === '/api/buyer-rr' && request.method === 'GET') {
+      return handleSheetData(env, corsHeaders, '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Buyer RR');
+    }
+
+    // Route: Trigger Buyer RR scraper
+    if (url.pathname === '/api/trigger-buyer-rr' && request.method === 'POST') {
+      const body = await request.json().catch(() => ({}));
+      return handleTriggerSheet(body, env, corsHeaders, '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger_BuyerRR');
+    }
+
+    // Route: Poll Buyer RR scraper status
+    if (url.pathname === '/api/buyer-rr-status' && request.method === 'GET') {
+      return handleSheetStatus(env, corsHeaders, '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger_BuyerRR');
+    }
+
     // Route: Trigger expedite scraper via spreadsheet cell (message queue)
     if (url.pathname === '/api/trigger-expedite' && request.method === 'POST') {
       const body = await request.json().catch(() => ({}));
@@ -276,6 +292,121 @@ async function handleExpediteStatusFromSheet(env, corsHeaders) {
       status: { percent, message, updatedAt },
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Generic: fetch any sheet from any spreadsheet
+ */
+async function handleSheetData(env, corsHeaders, spreadsheetId, sheetName) {
+  try {
+    const accessToken = await getAccessToken(env);
+    const range = `${sheetName}!A1:Z`;
+    const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}`;
+    const response = await fetch(apiUrl, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return new Response(JSON.stringify({
+        success: false, error: error.error?.message || 'Failed to fetch data'
+      }), { status: response.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    const data = await response.json();
+    const rows = data.values || [];
+    if (rows.length === 0) {
+      return new Response(JSON.stringify({ success: true, data: [], headers: [] }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const headers = rows[0].map(h => String(h).trim());
+    const records = rows.slice(1)
+      .filter(row => row.some(cell => cell !== '' && cell !== undefined))
+      .map(row => {
+        const record = {};
+        headers.forEach((header, i) => { record[header] = row[i] !== undefined ? row[i] : ''; });
+        return record;
+      });
+
+    return new Response(JSON.stringify({ success: true, headers, data: records }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Generic: write RUN/RESUME command to any trigger sheet
+ */
+async function handleTriggerSheet(body, env, corsHeaders, spreadsheetId, triggerSheetName) {
+  const command = (body.action === 'resume') ? 'RESUME' : 'RUN';
+  const range   = `${triggerSheetName}!A1`;
+  try {
+    const accessToken = await getAccessToken(env, true);
+    const writeUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}?valueInputOption=RAW`;
+    const writeRes = await fetch(writeUrl, {
+      method: 'PUT',
+      headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values: [[command]] }),
+    });
+    if (!writeRes.ok) {
+      const err = await writeRes.json();
+      return new Response(JSON.stringify({ success: false, error: err.error?.message || 'Failed to write trigger' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    return new Response(JSON.stringify({ success: true, message: `Command "${command}" sent`, command }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Generic: read status from any trigger sheet A1:A3
+ */
+async function handleSheetStatus(env, corsHeaders, spreadsheetId, triggerSheetName) {
+  const range = `${triggerSheetName}!A1:A3`;
+  try {
+    const accessToken = await getAccessToken(env);
+    const readUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}`;
+    const readRes = await fetch(readUrl, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+    if (!readRes.ok) {
+      const err = await readRes.json();
+      return new Response(JSON.stringify({ success: false, error: err.error?.message }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    const data      = await readRes.json();
+    const values    = data.values || [];
+    const command   = values[0]?.[0] || 'IDLE';
+    const rawStatus = values[1]?.[0] || '0|Menunggu...';
+    const updatedAt = values[2]?.[0] || '';
+    const pipeIdx   = rawStatus.indexOf('|');
+    const percent   = pipeIdx > -1 ? parseInt(rawStatus.substring(0, pipeIdx)) || 0 : 0;
+    const message   = pipeIdx > -1 ? rawStatus.substring(pipeIdx + 1) : rawStatus;
+    const isRunning = command === 'RUNNING' || command === 'RUN' || command === 'RESUME';
+    const isDone    = !isRunning && (
+      message.startsWith('✅') || message.startsWith('❌') ||
+      message.startsWith('Selesai') || message.startsWith('⚠️') || percent === 100
+    );
+    return new Response(JSON.stringify({
+      success: true, command, isRunning, isDone,
+      status: { percent, message, updatedAt },
+    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (err) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }

@@ -4,6 +4,7 @@ import Sidebar from './components/common/Sidebar';
 import Dashboard from './components/dashboard/Dashboard';
 import PunishmentManagement from './components/punishment/PunishmentManagement';
 import ExpeditePage from './components/expedite/ExpeditePage';
+import BuyerRRPage from './components/buyerrr/BuyerRRPage';
 import useDashboardStore from './store/dashboardStore';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
     'sp-generator': 'Punishment Management',
     'sp-record':    'Punishment Management',
     'expedite':     'Expedite Tracker',
+    'buyer-rr':     'Buyer RR',
   };
 
   const pageSubtitles = {
@@ -39,6 +41,7 @@ function App() {
     'sp-generator': 'SP Generator — Surat Peringatan',
     'sp-record':    'SP Record — Database',
     'expedite':     'Monitor & track paket expedite',
+    'buyer-rr':     'Monitor & track buyer return request',
   };
 
   const currentTitle = pageTitles[activePage] || 'SPX SOKO Dashboard';
@@ -47,6 +50,7 @@ function App() {
   // Is the active page a punishment management sub-page?
   const isPunishmentPage = activePage === 'sp-generator' || activePage === 'sp-record';
   const isExpeditePage   = activePage === 'expedite';
+  const isBuyerRRPage    = activePage === 'buyer-rr';
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -67,7 +71,7 @@ function App() {
                   <p className="text-xs sm:text-sm text-gray-500">
                     {currentSubtitle}
                   </p>
-                  {!isPunishmentPage && (
+                  {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && (
                     <>
                       <span className="hidden sm:inline text-gray-300">•</span>
                       <div className="flex items-center gap-1.5">
@@ -91,8 +95,8 @@ function App() {
                 </div>
               </div>
               
-              {/* Controls — only show refresh controls on productivity page */}
-              {!isPunishmentPage && (
+              {/* Controls — only show on productivity page */}
+              {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && (
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   {/* Last Update Display */}
                   <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
@@ -150,9 +154,8 @@ function App() {
             {isPunishmentPage && (
               <PunishmentManagement activeSubPage={activePage} />
             )}
-            {isExpeditePage && (
-              <ExpeditePage />
-            )}
+            {isExpeditePage && <ExpeditePage />}
+            {isBuyerRRPage  && <BuyerRRPage />}
           </div>
         </main>
 

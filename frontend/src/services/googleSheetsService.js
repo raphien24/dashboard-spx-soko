@@ -1783,3 +1783,38 @@ export async function getExpediteScraperStatus() {
   if (!json.success) return null;
   return json;
 }
+
+// ============================================================
+// Buyer RR: Fetch, Trigger, Status
+// ============================================================
+export async function getBuyerRRData() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/buyer-rr`);
+  if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to fetch Buyer RR data');
+  return { data: json.data || [], headers: json.headers || [] };
+}
+
+export async function runBuyerRRScraper(action = 'run') {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/trigger-buyer-rr`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action }),
+  });
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to trigger scraper');
+  return json;
+}
+
+export async function getBuyerRRScraperStatus() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/buyer-rr-status`);
+  const json = await response.json();
+  if (!json.success) return null;
+  return json;
+}
