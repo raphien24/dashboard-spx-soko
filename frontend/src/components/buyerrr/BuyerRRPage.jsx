@@ -161,11 +161,11 @@ const BuyerRRPage = () => {
     rawData.filter(r => r['SPX Tracking Number'] && String(r['SPX Tracking Number']).trim() !== ''),
   [rawData]);
 
-  // Assigned: baris yang punya Pickup Task ID (kolom M-P)
-  // Rename "Status" di kolom Q ke "Status_Assigned" agar tidak konflik
+  // Assigned: baris yang punya Driver (kolom O) — Pickup Task ID bisa saja "-"
+  // Rename kolom "Status" terakhir ke "Status_Assigned" agar tidak konflik dengan kolom E
   const assignedRows = useMemo(() =>
     rawData
-      .filter(r => r['Pickup Task ID'] && String(r['Pickup Task ID']).trim() !== '' && r['Pickup Task ID'] !== '-')
+      .filter(r => r['Driver'] && String(r['Driver']).trim() !== '' && String(r['Driver']).trim() !== '-')
       .map(r => ({ ...r, Status_Assigned: r['Status'] || '—' })),
   [rawData]);
 
