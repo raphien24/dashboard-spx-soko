@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
-  RefreshCw, Search, X, Download,
+  RefreshCw, Search, X, Download, Image,
   ChevronUp, ChevronDown, Package, Clock, AlertTriangle,
   Play, RotateCcw, CheckCircle, XCircle, Loader2, Truck,
   ListChecks, ClipboardList
 } from 'lucide-react';
+import html2canvas from 'html2canvas';
 import { getBuyerRRData, runBuyerRRScraper, getBuyerRRScraperStatus } from '../../services/googleSheetsService';
 
 // ── Columns ──────────────────────────────────────────────────
@@ -255,7 +256,30 @@ const BuyerRRPage = () => {
 
   useEffect(() => () => { if (pollRef[0]) clearInterval(pollRef[0]); }, []);
 
-  // ── Export ───────────────────────────────────────────────────
+  // ── Refs untuk export PNG ────────────────────────────────────
+  const createdTableRef  = useRef(null);
+  const assignedTableRef = useRef(null);
+
+  // ── Export PNG ───────────────────────────────────────────────
+  const exportToPng = async (ref, filename) => {
+    if (!ref.current) return;
+    try {
+      const canvas = await html2canvas(ref.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error('Export PNG error:', err);
+    }
+  };
+
+  // ── Export CSV ───────────────────────────────────────────────
   const exportCSV = (cols, rows, filename) => {
     const headers = cols.map(c => c.label);
     const data = rows.map(r => cols.map(c => `"${String(r[c.key] ?? '').replace(/"/g, '""')}"`));
@@ -433,7 +457,7 @@ const BuyerRRPage = () => {
       </div>
 
       {/* ── Tabel Created ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div ref={createdTableRef} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4 border-b border-gray-200">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
             <div>
@@ -475,7 +499,12 @@ const BuyerRRPage = () => {
               <button onClick={() => exportCSV(CREATED_COLS, filteredCreated, `BuyerRR-Created-${new Date().toISOString().split('T')[0]}.csv`)}
                 disabled={!filteredCreated.length}
                 className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
-                <Download className="w-4 h-4" /> Export
+                <Download className="w-4 h-4" /> Export CSV
+              </button>
+              <button onClick={() => exportToPng(createdTableRef, `BuyerRR-Created-${new Date().toISOString().split('T')[0]}.png`)}
+                disabled={!filteredCreated.length}
+                className="flex items-center gap-1.5 px-3 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
+                <Image className="w-4 h-4" /> Export PNG
               </button>
               <button onClick={fetchData}
                 className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium">
@@ -499,7 +528,7 @@ const BuyerRRPage = () => {
       </div>
 
       {/* ── Tabel Assigned ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div ref={assignedTableRef} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4 border-b border-gray-200">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
             <div>
@@ -533,7 +562,12 @@ const BuyerRRPage = () => {
               <button onClick={() => exportCSV(ASSIGNED_COLS, filteredAssigned, `BuyerRR-Assigned-${new Date().toISOString().split('T')[0]}.csv`)}
                 disabled={!filteredAssigned.length}
                 className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
-                <Download className="w-4 h-4" /> Export
+                <Download className="w-4 h-4" /> Export CSV
+              </button>
+              <button onClick={() => exportToPng(assignedTableRef, `BuyerRR-Assigned-${new Date().toISOString().split('T')[0]}.png`)}
+                disabled={!filteredAssigned.length}
+                className="flex items-center gap-1.5 px-3 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
+                <Image className="w-4 h-4" /> Export PNG
               </button>
             </div>
           </div>
