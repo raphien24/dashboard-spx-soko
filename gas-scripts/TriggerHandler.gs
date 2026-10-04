@@ -28,12 +28,9 @@ const BUYER_RR_UPDATED_CELL = 'B3';
 let _activeTriggerCol = 'A'; // 'A' = Expedite, 'B' = BuyerRR
 
 function _getTriggerSheet() {
-  if (!_triggerSheet) {
-    const ssId   = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
-    const shName = typeof TRIGGER_SHEET_NAME !== 'undefined' ? TRIGGER_SHEET_NAME : 'Trigger';
-    _triggerSheet = SpreadsheetApp.openById(ssId).getSheetByName(shName);
-  }
-  return _triggerSheet;
+  const ssId   = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+  const shName = typeof TRIGGER_SHEET_NAME !== 'undefined' ? TRIGGER_SHEET_NAME : 'Trigger';
+  return SpreadsheetApp.openById(ssId).getSheetByName(shName);
 }
 
 /**
@@ -55,7 +52,6 @@ function onChangeTrigger(e) {
     if (cmdExpedite === 'RUN' || cmdExpedite === 'RESUME') {
       Logger.log('🎯 Expedite command: ' + cmdExpedite);
       _activeTriggerCol = 'A';
-      _triggerSheet = sheet;
 
       sheet.getRange(TRIGGER_COMMAND_CELL).setValue('RUNNING');
       sheet.getRange(TRIGGER_STATUS_CELL).setValue('0|Memulai...');
@@ -80,7 +76,6 @@ function onChangeTrigger(e) {
     if (cmdBuyerRR === 'RUN' || cmdBuyerRR === 'RESUME') {
       Logger.log('🎯 BuyerRR command: ' + cmdBuyerRR);
       _activeTriggerCol = 'B';
-      _triggerSheet = sheet;
 
       sheet.getRange(BUYER_RR_COMMAND_CELL).setValue('RUNNING');
       sheet.getRange(BUYER_RR_STATUS_CELL).setValue('0|Memulai...');
@@ -191,7 +186,6 @@ function _writeStatus(col, percent, message) {
     Logger.log('⚠️ _writeStatus error: ' + e.message);
   }
 }
-
 // ============================================================
 // UTILITIES
 // ============================================================
