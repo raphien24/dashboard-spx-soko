@@ -15,16 +15,8 @@
  * ===============================================
  */
 
-const TRIGGER_SPREADSHEET_ID = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
-
-// Sheet names
-const TRIGGER_SHEET_NAME        = 'Trigger';           // Expedite
-const TRIGGER_BUYER_RR_NAME     = 'Trigger_BuyerRR';   // Buyer RR
-
-// Cell positions (sama untuk semua trigger sheet)
-const TRIGGER_COMMAND_CELL   = 'A1';
-const TRIGGER_STATUS_CELL    = 'A2';
-const TRIGGER_UPDATED_CELL   = 'A3';
+// Sheet names — tambahan untuk Buyer RR
+const TRIGGER_BUYER_RR_NAME = 'Trigger_BuyerRR';
 
 // Cache referensi sheet agar tidak buka ulang setiap kali
 let _triggerSheet      = null;  // Expedite
