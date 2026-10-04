@@ -52,6 +52,23 @@ export default {
       return handleExpeditData(env, corsHeaders);
     }
 
+    // Route: Get Monitor SDHO data
+    if (url.pathname === '/api/monitor-sdho' && request.method === 'GET') {
+      return handleMonitorSDHO(env, corsHeaders);
+    }
+
+    // Route: Trigger Monitor SDHO scraper (kolom C di sheet Trigger)
+    if (url.pathname === '/api/trigger-monitor-sdho' && request.method === 'POST') {
+      const body = await request.json().catch(() => ({}));
+      return handleTriggerSheetCol(body, env, corsHeaders,
+        '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger', 'C1');
+    }
+
+    // Route: Poll Monitor SDHO scraper status (kolom C)
+    if (url.pathname === '/api/monitor-sdho-status' && request.method === 'GET') {
+      return handleSheetStatusCol(env, corsHeaders,
+        '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger', 'C1', 'C2', 'C3');
+    }
     // Route: Get Buyer RR data
     if (url.pathname === '/api/buyer-rr' && request.method === 'GET') {
       return handleSheetData(env, corsHeaders, '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Buyer RR');
@@ -368,6 +385,74 @@ async function handleSheetStatusCol(env, corsHeaders, spreadsheetId, sheetName, 
       success: true, command, isRunning, isDone,
       status: { percent, message, updatedAt },
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Handle Monitor SDHO — fetch A:G (detail) + I:L (summary cards) separately
+ */
+async function handleMonitorSDHO(env, corsHeaders) {
+  const SS_ID    = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+  const SHEET    = 'MONITOR SDHO';
+  try {
+    const accessToken = await getAccessToken(env);
+
+    // Fetch full sheet A1:L
+    const range   = encodeURIComponent(`${SHEET}!A1:L`);
+    const apiUrl  = `https://sheets.googleapis.com/v4/spreadsheets/${SS_ID}/values/${range}`;
+    const res     = await fetch(apiUrl, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      return new Response(JSON.stringify({ success: false, error: err.error?.message }), {
+        status: res.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const json = await res.json();
+    const rows  = json.values || [];
+    if (rows.length === 0) {
+      return new Response(JSON.stringify({ success: true, detail: [], summary: [] }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const headerRow = rows[0];
+
+    // Kolom A:G (index 0-6) — detail data
+    const detailHeaders = headerRow.slice(0, 7).map(h => String(h).trim());
+    const detailRows = rows.slice(1)
+      .filter(row => row[0] && String(row[0]).trim() !== '') // hanya baris yang ada SPX TN
+      .map(row => {
+        const record = {};
+        detailHeaders.forEach((h, i) => { record[h] = row[i] !== undefined ? row[i] : ''; });
+        return record;
+      });
+
+    // Kolom I:L (index 8-11) — summary cards
+    const summaryHeaders = headerRow.slice(8, 12).map(h => String(h).trim());
+    const summaryRows = rows.slice(1)
+      .filter(row => row[8] && String(row[8]).trim() !== '')
+      .map(row => {
+        const record = {};
+        summaryHeaders.forEach((h, i) => { record[h] = row[8 + i] !== undefined ? row[8 + i] : ''; });
+        return record;
+      });
+
+    return new Response(JSON.stringify({
+      success: true,
+      detailHeaders,
+      detail: detailRows,
+      summaryHeaders,
+      summary: summaryRows,
+    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
   } catch (err) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }

@@ -5,6 +5,7 @@ import Dashboard from './components/dashboard/Dashboard';
 import PunishmentManagement from './components/punishment/PunishmentManagement';
 import ExpeditePage from './components/expedite/ExpeditePage';
 import BuyerRRPage from './components/buyerrr/BuyerRRPage';
+import MonitorSDHOPage from './components/monitorsdho/MonitorSDHOPage';
 import useDashboardStore from './store/dashboardStore';
 
 function App() {
@@ -32,25 +33,28 @@ function App() {
     'productivity': 'Soko Hub Productivity Dashboard',
     'sp-generator': 'Punishment Management',
     'sp-record':    'Punishment Management',
-    'expedite':     'Expedite Tracker',
-    'buyer-rr':     'Buyer RR',
+    'expedite':      'Expedite Tracker',
+    'buyer-rr':      'Buyer RR',
+    'monitor-sdho':  'Monitor SDHO',
   };
 
   const pageSubtitles = {
     'productivity': 'Fleet Operations Dashboard',
     'sp-generator': 'SP Generator — Surat Peringatan',
     'sp-record':    'SP Record — Database',
-    'expedite':     'Monitor & track paket expedite',
-    'buyer-rr':     'Monitor & track buyer return request',
+    'expedite':      'Monitor & track paket expedite',
+    'buyer-rr':      'Monitor & track buyer return request',
+    'monitor-sdho':  'Monitor SDHO pickup data',
   };
 
   const currentTitle = pageTitles[activePage] || 'SPX SOKO Dashboard';
   const currentSubtitle = pageSubtitles[activePage] || '';
 
   // Is the active page a punishment management sub-page?
-  const isPunishmentPage = activePage === 'sp-generator' || activePage === 'sp-record';
-  const isExpeditePage   = activePage === 'expedite';
-  const isBuyerRRPage    = activePage === 'buyer-rr';
+  const isPunishmentPage  = activePage === 'sp-generator' || activePage === 'sp-record';
+  const isExpeditePage    = activePage === 'expedite';
+  const isBuyerRRPage     = activePage === 'buyer-rr';
+  const isMonitorSDHOPage = activePage === 'monitor-sdho';
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -71,7 +75,7 @@ function App() {
                   <p className="text-xs sm:text-sm text-gray-500">
                     {currentSubtitle}
                   </p>
-                  {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && (
+                  {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && (
                     <>
                       <span className="hidden sm:inline text-gray-300">•</span>
                       <div className="flex items-center gap-1.5">
@@ -96,7 +100,7 @@ function App() {
               </div>
               
               {/* Controls — only show on productivity page */}
-              {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && (
+              {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && (
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   {/* Last Update Display */}
                   <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
@@ -154,8 +158,9 @@ function App() {
             {isPunishmentPage && (
               <PunishmentManagement activeSubPage={activePage} />
             )}
-            {isExpeditePage && <ExpeditePage />}
-            {isBuyerRRPage  && <BuyerRRPage />}
+            {isExpeditePage  && <ExpeditePage />}
+            {isBuyerRRPage   && <BuyerRRPage />}
+            {isMonitorSDHOPage && <MonitorSDHOPage />}
           </div>
         </main>
 

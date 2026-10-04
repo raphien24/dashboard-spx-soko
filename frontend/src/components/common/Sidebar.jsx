@@ -13,7 +13,8 @@ import {
   AlertTriangle,
   ChevronDown,
   Zap,
-  Truck
+  Truck,
+  Activity
 } from 'lucide-react';
 
 const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
@@ -57,6 +58,12 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       id: 'buyer-rr',
       label: 'Buyer RR',
       icon: Truck,
+      active: false,
+    },
+    {
+      id: 'monitor-sdho',
+      label: 'Monitor SDHO',
+      icon: Activity,
       active: false,
     },
     {

@@ -1818,3 +1818,43 @@ export async function getBuyerRRScraperStatus() {
   if (!json.success) return null;
   return json;
 }
+
+// ============================================================
+// Monitor SDHO: Fetch, Trigger, Status
+// ============================================================
+export async function getMonitorSDHOData() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/monitor-sdho`);
+  if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to fetch Monitor SDHO data');
+  return {
+    detail:         json.detail         || [],
+    detailHeaders:  json.detailHeaders  || [],
+    summary:        json.summary        || [],
+    summaryHeaders: json.summaryHeaders || [],
+  };
+}
+
+export async function runMonitorSDHOScraper(action = 'run') {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/trigger-monitor-sdho`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action }),
+  });
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to trigger scraper');
+  return json;
+}
+
+export async function getMonitorSDHOScraperStatus() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/monitor-sdho-status`);
+  const json = await response.json();
+  if (!json.success) return null;
+  return json;
+}

@@ -24,6 +24,11 @@ const BUYER_RR_COMMAND_CELL = 'B1';
 const BUYER_RR_STATUS_CELL  = 'B2';
 const BUYER_RR_UPDATED_CELL = 'B3';
 
+// Cell positions — Monitor SDHO (kolom C)
+const SDHO_COMMAND_CELL = 'C1';
+const SDHO_STATUS_CELL  = 'C2';
+const SDHO_UPDATED_CELL = 'C3';
+
 // Sheet cache
 let _activeTriggerCol = 'A'; // 'A' = Expedite, 'B' = BuyerRR
 
@@ -86,6 +91,27 @@ function onChangeTrigger(e) {
         Logger.log('❌ BuyerRR error: ' + err.message);
       } finally {
         sheet.getRange(BRR_CMD).setValue('IDLE');
+        SpreadsheetApp.flush();
+      }
+      return;
+    }
+
+    // Cek Monitor SDHO (kolom C)
+    const c1 = String(sheet.getRange('C1').getValue() || '').trim().toUpperCase();
+    if (c1 === 'RUN' || c1 === 'RESUME') {
+      Logger.log('🎯 Monitor SDHO command: ' + c1);
+      _activeTriggerCol = 'C';
+      sheet.getRange('C1').setValue('RUNNING');
+      sheet.getRange('C2').setValue('0|Memulai...');
+      sheet.getRange('C3').setValue('');
+      SpreadsheetApp.flush();
+      try {
+        fetchMonitorSDHOData();
+      } catch (err) {
+        sdhoSetProgressError_(err.message);
+        Logger.log('❌ Monitor SDHO error: ' + err.message);
+      } finally {
+        sheet.getRange('C1').setValue('IDLE');
         SpreadsheetApp.flush();
       }
       return;
@@ -171,13 +197,42 @@ function buyerRRSetProgressError_(message) {
 /**
  * Tulis status ke kolom A atau B di sheet Trigger
  */
+/**
+ * ============================================================
+ * OVERRIDE sdhoSetProgress_ — Monitor SDHO (kolom C)
+ * ============================================================
+ */
+function sdhoSetProgress_(percent, message) {
+  try {
+    CacheService.getScriptCache().put('SDHO_PROGRESS',
+      JSON.stringify({ percent, message, done: false, error: null }), 600);
+  } catch (e) {}
+  _writeStatus('C', percent, message);
+}
+
+function sdhoSetProgressDone_(message) {
+  try {
+    CacheService.getScriptCache().put('SDHO_PROGRESS',
+      JSON.stringify({ percent: 100, message, done: true, error: null }), 600);
+  } catch (e) {}
+  _writeStatus('C', 100, message);
+}
+
+function sdhoSetProgressError_(message) {
+  try {
+    CacheService.getScriptCache().put('SDHO_PROGRESS',
+      JSON.stringify({ percent: 0, message: '', done: true, error: message }), 600);
+  } catch (e) {}
+  _writeStatus('C', 0, '❌ ' + message);
+}
+
 function _writeStatus(col, percent, message) {
   try {
     const sheet = _getTriggerSheet();
     if (!sheet) return;
     const ts          = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
-    const statusCell  = col === 'A' ? 'A2' : 'B2';
-    const updatedCell = col === 'A' ? 'A3' : 'B3';
+    const statusCell  = col === 'A' ? 'A2' : col === 'B' ? 'B2' : 'C2';
+    const updatedCell = col === 'A' ? 'A3' : col === 'B' ? 'B3' : 'C3';
     sheet.getRange(statusCell).setValue(percent + '|' + message);
     sheet.getRange(updatedCell).setValue(ts);
     SpreadsheetApp.flush();
@@ -214,10 +269,15 @@ function setupTriggerSheet() {
   sheet.getRange('B2').setValue('0|Menunggu perintah...');
   sheet.getRange('B3').setValue('');
 
-  // Label kolom C
-  sheet.getRange('C1').setValue('← Expedite Command | BuyerRR Command');
-  sheet.getRange('C2').setValue('← Expedite Status  | BuyerRR Status');
-  sheet.getRange('C3').setValue('← Expedite Updated | BuyerRR Updated');
+  // Kolom C — Monitor SDHO
+  sheet.getRange('C1').setValue('IDLE');
+  sheet.getRange('C2').setValue('0|Menunggu perintah...');
+  sheet.getRange('C3').setValue('');
+
+  // Label kolom D
+  sheet.getRange('D1').setValue('← Expedite | BuyerRR | MonitorSDHO');
+  sheet.getRange('D2').setValue('← Status masing-masing');
+  sheet.getRange('D3').setValue('← Timestamp masing-masing');
 
   sheet.getRange('A1:B3').setFontFamily('Courier New').setFontWeight('bold');
   sheet.getRange('C1:C3').setFontColor('#888888').setFontStyle('italic');
