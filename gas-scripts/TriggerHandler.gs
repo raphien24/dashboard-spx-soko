@@ -48,17 +48,19 @@ function onChangeTrigger(e) {
     const sheet = _getTriggerSheet();
     if (!sheet) { Logger.log('❌ Sheet "Trigger" tidak ditemukan'); return; }
 
-    // Cek Expedite (kolom A)
-    const cmdExpedite = String(sheet.getRange(EXP_CMD).getValue() || '').trim().toUpperCase();
-    if (cmdExpedite === 'RUN' || cmdExpedite === 'RESUME') {
-      Logger.log('🎯 Expedite command: ' + cmdExpedite);
+    const a1 = String(sheet.getRange(EXP_CMD).getValue() || '').trim().toUpperCase();
+    const b1 = String(sheet.getRange(BRR_CMD).getValue() || '').trim().toUpperCase();
+    Logger.log('🔍 onChangeTrigger fired — A1: "' + a1 + '" | B1: "' + b1 + '"');
+
+    if (a1 === 'RUN' || a1 === 'RESUME') {
+      Logger.log('🎯 Expedite command: ' + a1);
       _activeTriggerCol = 'A';
       sheet.getRange(EXP_CMD).setValue('RUNNING');
       sheet.getRange(EXP_STS).setValue('0|Memulai...');
       sheet.getRange(EXP_UPD).setValue('');
       SpreadsheetApp.flush();
       try {
-        if (cmdExpedite === 'RUN') fetchExpediteData();
+        if (a1 === 'RUN') fetchExpediteData();
         else resumeExpediteScenarios();
       } catch (err) {
         setProgressError_(err.message);
@@ -70,10 +72,8 @@ function onChangeTrigger(e) {
       return;
     }
 
-    // Cek Buyer RR (kolom B)
-    const cmdBuyerRR = String(sheet.getRange(BRR_CMD).getValue() || '').trim().toUpperCase();
-    if (cmdBuyerRR === 'RUN' || cmdBuyerRR === 'RESUME') {
-      Logger.log('🎯 BuyerRR command: ' + cmdBuyerRR);
+    if (b1 === 'RUN' || b1 === 'RESUME') {
+      Logger.log('🎯 BuyerRR command: ' + b1);
       _activeTriggerCol = 'B';
       sheet.getRange(BRR_CMD).setValue('RUNNING');
       sheet.getRange(BRR_STS).setValue('0|Memulai...');
@@ -90,6 +90,8 @@ function onChangeTrigger(e) {
       }
       return;
     }
+
+    Logger.log('⏭️ Tidak ada command aktif — skip');
 
   } catch (outerErr) {
     Logger.log('❌ onChangeTrigger outer error: ' + outerErr.message);
