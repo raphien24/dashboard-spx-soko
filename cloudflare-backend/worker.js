@@ -52,6 +52,11 @@ export default {
       return handleExpeditData(env, corsHeaders);
     }
 
+    // Route: Get Config sheet data (Cookie Manager)
+    if (url.pathname === '/api/config' && request.method === 'GET') {
+      return handleConfigSheet(env, corsHeaders);
+    }
+
     // Route: Get Monitor SDHO data
     if (url.pathname === '/api/monitor-sdho' && request.method === 'GET') {
       return handleMonitorSDHO(env, corsHeaders);
@@ -385,6 +390,67 @@ async function handleSheetStatusCol(env, corsHeaders, spreadsheetId, sheetName, 
       success: true, command, isRunning, isDone,
       status: { percent, message, updatedAt },
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Handle Config sheet — fetch A:H, parse cookie rows + G1 (valid) + H2 (last update)
+ */
+async function handleConfigSheet(env, corsHeaders) {
+  const SS_ID = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+  try {
+    const accessToken = await getAccessToken(env);
+    const range       = encodeURIComponent('Config!A1:H30');
+    const apiUrl      = `https://sheets.googleapis.com/v4/spreadsheets/${SS_ID}/values/${range}`;
+    const res         = await fetch(apiUrl, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      return new Response(JSON.stringify({ success: false, error: err.error?.message }), {
+        status: res.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const json = await res.json();
+    const rows  = json.values || [];
+    if (rows.length === 0) {
+      return new Response(JSON.stringify({ success: true, cookies: [], validStatus: '', lastUpdate: '' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Row 1 = header: col G (index 6) = valid status
+    const headerRow   = rows[0] || [];
+    const validStatus = headerRow[6] || '';   // G1
+    const codeInfo    = headerRow[7] || '';   // H1
+
+    // Row 2 (index 1): col H (index 7) = last update timestamp
+    const row2       = rows[1] || [];
+    const lastUpdate = row2[7] || '';         // H2
+
+    // Cookie rows: col A = nama, col B = value, col C = keterangan
+    const cookies = rows.slice(1)
+      .filter(r => r[0] && String(r[0]).trim() !== '' && r[1] && String(r[1]).trim() !== '')
+      .map(r => ({
+        nama:       String(r[0] || '').trim(),
+        value:      String(r[1] || '').trim(),
+        keterangan: String(r[2] || '').trim(),
+      }));
+
+    return new Response(JSON.stringify({
+      success: true,
+      cookies,
+      validStatus,
+      codeInfo,
+      lastUpdate,
+    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
   } catch (err) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }

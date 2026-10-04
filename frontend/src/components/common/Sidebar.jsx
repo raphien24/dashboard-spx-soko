@@ -67,25 +67,14 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       active: false,
     },
     {
-      id: 'fleet',
-      label: 'Fleet Management',
-      icon: Package,
-      active: false,
-      disabled: true,
-    },
-    {
-      id: 'couriers',
-      label: 'Couriers',
-      icon: Users,
-      active: false,
-      disabled: true,
-    },
-    {
       id: 'settings',
       label: 'Settings',
       icon: Settings,
       active: false,
-      disabled: true,
+      hasSubmenu: true,
+      submenu: [
+        { id: 'cookie-manager', label: 'Cookie Manager', parent: 'settings' },
+      ],
     },
   ];
 

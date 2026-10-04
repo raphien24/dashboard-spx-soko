@@ -1858,3 +1858,21 @@ export async function getMonitorSDHOScraperStatus() {
   if (!json.success) return null;
   return json;
 }
+
+// ============================================================
+// Settings / Cookie Manager
+// ============================================================
+export async function getConfigData() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/config`);
+  if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to fetch Config data');
+  return {
+    cookies:     json.cookies     || [],
+    validStatus: json.validStatus || '',
+    codeInfo:    json.codeInfo    || '',
+    lastUpdate:  json.lastUpdate  || '',
+  };
+}
