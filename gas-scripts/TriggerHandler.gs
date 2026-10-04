@@ -40,24 +40,23 @@ function _getTriggerSheet() {
  * ============================================================
  */
 function onChangeTrigger(e) {
+  // Hardcode semua cell address agar tidak bergantung konstanta dari file lain
+  const EXP_CMD = 'A1', EXP_STS = 'A2', EXP_UPD = 'A3';
+  const BRR_CMD = 'B1', BRR_STS = 'B2', BRR_UPD = 'B3';
+
   try {
     const sheet = _getTriggerSheet();
-    if (!sheet) {
-      Logger.log('❌ Sheet "Trigger" tidak ditemukan');
-      return;
-    }
+    if (!sheet) { Logger.log('❌ Sheet "Trigger" tidak ditemukan'); return; }
 
     // Cek Expedite (kolom A)
-    const cmdExpedite = String(sheet.getRange(TRIGGER_COMMAND_CELL).getValue() || '').trim().toUpperCase();
+    const cmdExpedite = String(sheet.getRange(EXP_CMD).getValue() || '').trim().toUpperCase();
     if (cmdExpedite === 'RUN' || cmdExpedite === 'RESUME') {
       Logger.log('🎯 Expedite command: ' + cmdExpedite);
       _activeTriggerCol = 'A';
-
-      sheet.getRange(TRIGGER_COMMAND_CELL).setValue('RUNNING');
-      sheet.getRange(TRIGGER_STATUS_CELL).setValue('0|Memulai...');
-      sheet.getRange(TRIGGER_UPDATED_CELL).setValue('');
+      sheet.getRange(EXP_CMD).setValue('RUNNING');
+      sheet.getRange(EXP_STS).setValue('0|Memulai...');
+      sheet.getRange(EXP_UPD).setValue('');
       SpreadsheetApp.flush();
-
       try {
         if (cmdExpedite === 'RUN') fetchExpediteData();
         else resumeExpediteScenarios();
@@ -65,30 +64,28 @@ function onChangeTrigger(e) {
         setProgressError_(err.message);
         Logger.log('❌ Expedite error: ' + err.message);
       } finally {
-        sheet.getRange(TRIGGER_COMMAND_CELL).setValue('IDLE');
+        sheet.getRange(EXP_CMD).setValue('IDLE');
         SpreadsheetApp.flush();
       }
       return;
     }
 
     // Cek Buyer RR (kolom B)
-    const cmdBuyerRR = String(sheet.getRange(BUYER_RR_COMMAND_CELL).getValue() || '').trim().toUpperCase();
+    const cmdBuyerRR = String(sheet.getRange(BRR_CMD).getValue() || '').trim().toUpperCase();
     if (cmdBuyerRR === 'RUN' || cmdBuyerRR === 'RESUME') {
       Logger.log('🎯 BuyerRR command: ' + cmdBuyerRR);
       _activeTriggerCol = 'B';
-
-      sheet.getRange(BUYER_RR_COMMAND_CELL).setValue('RUNNING');
-      sheet.getRange(BUYER_RR_STATUS_CELL).setValue('0|Memulai...');
-      sheet.getRange(BUYER_RR_UPDATED_CELL).setValue('');
+      sheet.getRange(BRR_CMD).setValue('RUNNING');
+      sheet.getRange(BRR_STS).setValue('0|Memulai...');
+      sheet.getRange(BRR_UPD).setValue('');
       SpreadsheetApp.flush();
-
       try {
         fetchBuyerRRData();
       } catch (err) {
         buyerRRSetProgressError_(err.message);
         Logger.log('❌ BuyerRR error: ' + err.message);
       } finally {
-        sheet.getRange(BUYER_RR_COMMAND_CELL).setValue('IDLE');
+        sheet.getRange(BRR_CMD).setValue('IDLE');
         SpreadsheetApp.flush();
       }
       return;
@@ -176,9 +173,9 @@ function _writeStatus(col, percent, message) {
   try {
     const sheet = _getTriggerSheet();
     if (!sheet) return;
-    const ts = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
-    const statusCell  = col === 'A' ? TRIGGER_STATUS_CELL  : BUYER_RR_STATUS_CELL;
-    const updatedCell = col === 'A' ? TRIGGER_UPDATED_CELL : BUYER_RR_UPDATED_CELL;
+    const ts          = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
+    const statusCell  = col === 'A' ? 'A2' : 'B2';
+    const updatedCell = col === 'A' ? 'A3' : 'B3';
     sheet.getRange(statusCell).setValue(percent + '|' + message);
     sheet.getRange(updatedCell).setValue(ts);
     SpreadsheetApp.flush();
