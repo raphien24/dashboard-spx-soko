@@ -27,6 +27,15 @@ const BUYER_RR_UPDATED_CELL = 'B3';
 // Sheet cache
 let _activeTriggerCol = 'A'; // 'A' = Expedite, 'B' = BuyerRR
 
+function _getTriggerSheet() {
+  if (!_triggerSheet) {
+    const ssId   = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+    const shName = typeof TRIGGER_SHEET_NAME !== 'undefined' ? TRIGGER_SHEET_NAME : 'Trigger';
+    _triggerSheet = SpreadsheetApp.openById(ssId).getSheetByName(shName);
+  }
+  return _triggerSheet;
+}
+
 /**
  * ============================================================
  * onChange TRIGGER — entry point utama
