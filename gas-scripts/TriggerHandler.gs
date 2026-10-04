@@ -191,10 +191,12 @@ function _writeStatus(col, percent, message) {
  * Setup sheet Trigger untuk kedua scraper — jalankan SEKALI
  */
 function setupTriggerSheet() {
-  const ss = SpreadsheetApp.openById(TRIGGER_SPREADSHEET_ID);
-  let sheet = ss.getSheetByName(TRIGGER_SHEET_NAME);
+  const ssId  = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+  const shName = typeof TRIGGER_SHEET_NAME !== 'undefined' ? TRIGGER_SHEET_NAME : 'Trigger';
+  const ss = SpreadsheetApp.openById(ssId);
+  let sheet = ss.getSheetByName(shName);
   if (!sheet) {
-    sheet = ss.insertSheet(TRIGGER_SHEET_NAME);
+    sheet = ss.insertSheet(shName);
     Logger.log('✅ Sheet "Trigger" dibuat');
   } else {
     Logger.log('ℹ️ Sheet "Trigger" sudah ada, direset...');
@@ -230,8 +232,10 @@ function setupTriggerSheet() {
  */
 function checkTriggerSetup() {
   Logger.log('🔍 Checking trigger setup...');
-  const ss    = SpreadsheetApp.openById(TRIGGER_SPREADSHEET_ID);
-  const sheet = ss.getSheetByName(TRIGGER_SHEET_NAME);
+  const ssId  = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+  const shName = typeof TRIGGER_SHEET_NAME !== 'undefined' ? TRIGGER_SHEET_NAME : 'Trigger';
+  const ss    = SpreadsheetApp.openById(ssId);
+  const sheet = ss.getSheetByName(shName);
 
   if (!sheet) {
     Logger.log('❌ Sheet "Trigger" BELUM ADA → jalankan setupTriggerSheet()');
@@ -254,7 +258,9 @@ function checkTriggerSetup() {
  * Test manual Expedite
  */
 function testExpediteManually() {
-  const sheet = _getTriggerSheet();
+  const ssId  = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+  const shName = typeof TRIGGER_SHEET_NAME !== 'undefined' ? TRIGGER_SHEET_NAME : 'Trigger';
+  const sheet = SpreadsheetApp.openById(ssId).getSheetByName(shName);
   if (!sheet) { Logger.log('❌ Sheet Trigger tidak ada'); return; }
   _activeTriggerCol = 'A';
   _triggerSheet = sheet;
@@ -267,7 +273,9 @@ function testExpediteManually() {
  * Test manual Buyer RR
  */
 function testBuyerRRManually() {
-  const sheet = _getTriggerSheet();
+  const ssId  = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+  const shName = typeof TRIGGER_SHEET_NAME !== 'undefined' ? TRIGGER_SHEET_NAME : 'Trigger';
+  const sheet = SpreadsheetApp.openById(ssId).getSheetByName(shName);
   if (!sheet) { Logger.log('❌ Sheet Trigger tidak ada'); return; }
   _activeTriggerCol = 'B';
   _triggerSheet = sheet;
