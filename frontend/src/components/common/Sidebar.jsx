@@ -14,7 +14,8 @@ import {
   ChevronDown,
   Zap,
   Truck,
-  Activity
+  Activity,
+  GitMerge
 } from 'lucide-react';
 
 const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
@@ -64,6 +65,12 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       id: 'monitor-sdho',
       label: 'Monitor SDHO',
       icon: Activity,
+      active: false,
+    },
+    {
+      id: 'control-stuck-fm',
+      label: 'Control Stuck FM',
+      icon: GitMerge,
       active: false,
     },
     {

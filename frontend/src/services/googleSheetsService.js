@@ -1969,3 +1969,38 @@ export async function getConfigData() {
     lastUpdate:  json.lastUpdate  || '',
   };
 }
+
+// ============================================================
+// Control Stuck FM
+// ============================================================
+export async function getControlStuckFMData() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/control-stuck-fm`);
+  if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to fetch Control Stuck FM data');
+  return { headers: json.headers || [], data: json.data || [] };
+}
+
+export async function runControlStuckFMScraper(action = 'run') {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/trigger-control-stuck-fm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action }),
+  });
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to trigger scraper');
+  return json;
+}
+
+export async function getControlStuckFMStatus() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/control-stuck-fm-status`);
+  const json = await response.json();
+  if (!json.success) return null;
+  return json;
+}

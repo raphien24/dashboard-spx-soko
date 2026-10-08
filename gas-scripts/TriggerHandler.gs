@@ -29,6 +29,11 @@ const SDHO_COMMAND_CELL = 'C1';
 const SDHO_STATUS_CELL  = 'C2';
 const SDHO_UPDATED_CELL = 'C3';
 
+// Cell positions — Control Stuck FM (kolom D)
+const CSFM_COMMAND_CELL = 'D1';
+const CSFM_STATUS_CELL  = 'D2';
+const CSFM_UPDATED_CELL = 'D3';
+
 // Sheet cache
 let _activeTriggerCol = 'A'; // 'A' = Expedite, 'B' = BuyerRR
 
@@ -117,6 +122,27 @@ function onChangeTrigger(e) {
       return;
     }
 
+    // Cek Control Stuck FM (kolom D)
+    const d1 = String(sheet.getRange('D1').getValue() || '').trim().toUpperCase();
+    if (d1 === 'RUN' || d1 === 'RESUME') {
+      Logger.log('🎯 Control Stuck FM command: ' + d1);
+      _activeTriggerCol = 'D';
+      sheet.getRange('D1').setValue('RUNNING');
+      sheet.getRange('D2').setValue('0|Memulai...');
+      sheet.getRange('D3').setValue('');
+      SpreadsheetApp.flush();
+      try {
+        fetchSPXPickupOrdersControlStuck(); // ganti dengan nama function GAS Control Stuck FM
+      } catch (err) {
+        csfmSetProgressError_(err.message);
+        Logger.log('❌ Control Stuck FM error: ' + err.message);
+      } finally {
+        sheet.getRange('D1').setValue('IDLE');
+        SpreadsheetApp.flush();
+      }
+      return;
+    }
+
     Logger.log('⏭️ Tidak ada command aktif — skip');
 
   } catch (outerErr) {
@@ -195,7 +221,24 @@ function buyerRRSetProgressError_(message) {
 }
 
 /**
- * Tulis status ke kolom A atau B di sheet Trigger
+ * ============================================================
+ * OVERRIDE csfmSetProgress_ — Control Stuck FM (kolom D)
+ * ============================================================
+ */
+function csfmSetProgress_(percent, message) {
+  _writeStatus('D', percent, message);
+}
+
+function csfmSetProgressDone_(message) {
+  _writeStatus('D', 100, message);
+}
+
+function csfmSetProgressError_(message) {
+  _writeStatus('D', 0, '❌ ' + message);
+}
+
+/**
+ * Tulis status ke kolom A, B, C, atau D di sheet Trigger
  */
 /**
  * ============================================================
@@ -246,8 +289,8 @@ function _writeStatus(col, percent, message) {
     const sheet = _getTriggerSheet();
     if (!sheet) return;
     const ts          = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
-    const statusCell  = col === 'A' ? 'A2' : col === 'B' ? 'B2' : 'C2';
-    const updatedCell = col === 'A' ? 'A3' : col === 'B' ? 'B3' : 'C3';
+    const statusCell  = col === 'A' ? 'A2' : col === 'B' ? 'B2' : col === 'C' ? 'C2' : 'D2';
+    const updatedCell = col === 'A' ? 'A3' : col === 'B' ? 'B3' : col === 'C' ? 'C3' : 'D3';
     sheet.getRange(statusCell).setValue(percent + '|' + message);
     sheet.getRange(updatedCell).setValue(ts);
     SpreadsheetApp.flush();
@@ -289,8 +332,13 @@ function setupTriggerSheet() {
   sheet.getRange('C2').setValue('0|Menunggu perintah...');
   sheet.getRange('C3').setValue('');
 
-  // Label kolom D
-  sheet.getRange('D1').setValue('← Expedite | BuyerRR | MonitorSDHO');
+  // Kolom D — Control Stuck FM
+  sheet.getRange('D1').setValue('IDLE');
+  sheet.getRange('D2').setValue('0|Menunggu perintah...');
+  sheet.getRange('D3').setValue('');
+
+  // Label kolom E
+  sheet.getRange('E1').setValue('← Expedite | BuyerRR | MonitorSDHO | ControlStuckFM');
   sheet.getRange('D2').setValue('← Status masing-masing');
   sheet.getRange('D3').setValue('← Timestamp masing-masing');
 

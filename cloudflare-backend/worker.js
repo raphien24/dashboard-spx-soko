@@ -57,6 +57,24 @@ export default {
       return handleConfigSheet(env, corsHeaders);
     }
 
+    // Route: Get Control Stuck FM data (A1:P3)
+    if (url.pathname === '/api/control-stuck-fm' && request.method === 'GET') {
+      return handleControlStuckFM(env, corsHeaders);
+    }
+
+    // Route: Trigger Control Stuck FM scraper (kolom D di sheet Trigger)
+    if (url.pathname === '/api/trigger-control-stuck-fm' && request.method === 'POST') {
+      const body = await request.json().catch(() => ({}));
+      return handleTriggerSheetCol(body, env, corsHeaders,
+        '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger', 'D1');
+    }
+
+    // Route: Poll Control Stuck FM scraper status (kolom D)
+    if (url.pathname === '/api/control-stuck-fm-status' && request.method === 'GET') {
+      return handleSheetStatusCol(env, corsHeaders,
+        '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger', 'D1', 'D2', 'D3');
+    }
+
     // Route: Get Monitor SDHO data
     if (url.pathname === '/api/monitor-sdho' && request.method === 'GET') {
       return handleMonitorSDHO(env, corsHeaders);
@@ -390,6 +408,59 @@ async function handleSheetStatusCol(env, corsHeaders, spreadsheetId, sheetName, 
       success: true, command, isRunning, isDone,
       status: { percent, message, updatedAt },
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Handle Control Stuck FM — fetch A1:P (header row 1, data rows 2-3)
+ * Returns structured rows with headers as keys
+ */
+async function handleControlStuckFM(env, corsHeaders) {
+  const SS_ID  = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+  const SHEET  = 'Control Stuck FM';
+  try {
+    const accessToken = await getAccessToken(env);
+    const range   = encodeURIComponent(`'${SHEET}'!A1:P3`);
+    const apiUrl  = `https://sheets.googleapis.com/v4/spreadsheets/${SS_ID}/values/${range}`;
+    const res     = await fetch(apiUrl, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      return new Response(JSON.stringify({ success: false, error: err.error?.message }), {
+        status: res.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    const json    = await res.json();
+    const rows    = json.values || [];
+
+    if (rows.length === 0) {
+      return new Response(JSON.stringify({ success: true, headers: [], data: [] }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Row 1 = headers
+    const headers = rows[0].map(h => String(h).trim());
+
+    // Rows 2+ = data
+    const data = rows.slice(1).map(row => {
+      const record = {};
+      headers.forEach((h, i) => {
+        record[h] = row[i] !== undefined ? row[i] : '';
+      });
+      return record;
+    });
+
+    return new Response(JSON.stringify({ success: true, headers, data }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   } catch (err) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
