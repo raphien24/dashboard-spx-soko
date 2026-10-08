@@ -132,7 +132,7 @@ function onChangeTrigger(e) {
       sheet.getRange('D3').setValue('');
       SpreadsheetApp.flush();
       try {
-        fetchSPXPickupOrdersControlStuck(); // ganti dengan nama function GAS Control Stuck FM
+        getSPXOrderCount(); // Control Stuck FM scraper
       } catch (err) {
         csfmSetProgressError_(err.message);
         Logger.log('❌ Control Stuck FM error: ' + err.message);
