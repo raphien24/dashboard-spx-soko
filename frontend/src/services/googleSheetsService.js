@@ -1694,6 +1694,99 @@ class GoogleSheetsService {
       }
     ];
   }
+  /**
+   * Compute daily productivity breakdown for drilldown modal
+   * Returns per-day: date, activeShifts, totalDelivered, avgProductivity, dailyActiveRate
+   * Respects same filters as processKPIMetricsFromRaw (dateRange + contract + vehicle)
+   */
+  getDailyProductivityBreakdown(rawData, filters = {}) {
+    if (!rawData || rawData.length === 0) return [];
+
+    // 1. Filter active records (same logic as processKPIMetricsFromRaw)
+    let records = rawData.filter(row => row[13] && this.parseNumeric(row[13]) > 0);
+
+    if (filters.dateRange) {
+      records = this.filterByDateRange(records, filters.dateRange);
+    }
+    if (filters.contract && filters.contract !== 'all') {
+      records = records.filter(row => row[5] === filters.contract);
+    }
+    if (filters.vehicle && filters.vehicle !== 'all') {
+      records = records.filter(row => row[6] === filters.vehicle);
+    }
+
+    // Deduplicate: 1 courier per date
+    records = this.deduplicateByIdAndDate(records);
+
+    if (records.length === 0) return [];
+
+    // 2. For Daily Active Rate per day: use 2WH Dedicated + KurirPlus (same as KPI 3)
+    let activeRecords2WH = rawData.filter(row =>
+      row[6] === '2WH' &&
+      (row[5] === 'Dedicated' || row[5]?.includes('Kurir Plus')) &&
+      row[13] && this.parseNumeric(row[13]) > 0
+    );
+    if (filters.dateRange) {
+      activeRecords2WH = this.filterByDateRange(activeRecords2WH, filters.dateRange);
+    }
+
+    // Total unique couriers across whole period (denominator for daily active)
+    const allUniqueCouriers = new Set(activeRecords2WH.map(row => row[1])).size;
+
+    // 3. Group productivity records by date
+    const byDate = {};
+    records.forEach(row => {
+      const dateStr = row[3];
+      if (!dateStr) return;
+      if (!byDate[dateStr]) {
+        byDate[dateStr] = { dateStr, delivered: 0, shifts: 0 };
+      }
+      byDate[dateStr].delivered += this.parseNumeric(row[13]);
+      byDate[dateStr].shifts++;
+    });
+
+    // 4. Group 2WH active records by date for daily active rate
+    const active2WHByDate = {};
+    activeRecords2WH.forEach(row => {
+      const dateStr = row[3];
+      if (!dateStr) return;
+      if (!active2WHByDate[dateStr]) active2WHByDate[dateStr] = new Set();
+      active2WHByDate[dateStr].add(row[1]); // unique couriers per day
+    });
+
+    // 5. Build result sorted by date ascending
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    return Object.values(byDate)
+      .map(d => {
+        const parsed   = this.parseDate(d.dateStr);
+        const active2WH = active2WHByDate[d.dateStr]?.size || 0;
+        const dailyActiveRate = allUniqueCouriers > 0
+          ? (active2WH / allUniqueCouriers) * 100
+          : 0;
+
+        // Format date: "Sen, 2 Oct"
+        const dayNames = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+        const dayLabel = parsed
+          ? `${dayNames[parsed.getDay()]}, ${parsed.getDate()} ${monthNames[parsed.getMonth()]}`
+          : d.dateStr;
+
+        return {
+          dateStr:        d.dateStr,
+          dayLabel,
+          parsedDate:     parsed,
+          activeShifts:   d.shifts,
+          totalDelivered: d.delivered,
+          avgProductivity: d.shifts > 0 ? parseFloat((d.delivered / d.shifts).toFixed(1)) : 0,
+          active2WHShifts: active2WH,
+          dailyActiveRate: parseFloat(dailyActiveRate.toFixed(1)),
+        };
+      })
+      .sort((a, b) => {
+        if (a.parsedDate && b.parsedDate) return a.parsedDate - b.parsedDate;
+        return a.dateStr.localeCompare(b.dateStr);
+      });
+  }
 }
 
 // Export singleton instance

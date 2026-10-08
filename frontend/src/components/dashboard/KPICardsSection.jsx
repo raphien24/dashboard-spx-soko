@@ -1,15 +1,24 @@
 import React from 'react';
-import { TrendingUp, Users, Activity } from 'lucide-react';
+import { TrendingUp, Users, Activity, MousePointerClick } from 'lucide-react';
 
-const KPICardsSection = ({ kpiData }) => {
+const KPICardsSection = ({ kpiData, onProductivityClick }) => {
   if (!kpiData) return null;
 
   const { weeklyProductivity, dedicatedVsPlus, dailyActive } = kpiData;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-      {/* Card 1: Weekly Avg Productivity */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+      {/* Card 1: Weekly Avg Productivity — CLICKABLE */}
+      <div
+        className="bg-white rounded-xl shadow-sm border border-purple-200 p-6 hover:shadow-lg transition-all cursor-pointer group ring-0 hover:ring-2 hover:ring-purple-300 relative"
+        onClick={onProductivityClick}
+        title="Klik untuk lihat breakdown harian"
+      >
+        {/* Click hint */}
+        <div className="absolute top-3 right-14 flex items-center gap-1 px-2 py-0.5 bg-purple-50 text-purple-500 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <MousePointerClick className="w-3 h-3" />
+          Lihat detail
+        </div>
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">

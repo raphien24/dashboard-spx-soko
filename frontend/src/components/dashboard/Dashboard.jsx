@@ -11,6 +11,8 @@ import PerformanceByContractChart from '../charts/PerformanceByContractChart';
 import TopZonesChart from '../charts/TopZonesChart';
 import FleetCompositionChart from '../charts/FleetCompositionChart';
 import WeeklyScheduleTable from '../schedule/WeeklyScheduleTable';
+import ProductivityDrilldownModal from './ProductivityDrilldownModal';
+import googleSheetsService from '../../services/googleSheetsService';
 
 function Dashboard({ autoRefreshEnabled = true }) {
   const {
@@ -34,7 +36,34 @@ function Dashboard({ autoRefreshEnabled = true }) {
     rawCourierData, // NEW: Access to raw data for date detection
     filters, // Current filters
     computeDashboardData, // NEW: Direct access to compute method
+    activeFilters, // All active filters including dateRange
   } = useDashboardStore();
+
+  // ── Productivity drilldown modal state ──────────────────────
+  const [drilldownOpen,    setDrilldownOpen]    = useState(false);
+  const [drilldownData,    setDrilldownData]    = useState([]);
+  const [drilldownWeekLabel, setDrilldownWeekLabel] = useState('');
+
+  const handleProductivityClick = () => {
+    if (!rawCourierData) return;
+
+    const currentFilters = activeFilters || {};
+    const daily = googleSheetsService.getDailyProductivityBreakdown(rawCourierData, currentFilters);
+
+    // Build week label from dateRange
+    const dr = currentFilters.dateRange;
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    let weekLabel = 'Week';
+    if (dr?.start && dr?.end) {
+      const s = new Date(dr.start);
+      const e = new Date(dr.end);
+      weekLabel = `${s.getDate()} ${monthNames[s.getMonth()]} – ${e.getDate()} ${monthNames[e.getMonth()]} ${e.getFullYear()}`;
+    }
+
+    setDrilldownData(daily);
+    setDrilldownWeekLabel(weekLabel);
+    setDrilldownOpen(true);
+  };
 
   // Detect date range from loaded data
   const dataDateRange = rawCourierData ? useDashboardStore.getState().detectDateRangeFromData(rawCourierData) : null;
@@ -177,6 +206,7 @@ function Dashboard({ autoRefreshEnabled = true }) {
   };
 
   return (
+    <>
     <div className="space-y-6">
       {/* Filtering Loader Overlay */}
       {isFiltering && <FilteringLoader />}
@@ -246,7 +276,12 @@ function Dashboard({ autoRefreshEnabled = true }) {
 
       {/* KPI Cards (3 main cards) */}
       <ErrorBoundary componentName="KPICardsSection">
-        {kpiMetrics && <KPICardsSection kpiData={kpiMetrics} />}
+        {kpiMetrics && (
+          <KPICardsSection
+            kpiData={kpiMetrics}
+            onProductivityClick={handleProductivityClick}
+          />
+        )}
       </ErrorBoundary>
 
       {/* Secondary Metrics (5 small cards) */}
@@ -295,6 +330,20 @@ function Dashboard({ autoRefreshEnabled = true }) {
         </div>
       </div>
     </div>
+
+    {/* ── Productivity Drilldown Modal ── */}
+    <ProductivityDrilldownModal
+      isOpen={drilldownOpen}
+      onClose={() => setDrilldownOpen(false)}
+      weekLabel={drilldownWeekLabel}
+      dailyData={drilldownData}
+      weeklyTarget={kpiMetrics?.weeklyProductivity?.target || 0}
+      filters={{
+        contract: activeFilters?.contract,
+        vehicle:  activeFilters?.vehicle,
+      }}
+    />
+    </>
   );
 }
 
