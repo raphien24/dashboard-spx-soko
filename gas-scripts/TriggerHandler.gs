@@ -23,9 +23,6 @@
 const SS_ID_TRIGGER = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
 const SHEET_TRIGGER = 'Trigger';
 
-// Fallback key kalau BuyerRR.gs belum define
-const BUYER_RR_PROGRESS_KEY = 'BUYER_RR_PROGRESS';
-
 let _activeTriggerCol = 'A';
 
 function _getTriggerSheet() {
