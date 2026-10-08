@@ -4,117 +4,102 @@
  * ===============================================
  * Satu sheet "Trigger" untuk semua scraper:
  *
- *      Kolom A           Kolom B
- * A1 = Command Expedite  B1 = Command BuyerRR
- * A2 = Status Expedite   B2 = Status BuyerRR
- * A3 = Updated Expedite  B3 = Updated BuyerRR
+ *   A1 = Command Expedite        B1 = Command BuyerRR
+ *   A2 = Status Expedite         B2 = Status BuyerRR
+ *   A3 = Updated Expedite        B3 = Updated BuyerRR
  *
- * onChange terpicu → cek A1 DAN B1 secara independen.
- * Keduanya tidak saling trigger.
+ *   C1 = Command Monitor SDHO    D1 = Command Control Stuck FM
+ *   C2 = Status Monitor SDHO     D2 = Status Control Stuck FM
+ *   C3 = Updated Monitor SDHO    D3 = Updated Control Stuck FM
+ *
+ * onChange terpicu → cek A1, B1, C1, D1 secara independen.
+ *
+ * SETUP:
+ *   1. Jalankan setupTriggerSheet() sekali
+ *   2. Triggers → Add → onChangeTrigger → On change
  * ===============================================
  */
 
-// Cell positions — Expedite (kolom A)
-// TRIGGER_SPREADSHEET_ID, TRIGGER_SHEET_NAME,
-// TRIGGER_COMMAND_CELL, TRIGGER_STATUS_CELL, TRIGGER_UPDATED_CELL
-// sudah dideklarasikan di file lain — TIDAK diduplikasi di sini.
+const SS_ID_TRIGGER = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+const SHEET_TRIGGER = 'Trigger';
 
-// Cell positions — Buyer RR (kolom B)
-const BUYER_RR_COMMAND_CELL = 'B1';
-const BUYER_RR_STATUS_CELL  = 'B2';
-const BUYER_RR_UPDATED_CELL = 'B3';
+// Fallback key kalau BuyerRR.gs belum define
+const BUYER_RR_PROGRESS_KEY = 'BUYER_RR_PROGRESS';
 
-// Cell positions — Monitor SDHO (kolom C)
-const SDHO_COMMAND_CELL = 'C1';
-const SDHO_STATUS_CELL  = 'C2';
-const SDHO_UPDATED_CELL = 'C3';
-
-// Cell positions — Control Stuck FM (kolom D)
-const CSFM_COMMAND_CELL = 'D1';
-const CSFM_STATUS_CELL  = 'D2';
-const CSFM_UPDATED_CELL = 'D3';
-
-// Sheet cache
-let _activeTriggerCol = 'A'; // 'A' = Expedite, 'B' = BuyerRR
+let _activeTriggerCol = 'A';
 
 function _getTriggerSheet() {
-  const ssId   = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
-  const shName = typeof TRIGGER_SHEET_NAME !== 'undefined' ? TRIGGER_SHEET_NAME : 'Trigger';
-  return SpreadsheetApp.openById(ssId).getSheetByName(shName);
+  return SpreadsheetApp.openById(SS_ID_TRIGGER).getSheetByName(SHEET_TRIGGER);
 }
 
-/**
- * ============================================================
- * onChange TRIGGER — entry point utama
- * Cek kolom A (Expedite) dan kolom B (BuyerRR) secara independen
- * ============================================================
- */
-function onChangeTrigger(e) {
-  // Hardcode semua cell address agar tidak bergantung konstanta dari file lain
-  const EXP_CMD = 'A1', EXP_STS = 'A2', EXP_UPD = 'A3';
-  const BRR_CMD = 'B1', BRR_STS = 'B2', BRR_UPD = 'B3';
+// Helper: set kolom jadi RUNNING + reset status/updated
+function _setRunning(sheet, col) {
+  sheet.getRange(col + '1').setValue('RUNNING');
+  sheet.getRange(col + '2').setValue('0|Memulai...');
+  sheet.getRange(col + '3').setValue('');
+  SpreadsheetApp.flush();
+}
 
+// ============================================================
+// onChange TRIGGER — entry point utama
+// ============================================================
+function onChangeTrigger(e) {
   try {
     const sheet = _getTriggerSheet();
     if (!sheet) { Logger.log('❌ Sheet "Trigger" tidak ditemukan'); return; }
 
-    const a1 = String(sheet.getRange(EXP_CMD).getValue() || '').trim().toUpperCase();
-    const b1 = String(sheet.getRange(BRR_CMD).getValue() || '').trim().toUpperCase();
-    Logger.log('🔍 onChangeTrigger fired — A1: "' + a1 + '" | B1: "' + b1 + '"');
+    const a1 = String(sheet.getRange('A1').getValue() || '').trim().toUpperCase();
+    const b1 = String(sheet.getRange('B1').getValue() || '').trim().toUpperCase();
+    const c1 = String(sheet.getRange('C1').getValue() || '').trim().toUpperCase();
+    const d1 = String(sheet.getRange('D1').getValue() || '').trim().toUpperCase();
 
+    Logger.log('🔍 onChangeTrigger — A1:"' + a1 + '" B1:"' + b1 + '" C1:"' + c1 + '" D1:"' + d1 + '"');
+
+    // ── Expedite (A) ────────────────────────────────────────
     if (a1 === 'RUN' || a1 === 'RESUME') {
-      Logger.log('🎯 Expedite command: ' + a1);
+      Logger.log('🎯 Expedite: ' + a1);
       _activeTriggerCol = 'A';
-      sheet.getRange(EXP_CMD).setValue('RUNNING');
-      sheet.getRange(EXP_STS).setValue('0|Memulai...');
-      sheet.getRange(EXP_UPD).setValue('');
-      SpreadsheetApp.flush();
+      _setRunning(sheet, 'A');
       try {
         if (a1 === 'RUN') fetchExpediteData();
         else resumeExpediteScenarios();
       } catch (err) {
         setProgressError_(err.message);
-        Logger.log('❌ Expedite error: ' + err.message);
+        Logger.log('❌ Expedite: ' + err.message);
       } finally {
-        sheet.getRange(EXP_CMD).setValue('IDLE');
+        sheet.getRange('A1').setValue('IDLE');
         SpreadsheetApp.flush();
       }
       return;
     }
 
+    // ── Buyer RR (B) ────────────────────────────────────────
     if (b1 === 'RUN' || b1 === 'RESUME') {
-      Logger.log('🎯 BuyerRR command: ' + b1);
+      Logger.log('🎯 BuyerRR: ' + b1);
       _activeTriggerCol = 'B';
-      sheet.getRange(BRR_CMD).setValue('RUNNING');
-      sheet.getRange(BRR_STS).setValue('0|Memulai...');
-      sheet.getRange(BRR_UPD).setValue('');
-      SpreadsheetApp.flush();
+      _setRunning(sheet, 'B');
       try {
         fetchBuyerRRData();
       } catch (err) {
         buyerRRSetProgressError_(err.message);
-        Logger.log('❌ BuyerRR error: ' + err.message);
+        Logger.log('❌ BuyerRR: ' + err.message);
       } finally {
-        sheet.getRange(BRR_CMD).setValue('IDLE');
+        sheet.getRange('B1').setValue('IDLE');
         SpreadsheetApp.flush();
       }
       return;
     }
 
-    // Cek Monitor SDHO (kolom C)
-    const c1 = String(sheet.getRange('C1').getValue() || '').trim().toUpperCase();
+    // ── Monitor SDHO (C) ────────────────────────────────────
     if (c1 === 'RUN' || c1 === 'RESUME') {
-      Logger.log('🎯 Monitor SDHO command: ' + c1);
+      Logger.log('🎯 Monitor SDHO: ' + c1);
       _activeTriggerCol = 'C';
-      sheet.getRange('C1').setValue('RUNNING');
-      sheet.getRange('C2').setValue('0|Memulai...');
-      sheet.getRange('C3').setValue('');
-      SpreadsheetApp.flush();
+      _setRunning(sheet, 'C');
       try {
         fetchSPXPickupOrders();
       } catch (err) {
-        sdhoSetProgressError_(err.message);
-        Logger.log('❌ Monitor SDHO error: ' + err.message);
+        setPickupProgressError_(err.message);
+        Logger.log('❌ Monitor SDHO: ' + err.message);
       } finally {
         sheet.getRange('C1').setValue('IDLE');
         SpreadsheetApp.flush();
@@ -122,20 +107,16 @@ function onChangeTrigger(e) {
       return;
     }
 
-    // Cek Control Stuck FM (kolom D)
-    const d1 = String(sheet.getRange('D1').getValue() || '').trim().toUpperCase();
+    // ── Control Stuck FM (D) ────────────────────────────────
     if (d1 === 'RUN' || d1 === 'RESUME') {
-      Logger.log('🎯 Control Stuck FM command: ' + d1);
+      Logger.log('🎯 Control Stuck FM: ' + d1);
       _activeTriggerCol = 'D';
-      sheet.getRange('D1').setValue('RUNNING');
-      sheet.getRange('D2').setValue('0|Memulai...');
-      sheet.getRange('D3').setValue('');
-      SpreadsheetApp.flush();
+      _setRunning(sheet, 'D');
       try {
-        getSPXOrderCount(); // Control Stuck FM scraper
+        getSPXOrderCount();
       } catch (err) {
         csfmSetProgressError_(err.message);
-        Logger.log('❌ Control Stuck FM error: ' + err.message);
+        Logger.log('❌ Control Stuck FM: ' + err.message);
       } finally {
         sheet.getRange('D1').setValue('IDLE');
         SpreadsheetApp.flush();
@@ -150,17 +131,14 @@ function onChangeTrigger(e) {
   }
 }
 
-/**
- * ============================================================
- * OVERRIDE setProgress_ — Expedite (kolom A)
- * ============================================================
- */
+// ============================================================
+// OVERRIDE setProgress_ — Expedite (kolom A)
+// ============================================================
 function setProgress_(percent, message) {
   try {
     CacheService.getScriptCache().put(
       PROGRESS_CACHE_KEY,
-      JSON.stringify({ percent, message, done: false, error: null }), 600
-    );
+      JSON.stringify({ percent, message, done: false, error: null }), 600);
   } catch (e) {}
   _writeStatus('A', percent, message);
 }
@@ -169,8 +147,7 @@ function setProgressDone_(message) {
   try {
     CacheService.getScriptCache().put(
       PROGRESS_CACHE_KEY,
-      JSON.stringify({ percent: 100, message, done: true, error: null }), 600
-    );
+      JSON.stringify({ percent: 100, message, done: true, error: null }), 600);
   } catch (e) {}
   _writeStatus('A', 100, message);
 }
@@ -179,23 +156,19 @@ function setProgressError_(message) {
   try {
     CacheService.getScriptCache().put(
       PROGRESS_CACHE_KEY,
-      JSON.stringify({ percent: 0, message: '', done: true, error: message }), 600
-    );
+      JSON.stringify({ percent: 0, message: '', done: true, error: message }), 600);
   } catch (e) {}
   _writeStatus('A', 0, '❌ ' + message);
 }
 
-/**
- * ============================================================
- * OVERRIDE buyerRRSetProgress_ — Buyer RR (kolom B)
- * ============================================================
- */
+// ============================================================
+// OVERRIDE buyerRRSetProgress_ — Buyer RR (kolom B)
+// ============================================================
 function buyerRRSetProgress_(percent, message) {
   try {
     CacheService.getScriptCache().put(
       BUYER_RR_PROGRESS_KEY,
-      JSON.stringify({ percent, message, done: false, error: null }), 600
-    );
+      JSON.stringify({ percent, message, done: false, error: null }), 600);
   } catch (e) {}
   _writeStatus('B', percent, message);
 }
@@ -204,8 +177,7 @@ function buyerRRSetProgressDone_(message) {
   try {
     CacheService.getScriptCache().put(
       BUYER_RR_PROGRESS_KEY,
-      JSON.stringify({ percent: 100, message, done: true, error: null }), 600
-    );
+      JSON.stringify({ percent: 100, message, done: true, error: null }), 600);
   } catch (e) {}
   _writeStatus('B', 100, message);
 }
@@ -214,17 +186,44 @@ function buyerRRSetProgressError_(message) {
   try {
     CacheService.getScriptCache().put(
       BUYER_RR_PROGRESS_KEY,
-      JSON.stringify({ percent: 0, message: '', done: true, error: message }), 600
-    );
+      JSON.stringify({ percent: 0, message: '', done: true, error: message }), 600);
   } catch (e) {}
   _writeStatus('B', 0, '❌ ' + message);
 }
 
-/**
- * ============================================================
- * OVERRIDE csfmSetProgress_ — Control Stuck FM (kolom D)
- * ============================================================
- */
+// ============================================================
+// OVERRIDE setPickupProgress_ — Monitor SDHO (kolom C)
+// ============================================================
+function setPickupProgress_(percent, message) {
+  try {
+    CacheService.getScriptCache().put(
+      'PICKUP_MONITOR_PROGRESS',
+      JSON.stringify({ percent, message, done: false, error: null }), 600);
+  } catch (e) {}
+  _writeStatus('C', percent, message);
+}
+
+function setPickupProgressDone_(message) {
+  try {
+    CacheService.getScriptCache().put(
+      'PICKUP_MONITOR_PROGRESS',
+      JSON.stringify({ percent: 100, message, done: true, error: null }), 600);
+  } catch (e) {}
+  _writeStatus('C', 100, message);
+}
+
+function setPickupProgressError_(message) {
+  try {
+    CacheService.getScriptCache().put(
+      'PICKUP_MONITOR_PROGRESS',
+      JSON.stringify({ percent: 0, message: '', done: true, error: message }), 600);
+  } catch (e) {}
+  _writeStatus('C', 0, '❌ ' + message);
+}
+
+// ============================================================
+// OVERRIDE csfmSetProgress_ — Control Stuck FM (kolom D)
+// ============================================================
 function csfmSetProgress_(percent, message) {
   _writeStatus('D', percent, message);
 }
@@ -237,145 +236,96 @@ function csfmSetProgressError_(message) {
   _writeStatus('D', 0, '❌ ' + message);
 }
 
-/**
- * Tulis status ke kolom A, B, C, atau D di sheet Trigger
- */
-/**
- * ============================================================
- * OVERRIDE sdhoSetProgress_ — Monitor SDHO (kolom C)
- * ============================================================
- */
-function sdhoSetProgressError_(message) {
-  try {
-    CacheService.getScriptCache().put('SDHO_PROGRESS',
-      JSON.stringify({ percent: 0, message: '', done: true, error: message }), 600);
-  } catch (e) {}
-  _writeStatus('C', 0, '❌ ' + message);
-}
-
-/**
- * ============================================================
- * OVERRIDE setPickupProgress_ — Monitor SDHO pakai prefix ini
- * Script MonitorSDHO.gs memanggil setPickupProgress_/Done_/Error_
- * Di sini kita override agar JUGA tulis ke sheet Trigger kolom C
- * ============================================================
- */
-function setPickupProgress_(percent, message) {
-  try {
-    CacheService.getScriptCache().put('PICKUP_MONITOR_PROGRESS',
-      JSON.stringify({ percent, message, done: false, error: null }), 600);
-  } catch (e) {}
-  _writeStatus('C', percent, message);
-}
-
-function setPickupProgressDone_(message) {
-  try {
-    CacheService.getScriptCache().put('PICKUP_MONITOR_PROGRESS',
-      JSON.stringify({ percent: 100, message, done: true, error: null }), 600);
-  } catch (e) {}
-  _writeStatus('C', 100, message);
-}
-
-function setPickupProgressError_(message) {
-  try {
-    CacheService.getScriptCache().put('PICKUP_MONITOR_PROGRESS',
-      JSON.stringify({ percent: 0, message: '', done: true, error: message }), 600);
-  } catch (e) {}
-  _writeStatus('C', 0, '❌ ' + message);
-}
-
+// ── Core writer ──────────────────────────────────────────────
 function _writeStatus(col, percent, message) {
   try {
     const sheet = _getTriggerSheet();
     if (!sheet) return;
-    const ts          = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
-    const statusCell  = col === 'A' ? 'A2' : col === 'B' ? 'B2' : col === 'C' ? 'C2' : 'D2';
-    const updatedCell = col === 'A' ? 'A3' : col === 'B' ? 'B3' : col === 'C' ? 'C3' : 'D3';
-    sheet.getRange(statusCell).setValue(percent + '|' + message);
-    sheet.getRange(updatedCell).setValue(ts);
+    const ts = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
+    sheet.getRange(col + '2').setValue(percent + '|' + message);
+    sheet.getRange(col + '3').setValue(ts);
     SpreadsheetApp.flush();
   } catch (e) {
     Logger.log('⚠️ _writeStatus error: ' + e.message);
   }
 }
+
 // ============================================================
 // UTILITIES
 // ============================================================
 
 /**
- * Setup sheet Trigger untuk kedua scraper — jalankan SEKALI
+ * Setup sheet Trigger — jalankan SEKALI
+ * Mengisi A1:D3 dengan nilai awal yang benar
  */
 function setupTriggerSheet() {
-  const ssId  = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
-  const shName = typeof TRIGGER_SHEET_NAME !== 'undefined' ? TRIGGER_SHEET_NAME : 'Trigger';
-  const ss = SpreadsheetApp.openById(ssId);
-  let sheet = ss.getSheetByName(shName);
+  const ss  = SpreadsheetApp.openById(SS_ID_TRIGGER);
+  let sheet = ss.getSheetByName(SHEET_TRIGGER);
+
   if (!sheet) {
-    sheet = ss.insertSheet(shName);
+    sheet = ss.insertSheet(SHEET_TRIGGER);
     Logger.log('✅ Sheet "Trigger" dibuat');
   } else {
     Logger.log('ℹ️ Sheet "Trigger" sudah ada, direset...');
   }
 
-  // Kolom A — Expedite
-  sheet.getRange('A1').setValue('IDLE');
-  sheet.getRange('A2').setValue('0|Menunggu perintah...');
-  sheet.getRange('A3').setValue('');
+  // Bersihkan A1:F3 dulu
+  sheet.getRange('A1:F3').clearContent().clearFormat();
 
-  // Kolom B — Buyer RR
-  sheet.getRange('B1').setValue('IDLE');
-  sheet.getRange('B2').setValue('0|Menunggu perintah...');
-  sheet.getRange('B3').setValue('');
+  // Isi nilai awal untuk semua kolom
+  ['A', 'B', 'C', 'D'].forEach(col => {
+    sheet.getRange(col + '1').setValue('IDLE');
+    sheet.getRange(col + '2').setValue('0|Menunggu perintah...');
+    sheet.getRange(col + '3').setValue('');
+  });
 
-  // Kolom C — Monitor SDHO
-  sheet.getRange('C1').setValue('IDLE');
-  sheet.getRange('C2').setValue('0|Menunggu perintah...');
-  sheet.getRange('C3').setValue('');
+  // Label di kolom E dan F (baris 1-4, tidak menimpa A-D)
+  sheet.getRange('E1').setValue('← A: Expedite');
+  sheet.getRange('E2').setValue('← B: BuyerRR');
+  sheet.getRange('E3').setValue('← C: MonitorSDHO');
+  sheet.getRange('F1').setValue('D: ControlStuckFM →');
 
-  // Kolom D — Control Stuck FM
-  sheet.getRange('D1').setValue('IDLE');
-  sheet.getRange('D2').setValue('0|Menunggu perintah...');
-  sheet.getRange('D3').setValue('');
-
-  // Label kolom E
-  sheet.getRange('E1').setValue('← Expedite | BuyerRR | MonitorSDHO | ControlStuckFM');
-  sheet.getRange('D2').setValue('← Status masing-masing');
-  sheet.getRange('D3').setValue('← Timestamp masing-masing');
-
-  sheet.getRange('A1:B3').setFontFamily('Courier New').setFontWeight('bold');
-  sheet.getRange('C1:C3').setFontColor('#888888').setFontStyle('italic');
-  sheet.autoResizeColumns(1, 3);
+  // Format
+  sheet.getRange('A1:D3').setFontFamily('Courier New').setFontWeight('bold').setFontSize(10);
+  sheet.getRange('E1:F3').setFontColor('#888888').setFontStyle('italic').setFontWeight('normal');
+  sheet.autoResizeColumns(1, 6);
   SpreadsheetApp.flush();
 
   Logger.log('✅ Setup selesai!');
-  Logger.log('   A1/A2/A3 = Expedite command/status/updated');
-  Logger.log('   B1/B2/B3 = BuyerRR command/status/updated');
+  Logger.log('   A1/A2/A3 = Expedite        command / status / updated');
+  Logger.log('   B1/B2/B3 = BuyerRR         command / status / updated');
+  Logger.log('   C1/C2/C3 = MonitorSDHO     command / status / updated');
+  Logger.log('   D1/D2/D3 = ControlStuckFM  command / status / updated');
+  Logger.log('');
+  Logger.log('📋 Jika belum: Triggers → Add → onChangeTrigger → On change');
 }
 
 /**
- * Verifikasi setup
+ * Verifikasi setup lengkap
  */
 function checkTriggerSetup() {
   Logger.log('🔍 Checking trigger setup...');
-  const ssId  = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
-  const shName = typeof TRIGGER_SHEET_NAME !== 'undefined' ? TRIGGER_SHEET_NAME : 'Trigger';
-  const ss    = SpreadsheetApp.openById(ssId);
-  const sheet = ss.getSheetByName(shName);
+
+  const ss    = SpreadsheetApp.openById(SS_ID_TRIGGER);
+  const sheet = ss.getSheetByName(SHEET_TRIGGER);
 
   if (!sheet) {
     Logger.log('❌ Sheet "Trigger" BELUM ADA → jalankan setupTriggerSheet()');
-  } else {
-    Logger.log('✅ Sheet "Trigger" ada');
-    Logger.log('   [Expedite] A1: ' + sheet.getRange('A1').getValue() + ' | A2: ' + sheet.getRange('A2').getValue());
-    Logger.log('   [BuyerRR]  B1: ' + sheet.getRange('B1').getValue() + ' | B2: ' + sheet.getRange('B2').getValue());
+    return;
   }
 
-  const triggers = ScriptApp.getProjectTriggers();
+  Logger.log('✅ Sheet "Trigger" ada');
+  Logger.log('   [A] Expedite       : A1=' + sheet.getRange('A1').getValue() + ' | A2=' + sheet.getRange('A2').getValue());
+  Logger.log('   [B] BuyerRR        : B1=' + sheet.getRange('B1').getValue() + ' | B2=' + sheet.getRange('B2').getValue());
+  Logger.log('   [C] MonitorSDHO    : C1=' + sheet.getRange('C1').getValue() + ' | C2=' + sheet.getRange('C2').getValue());
+  Logger.log('   [D] ControlStuckFM : D1=' + sheet.getRange('D1').getValue() + ' | D2=' + sheet.getRange('D2').getValue());
+
+  const triggers      = ScriptApp.getProjectTriggers();
   const changeTrigger = triggers.find(t => t.getHandlerFunction() === 'onChangeTrigger');
   if (changeTrigger) {
     Logger.log('✅ onChangeTrigger terpasang — Event: ' + changeTrigger.getEventType());
   } else {
-    Logger.log('❌ onChangeTrigger BELUM TERPASANG');
+    Logger.log('❌ onChangeTrigger BELUM TERPASANG → Triggers → Add → onChangeTrigger → On change');
   }
 }
 
@@ -383,12 +333,10 @@ function checkTriggerSetup() {
  * Test manual Expedite
  */
 function testExpediteManually() {
-  const ssId  = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
-  const shName = typeof TRIGGER_SHEET_NAME !== 'undefined' ? TRIGGER_SHEET_NAME : 'Trigger';
-  const sheet = SpreadsheetApp.openById(ssId).getSheetByName(shName);
+  Logger.log('🧪 TEST Expedite...');
+  const sheet = _getTriggerSheet();
   if (!sheet) { Logger.log('❌ Sheet Trigger tidak ada'); return; }
   _activeTriggerCol = 'A';
-  _triggerSheet = sheet;
   sheet.getRange('A1').setValue('RUN');
   SpreadsheetApp.flush();
   onChangeTrigger({});
@@ -398,13 +346,37 @@ function testExpediteManually() {
  * Test manual Buyer RR
  */
 function testBuyerRRManually() {
-  const ssId  = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
-  const shName = typeof TRIGGER_SHEET_NAME !== 'undefined' ? TRIGGER_SHEET_NAME : 'Trigger';
-  const sheet = SpreadsheetApp.openById(ssId).getSheetByName(shName);
+  Logger.log('🧪 TEST BuyerRR...');
+  const sheet = _getTriggerSheet();
   if (!sheet) { Logger.log('❌ Sheet Trigger tidak ada'); return; }
   _activeTriggerCol = 'B';
-  _triggerSheet = sheet;
   sheet.getRange('B1').setValue('RUN');
+  SpreadsheetApp.flush();
+  onChangeTrigger({});
+}
+
+/**
+ * Test manual Monitor SDHO
+ */
+function testMonitorSDHOManually() {
+  Logger.log('🧪 TEST Monitor SDHO...');
+  const sheet = _getTriggerSheet();
+  if (!sheet) { Logger.log('❌ Sheet Trigger tidak ada'); return; }
+  _activeTriggerCol = 'C';
+  sheet.getRange('C1').setValue('RUN');
+  SpreadsheetApp.flush();
+  onChangeTrigger({});
+}
+
+/**
+ * Test manual Control Stuck FM
+ */
+function testControlStuckFMManually() {
+  Logger.log('🧪 TEST Control Stuck FM...');
+  const sheet = _getTriggerSheet();
+  if (!sheet) { Logger.log('❌ Sheet Trigger tidak ada'); return; }
+  _activeTriggerCol = 'D';
+  sheet.getRange('D1').setValue('RUN');
   SpreadsheetApp.flush();
   onChangeTrigger({});
 }
