@@ -57,6 +57,16 @@ export default {
       return handleConfigSheet(env, corsHeaders);
     }
 
+    // Route: Get HSE Daily Briefing data (A2:I4)
+    if (url.pathname === '/api/hse-daily' && request.method === 'GET') {
+      return handleHSERange(env, corsHeaders, 'HSE!A2:I4');
+    }
+
+    // Route: Get HSE Weekly 5S data (A7:Z9)
+    if (url.pathname === '/api/hse-weekly' && request.method === 'GET') {
+      return handleHSERange(env, corsHeaders, 'HSE!A7:Z9');
+    }
+
     // Route: Get Backlog LM data
     if (url.pathname === '/api/backlog-lm' && request.method === 'GET') {
       return handleSheetData(env, corsHeaders, '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Backlog LM');
@@ -612,6 +622,34 @@ async function handleMonitorSDHO(env, corsHeaders) {
       summary: summaryRows,
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Handle HSE sheet — fetch specific range and return raw rows
+ */
+async function handleHSERange(env, corsHeaders, range) {
+  const SS_ID = '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0';
+  try {
+    const accessToken = await getAccessToken(env);
+    const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SS_ID}/values/${encodeURIComponent(range)}`;
+    const res = await fetch(apiUrl, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      return new Response(JSON.stringify({ success: false, error: err.error?.message }), {
+        status: res.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    const json = await res.json();
+    return new Response(JSON.stringify({ success: true, rows: json.values || [] }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   } catch (err) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }

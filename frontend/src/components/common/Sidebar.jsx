@@ -15,7 +15,8 @@ import {
   Zap,
   Truck,
   Activity,
-  GitMerge
+  GitMerge,
+  ShieldCheck
 } from 'lucide-react';
 
 const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
@@ -60,6 +61,17 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       label: 'Backlog LM',
       icon: Package,
       active: false,
+    },
+    {
+      id: 'hse',
+      label: 'HSE',
+      icon: ShieldCheck,
+      active: false,
+      hasSubmenu: true,
+      submenu: [
+        { id: 'hse-daily',  label: 'Daily Briefing', parent: 'hse' },
+        { id: 'hse-weekly', label: 'Weekly 5S',       parent: 'hse' },
+      ],
     },
     {
       id: 'buyer-rr',

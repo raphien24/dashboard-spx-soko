@@ -9,6 +9,8 @@ import MonitorSDHOPage from './components/monitorsdho/MonitorSDHOPage';
 import CookieManagerPage from './components/settings/CookieManagerPage';
 import ControlStuckFMPage from './components/controlstuckfm/ControlStuckFMPage';
 import BacklogLMPage from './components/backlog/BacklogLMPage';
+import HSEDailyBriefing from './components/hse/HSEDailyBriefing';
+import HSEWeekly5S from './components/hse/HSEWeekly5S';
 import useDashboardStore from './store/dashboardStore';
 
 function App() {
@@ -38,6 +40,8 @@ function App() {
     'sp-record':    'Punishment Management',
     'expedite':          'Expedite Tracker',
     'backlog-lm':        'Backlog LM',
+    'hse-daily':         'HSE',
+    'hse-weekly':        'HSE',
     'buyer-rr':      'Buyer RR',
     'monitor-sdho':      'Monitor SDHO',
     'cookie-manager':    'Settings',
@@ -50,6 +54,8 @@ function App() {
     'sp-record':    'SP Record — Database',
     'expedite':          'Monitor & track paket expedite',
     'backlog-lm':        'Monitor backlog last mile',
+    'hse-daily':         'Daily Briefing — Keselamatan Harian',
+    'hse-weekly':        'Weekly 5S — Checklist Mingguan',
     'buyer-rr':      'Monitor & track buyer return request',
     'monitor-sdho':      'Monitor SDHO pickup data',
     'cookie-manager':    'Cookie Manager — SPX FMS Portal',
@@ -63,6 +69,7 @@ function App() {
   const isPunishmentPage  = activePage === 'sp-generator' || activePage === 'sp-record';
   const isExpeditePage    = activePage === 'expedite';
   const isBacklogLMPage   = activePage === 'backlog-lm';
+  const isHSEPage         = activePage === 'hse-daily' || activePage === 'hse-weekly';
   const isBuyerRRPage     = activePage === 'buyer-rr';
   const isMonitorSDHOPage  = activePage === 'monitor-sdho';
   const isSettingsPage     = activePage === 'cookie-manager';
@@ -87,7 +94,7 @@ function App() {
                   <p className="text-xs sm:text-sm text-gray-500">
                     {currentSubtitle}
                   </p>
-                  {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && !isBacklogLMPage && (
+                  {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && !isBacklogLMPage && !isHSEPage && (
                     <>
                       <span className="hidden sm:inline text-gray-300">•</span>
                       <div className="flex items-center gap-1.5">
@@ -172,6 +179,8 @@ function App() {
             )}
             {isExpeditePage      && <ExpeditePage />}
             {isBacklogLMPage     && <BacklogLMPage />}
+            {activePage === 'hse-daily'  && <HSEDailyBriefing />}
+            {activePage === 'hse-weekly' && <HSEWeekly5S />}
             {isBuyerRRPage     && <BuyerRRPage />}
             {isMonitorSDHOPage   && <MonitorSDHOPage />}
             {isSettingsPage      && <CookieManagerPage />}

@@ -2042,3 +2042,26 @@ export async function getBacklogLMStatus() {
   if (!json.success) return null;
   return json;
 }
+
+// ============================================================
+// HSE
+// ============================================================
+export async function getHSEDailyData() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/hse-daily`);
+  if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to fetch HSE Daily data');
+  return json.rows || [];
+}
+
+export async function getHSEWeeklyData() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/hse-weekly`);
+  if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to fetch HSE Weekly data');
+  return json.rows || [];
+}
