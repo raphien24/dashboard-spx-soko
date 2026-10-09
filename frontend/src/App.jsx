@@ -8,6 +8,7 @@ import BuyerRRPage from './components/buyerrr/BuyerRRPage';
 import MonitorSDHOPage from './components/monitorsdho/MonitorSDHOPage';
 import CookieManagerPage from './components/settings/CookieManagerPage';
 import ControlStuckFMPage from './components/controlstuckfm/ControlStuckFMPage';
+import BacklogLMPage from './components/backlog/BacklogLMPage';
 import useDashboardStore from './store/dashboardStore';
 
 function App() {
@@ -35,7 +36,8 @@ function App() {
     'productivity': 'Soko Hub Productivity Dashboard',
     'sp-generator': 'Punishment Management',
     'sp-record':    'Punishment Management',
-    'expedite':      'Expedite Tracker',
+    'expedite':          'Expedite Tracker',
+    'backlog-lm':        'Backlog LM',
     'buyer-rr':      'Buyer RR',
     'monitor-sdho':      'Monitor SDHO',
     'cookie-manager':    'Settings',
@@ -46,7 +48,8 @@ function App() {
     'productivity': 'Fleet Operations Dashboard',
     'sp-generator': 'SP Generator — Surat Peringatan',
     'sp-record':    'SP Record — Database',
-    'expedite':      'Monitor & track paket expedite',
+    'expedite':          'Monitor & track paket expedite',
+    'backlog-lm':        'Monitor backlog last mile',
     'buyer-rr':      'Monitor & track buyer return request',
     'monitor-sdho':      'Monitor SDHO pickup data',
     'cookie-manager':    'Cookie Manager — SPX FMS Portal',
@@ -59,6 +62,7 @@ function App() {
   // Is the active page a punishment management sub-page?
   const isPunishmentPage  = activePage === 'sp-generator' || activePage === 'sp-record';
   const isExpeditePage    = activePage === 'expedite';
+  const isBacklogLMPage   = activePage === 'backlog-lm';
   const isBuyerRRPage     = activePage === 'buyer-rr';
   const isMonitorSDHOPage  = activePage === 'monitor-sdho';
   const isSettingsPage     = activePage === 'cookie-manager';
@@ -83,7 +87,7 @@ function App() {
                   <p className="text-xs sm:text-sm text-gray-500">
                     {currentSubtitle}
                   </p>
-                  {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && (
+                  {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && !isBacklogLMPage && (
                     <>
                       <span className="hidden sm:inline text-gray-300">•</span>
                       <div className="flex items-center gap-1.5">
@@ -108,7 +112,7 @@ function App() {
               </div>
               
               {/* Controls — only show on productivity page */}
-              {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && (
+              {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && !isBacklogLMPage && (
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   {/* Last Update Display */}
                   <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
@@ -166,7 +170,8 @@ function App() {
             {isPunishmentPage && (
               <PunishmentManagement activeSubPage={activePage} />
             )}
-            {isExpeditePage    && <ExpeditePage />}
+            {isExpeditePage      && <ExpeditePage />}
+            {isBacklogLMPage     && <BacklogLMPage />}
             {isBuyerRRPage     && <BuyerRRPage />}
             {isMonitorSDHOPage   && <MonitorSDHOPage />}
             {isSettingsPage      && <CookieManagerPage />}

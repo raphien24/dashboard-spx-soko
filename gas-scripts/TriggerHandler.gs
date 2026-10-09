@@ -121,6 +121,25 @@ function onChangeTrigger(e) {
       return;
     }
 
+    // ── Backlog LM (E) ──────────────────────────────────────
+    const e1 = String(sheet.getRange('E1').getValue() || '').trim().toUpperCase();
+    if (e1 === 'RUN' || e1 === 'RESUME') {
+      Logger.log('🎯 Backlog LM: ' + e1);
+      _activeTriggerCol = 'E';
+      _setRunning(sheet, 'E');
+      try {
+        if (e1 === 'RUN') TarikBacklog();
+        else resumeBacklogSLS();
+      } catch (err) {
+        setProgressError_(err.message);
+        Logger.log('❌ Backlog LM: ' + err.message);
+      } finally {
+        sheet.getRange('E1').setValue('IDLE');
+        SpreadsheetApp.flush();
+      }
+      return;
+    }
+
     Logger.log('⏭️ Tidak ada command aktif — skip');
 
   } catch (outerErr) {
@@ -129,7 +148,9 @@ function onChangeTrigger(e) {
 }
 
 // ============================================================
-// OVERRIDE setProgress_ — Expedite (kolom A)
+// OVERRIDE setProgress_ — Expedite (kolom A) + Backlog LM (kolom E)
+// Backlog LM menggunakan setProgress_/Done_/Error_ yang sama persis
+// dengan Expedite. Kita bedakan target kolom dari _activeTriggerCol.
 // ============================================================
 function setProgress_(percent, message) {
   try {
@@ -137,7 +158,8 @@ function setProgress_(percent, message) {
       PROGRESS_CACHE_KEY,
       JSON.stringify({ percent, message, done: false, error: null }), 600);
   } catch (e) {}
-  _writeStatus('A', percent, message);
+  const col = (_activeTriggerCol === 'E') ? 'E' : 'A';
+  _writeStatus(col, percent, message);
 }
 
 function setProgressDone_(message) {
@@ -146,7 +168,8 @@ function setProgressDone_(message) {
       PROGRESS_CACHE_KEY,
       JSON.stringify({ percent: 100, message, done: true, error: null }), 600);
   } catch (e) {}
-  _writeStatus('A', 100, message);
+  const col = (_activeTriggerCol === 'E') ? 'E' : 'A';
+  _writeStatus(col, 100, message);
 }
 
 function setProgressError_(message) {
@@ -155,7 +178,8 @@ function setProgressError_(message) {
       PROGRESS_CACHE_KEY,
       JSON.stringify({ percent: 0, message: '', done: true, error: message }), 600);
   } catch (e) {}
-  _writeStatus('A', 0, '❌ ' + message);
+  const col = (_activeTriggerCol === 'E') ? 'E' : 'A';
+  _writeStatus(col, 0, '❌ ' + message);
 }
 
 // ============================================================
@@ -287,6 +311,17 @@ function _writeStatus(col, percent, message) {
     Logger.log('⚠️ _writeStatus error: ' + e.message);
   }
 }
+  try {
+    const sheet = _getTriggerSheet();
+    if (!sheet) return;
+    const ts = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
+    sheet.getRange(col + '2').setValue(percent + '|' + message);
+    sheet.getRange(col + '3').setValue(ts);
+    SpreadsheetApp.flush();
+  } catch (e) {
+    Logger.log('⚠️ _writeStatus error: ' + e.message);
+  }
+}
 
 // ============================================================
 // UTILITIES
@@ -307,26 +342,24 @@ function setupTriggerSheet() {
     Logger.log('ℹ️ Sheet "Trigger" sudah ada, direset...');
   }
 
-  // Bersihkan A1:F3 dulu
-  sheet.getRange('A1:F3').clearContent().clearFormat();
+  // Bersihkan A1:G3 dulu
+  sheet.getRange('A1:G3').clearContent().clearFormat();
 
   // Isi nilai awal untuk semua kolom
-  ['A', 'B', 'C', 'D'].forEach(col => {
+  ['A', 'B', 'C', 'D', 'E'].forEach(col => {
     sheet.getRange(col + '1').setValue('IDLE');
     sheet.getRange(col + '2').setValue('0|Menunggu perintah...');
     sheet.getRange(col + '3').setValue('');
   });
 
-  // Label di kolom E dan F (baris 1-4, tidak menimpa A-D)
-  sheet.getRange('E1').setValue('← A: Expedite');
-  sheet.getRange('E2').setValue('← B: BuyerRR');
-  sheet.getRange('E3').setValue('← C: MonitorSDHO');
-  sheet.getRange('F1').setValue('D: ControlStuckFM →');
+  // Label di kolom F dan G
+  sheet.getRange('F1').setValue('← A:Expedite B:BuyerRR C:MonitorSDHO');
+  sheet.getRange('G1').setValue('D:ControlStuckFM E:BacklogLM →');
 
   // Format
-  sheet.getRange('A1:D3').setFontFamily('Courier New').setFontWeight('bold').setFontSize(10);
-  sheet.getRange('E1:F3').setFontColor('#888888').setFontStyle('italic').setFontWeight('normal');
-  sheet.autoResizeColumns(1, 6);
+  sheet.getRange('A1:E3').setFontFamily('Courier New').setFontWeight('bold').setFontSize(10);
+  sheet.getRange('F1:G3').setFontColor('#888888').setFontStyle('italic').setFontWeight('normal');
+  sheet.autoResizeColumns(1, 7);
   SpreadsheetApp.flush();
 
   Logger.log('✅ Setup selesai!');
@@ -334,6 +367,7 @@ function setupTriggerSheet() {
   Logger.log('   B1/B2/B3 = BuyerRR         command / status / updated');
   Logger.log('   C1/C2/C3 = MonitorSDHO     command / status / updated');
   Logger.log('   D1/D2/D3 = ControlStuckFM  command / status / updated');
+  Logger.log('   E1/E2/E3 = BacklogLM       command / status / updated');
   Logger.log('');
   Logger.log('📋 Jika belum: Triggers → Add → onChangeTrigger → On change');
 }
@@ -357,6 +391,7 @@ function checkTriggerSetup() {
   Logger.log('   [B] BuyerRR        : B1=' + sheet.getRange('B1').getValue() + ' | B2=' + sheet.getRange('B2').getValue());
   Logger.log('   [C] MonitorSDHO    : C1=' + sheet.getRange('C1').getValue() + ' | C2=' + sheet.getRange('C2').getValue());
   Logger.log('   [D] ControlStuckFM : D1=' + sheet.getRange('D1').getValue() + ' | D2=' + sheet.getRange('D2').getValue());
+  Logger.log('   [E] BacklogLM      : E1=' + sheet.getRange('E1').getValue() + ' | E2=' + sheet.getRange('E2').getValue());
 
   const triggers      = ScriptApp.getProjectTriggers();
   const changeTrigger = triggers.find(t => t.getHandlerFunction() === 'onChangeTrigger');
@@ -407,8 +442,17 @@ function testMonitorSDHOManually() {
 }
 
 /**
- * Test manual Control Stuck FM
+ * Test manual Backlog LM
  */
+function testBacklogLMManually() {
+  Logger.log('🧪 TEST Backlog LM...');
+  const sheet = _getTriggerSheet();
+  if (!sheet) { Logger.log('❌ Sheet Trigger tidak ada'); return; }
+  _activeTriggerCol = 'E';
+  sheet.getRange('E1').setValue('RUN');
+  SpreadsheetApp.flush();
+  onChangeTrigger({});
+}
 function testControlStuckFMManually() {
   Logger.log('🧪 TEST Control Stuck FM...');
   const sheet = _getTriggerSheet();

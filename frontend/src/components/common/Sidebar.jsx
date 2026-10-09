@@ -56,6 +56,12 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       active: false,
     },
     {
+      id: 'backlog-lm',
+      label: 'Backlog LM',
+      icon: Package,
+      active: false,
+    },
+    {
       id: 'buyer-rr',
       label: 'Buyer RR',
       icon: Truck,

@@ -57,6 +57,24 @@ export default {
       return handleConfigSheet(env, corsHeaders);
     }
 
+    // Route: Get Backlog LM data
+    if (url.pathname === '/api/backlog-lm' && request.method === 'GET') {
+      return handleSheetData(env, corsHeaders, '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Backlog LM');
+    }
+
+    // Route: Trigger Backlog LM scraper (kolom E di sheet Trigger)
+    if (url.pathname === '/api/trigger-backlog-lm' && request.method === 'POST') {
+      const body = await request.json().catch(() => ({}));
+      return handleTriggerSheetCol(body, env, corsHeaders,
+        '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger', 'E1');
+    }
+
+    // Route: Poll Backlog LM scraper status (kolom E)
+    if (url.pathname === '/api/backlog-lm-status' && request.method === 'GET') {
+      return handleSheetStatusCol(env, corsHeaders,
+        '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger', 'E1', 'E2', 'E3');
+    }
+
     // Route: Get Control Stuck FM data (A1:P3)
     if (url.pathname === '/api/control-stuck-fm' && request.method === 'GET') {
       return handleControlStuckFM(env, corsHeaders);

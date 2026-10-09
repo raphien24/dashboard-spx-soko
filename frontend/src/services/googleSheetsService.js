@@ -2007,3 +2007,38 @@ export async function getControlStuckFMStatus() {
   if (!json.success) return null;
   return json;
 }
+
+// ============================================================
+// Backlog LM
+// ============================================================
+export async function getBacklogLMData() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/backlog-lm`);
+  if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to fetch Backlog LM data');
+  return { data: json.data || [], headers: json.headers || [] };
+}
+
+export async function runBacklogLMScraper(action = 'run') {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/trigger-backlog-lm`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action }),
+  });
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to trigger scraper');
+  return json;
+}
+
+export async function getBacklogLMStatus() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/backlog-lm-status`);
+  const json = await response.json();
+  if (!json.success) return null;
+  return json;
+}
