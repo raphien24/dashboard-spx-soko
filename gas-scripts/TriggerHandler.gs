@@ -233,6 +233,47 @@ function csfmSetProgressError_(message) {
   _writeStatus('D', 0, '❌ ' + message);
 }
 
+/**
+ * OVERRIDE logProgressControlStuckFM — Control Stuck FM
+ * Script ini pakai logProgressControlStuckFM() bukan setProgress_().
+ * Di-override di sini agar JUGA tulis ke sheet Trigger kolom D
+ * sehingga dashboard bisa polling progress secara real-time.
+ * isDone=true  → tulis 100% ke D2 (selesai)
+ * isError=true → tulis error ke D2
+ */
+function logProgressControlStuckFM(message, isDone, isError) {
+  // 1. Tulis ke CacheService (untuk popup GAS jika ada)
+  try {
+    const cache = CacheService.getScriptCache();
+    let log = [];
+    const cached = cache.get('controlstuckfm_progress_log');
+    if (cached) { try { log = JSON.parse(cached); } catch (e) { log = []; } }
+    log.push({ time: new Date().toLocaleTimeString('id-ID'), message, done: !!isDone, error: !!isError });
+    if (log.length > 300) log = log.slice(log.length - 300);
+    cache.put('controlstuckfm_progress_log', JSON.stringify(log), 600);
+  } catch (e) {}
+
+  // 2. Tulis ke sheet Trigger D2 (untuk polling dashboard)
+  if (isError) {
+    _writeStatus('D', 0, '❌ ' + message);
+  } else if (isDone) {
+    _writeStatus('D', 100, '✅ ' + message);
+  } else {
+    // Hitung persen dari progress log cache sebagai estimasi
+    // (gunakan animasi — cukup update pesan saja)
+    try {
+      const sheet = _getTriggerSheet();
+      if (sheet) {
+        const current = String(sheet.getRange('D2').getValue() || '');
+        const currentPct = parseInt(current.split('|')[0]) || 0;
+        // Naikkan perlahan (max 95% sampai isDone=true)
+        const newPct = Math.min(currentPct + 5, 95);
+        _writeStatus('D', newPct, message);
+      }
+    } catch (e) {}
+  }
+}
+
 // ── Core writer ──────────────────────────────────────────────
 function _writeStatus(col, percent, message) {
   try {
