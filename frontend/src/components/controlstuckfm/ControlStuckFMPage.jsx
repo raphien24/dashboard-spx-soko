@@ -101,21 +101,31 @@ const ControlStuckFMPage = () => {
     try {
       await runControlStuckFMScraper(action);
       await new Promise(r => setTimeout(r, 3000));
+      const startedAt = Date.now();
       const interval = setInterval(async () => {
         try {
-          const result = await getControlStuckFMStatus();
+          const result  = await getControlStuckFMStatus();
           if (!result) return;
-          setScraperProgress(result.status);
-          if (result.isDone ||
-              (result.command === 'IDLE' && result.status?.percent === 100) ||
-              (result.command === 'IDLE' && result.status?.message === 'Memulai...' && scraperState === 'running')) {
+          if (result.status) setScraperProgress(result.status);
+
+          const elapsed = Date.now() - startedAt;
+          const isIdle  = result.command === 'IDLE';
+          // Selesai jika: isDone, percent 100, atau kembali IDLE setelah 30 detik running
+          if (result.isDone || result.status?.percent === 100 || (isIdle && elapsed > 30000)) {
             clearInterval(interval); pollRef[0] = null;
             const isError = result.status?.message?.startsWith('❌');
             setScraperState(isError ? 'error' : 'done');
+            setScraperProgress(prev => ({
+              ...prev,
+              percent: 100,
+              message: isError ? (prev?.message || '❌ Error') : '✅ Update selesai!',
+            }));
             if (!isError) setTimeout(() => fetchData(), 2000);
-          } else if (result.isRunning) setScraperState('running');
+          } else if (result.isRunning) {
+            setScraperState('running');
+          }
         } catch (_) {}
-      }, 4000);
+      }, 3000);
       pollRef[0] = interval;
     } catch (err) {
       setScraperState('error');
