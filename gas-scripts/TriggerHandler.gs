@@ -311,17 +311,6 @@ function _writeStatus(col, percent, message) {
     Logger.log('⚠️ _writeStatus error: ' + e.message);
   }
 }
-  try {
-    const sheet = _getTriggerSheet();
-    if (!sheet) return;
-    const ts = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
-    sheet.getRange(col + '2').setValue(percent + '|' + message);
-    sheet.getRange(col + '3').setValue(ts);
-    SpreadsheetApp.flush();
-  } catch (e) {
-    Logger.log('⚠️ _writeStatus error: ' + e.message);
-  }
-}
 
 // ============================================================
 // UTILITIES
