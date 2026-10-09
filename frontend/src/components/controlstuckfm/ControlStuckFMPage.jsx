@@ -1,54 +1,70 @@
 import { useState, useEffect } from 'react';
 import {
-  RefreshCw, X, Play, RotateCcw,
+  RefreshCw, X, RotateCcw,
   CheckCircle, XCircle, Loader2, Clock,
   ArrowRight, ArrowLeft, BarChart2, AlertTriangle
 } from 'lucide-react';
 import { getControlStuckFMData, runControlStuckFMScraper, getControlStuckFMStatus } from '../../services/googleSheetsService';
 
-// ── Warna per status ─────────────────────────────────────────
-const STATUS_COLORS = {
-  'FMHub_Pickup_done':       { bg: 'bg-blue-50',   border: 'border-blue-200',   text: 'text-blue-700',   dot: 'bg-blue-400'   },
-  'Handedover_to_Station':   { bg: 'bg-cyan-50',    border: 'border-cyan-200',   text: 'text-cyan-700',   dot: 'bg-cyan-400'   },
-  'FMHub_Received':          { bg: 'bg-indigo-50',  border: 'border-indigo-200', text: 'text-indigo-700', dot: 'bg-indigo-400' },
-  'FMHub_Packing':           { bg: 'bg-violet-50',  border: 'border-violet-200', text: 'text-violet-700', dot: 'bg-violet-400' },
-  'FMHub_Packed':            { bg: 'bg-purple-50',  border: 'border-purple-200', text: 'text-purple-700', dot: 'bg-purple-400' },
-  'Return_FMHub_Received':   { bg: 'bg-orange-50',  border: 'border-orange-200', text: 'text-orange-700', dot: 'bg-orange-400' },
-  'Return_FMHub_Assigning':  { bg: 'bg-amber-50',   border: 'border-amber-200',  text: 'text-amber-700',  dot: 'bg-amber-400'  },
-  'Return_FMHub_Assigned':   { bg: 'bg-yellow-50',  border: 'border-yellow-200', text: 'text-yellow-700', dot: 'bg-yellow-400' },
-  'Return_FMHub_Returning':  { bg: 'bg-rose-50',    border: 'border-rose-200',   text: 'text-rose-700',   dot: 'bg-rose-400'   },
-  'Return_FMHub_Onhold':     { bg: 'bg-red-50',     border: 'border-red-200',    text: 'text-red-700',    dot: 'bg-red-400'    },
-  'ESB_Packed':              { bg: 'bg-green-50',   border: 'border-green-200',  text: 'text-green-700',  dot: 'bg-green-400'  },
-  'Total':                   { bg: 'bg-gray-100',   border: 'border-gray-300',   text: 'text-gray-800',   dot: 'bg-gray-500'   },
-};
+/**
+ * Struktur sheet A1:P3 (index 0-15):
+ *
+ * idx  subHeader (row2)                    data (row3)
+ *  0   Hub Name                            Soko First Mile Hub
+ *  1   FMHub_Pickup_done                   nilai
+ *  2   FMhub_Pickup_Handedover_to_Station  nilai
+ *  3   FMHub_Received                      nilai
+ *  4   FMHub_Packing                       nilai
+ *  5   FMHub_Packed                        nilai
+ *  6   (kosong/separator)
+ *  7   Return_FMHub_Received               nilai
+ *  8   Return_FMHub_Assigning              nilai
+ *  9   Return_FMHub_Assigned               nilai
+ * 10   Return_FMHub_Returning              nilai
+ * 11   Return_FMHub_Onhold                 nilai
+ * 12   Total                               nilai
+ * 13   REMAKS
+ * 14   Update 1 (Last Update)              jam
+ * 15   Update 2                            jam
+ */
 
-const getColor = (key) => STATUS_COLORS[key] || { bg: 'bg-gray-50', border: 'border-gray-200', text: 'text-gray-700', dot: 'bg-gray-300' };
-
-// Forward statuses (in order)
-const FORWARD_STATUSES = [
-  'FMHub_Pickup_done',
-  'Handedover_to_Station',
-  'FMHub_Received',
-  'FMHub_Packing',
-  'FMHub_Packed',
+const FORWARD = [
+  { idx: 1,  label: 'FMHub Pickup Done',       short: 'Pickup Done'   },
+  { idx: 2,  label: 'Handedover to Station',    short: 'Handedover'    },
+  { idx: 3,  label: 'FMHub Received',           short: 'Received'      },
+  { idx: 4,  label: 'FMHub Packing',            short: 'Packing'       },
+  { idx: 5,  label: 'FMHub Packed',             short: 'Packed'        },
 ];
 
-// Reverse statuses (in order)
-const REVERSE_STATUSES = [
-  'Return_FMHub_Received',
-  'Return_FMHub_Assigning',
-  'Return_FMHub_Assigned',
-  'Return_FMHub_Returning',
-  'Return_FMHub_Onhold',
+const REVERSE = [
+  { idx: 7,  label: 'Return Received',          short: 'Received'      },
+  { idx: 8,  label: 'Return Assigning',         short: 'Assigning'     },
+  { idx: 9,  label: 'Return Assigned',          short: 'Assigned'      },
+  { idx: 10, label: 'Return Returning',         short: 'Returning'     },
+  { idx: 11, label: 'Return Onhold',            short: 'Onhold'        },
+];
+
+// Warna per index
+const COLORS = [
+  null,
+  { bg: 'bg-blue-50',   text: 'text-blue-700',   dot: 'bg-blue-400',   val: 'text-blue-900'   }, // 1 pickup done
+  { bg: 'bg-cyan-50',   text: 'text-cyan-700',   dot: 'bg-cyan-400',   val: 'text-cyan-900'   }, // 2 handedover
+  { bg: 'bg-indigo-50', text: 'text-indigo-700', dot: 'bg-indigo-400', val: 'text-indigo-900' }, // 3 received
+  { bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-400', val: 'text-violet-900' }, // 4 packing
+  { bg: 'bg-purple-50', text: 'text-purple-700', dot: 'bg-purple-400', val: 'text-purple-900' }, // 5 packed
+  null,
+  { bg: 'bg-orange-50', text: 'text-orange-700', dot: 'bg-orange-400', val: 'text-orange-900' }, // 7
+  { bg: 'bg-amber-50',  text: 'text-amber-700',  dot: 'bg-amber-400',  val: 'text-amber-900'  }, // 8
+  { bg: 'bg-yellow-50', text: 'text-yellow-700', dot: 'bg-yellow-400', val: 'text-yellow-900' }, // 9
+  { bg: 'bg-rose-50',   text: 'text-rose-700',   dot: 'bg-rose-400',   val: 'text-rose-900'   }, // 10
+  { bg: 'bg-red-50',    text: 'text-red-700',    dot: 'bg-red-400',    val: 'text-red-900'    }, // 11
 ];
 
 const ControlStuckFMPage = () => {
-  const [rawHeaders, setRawHeaders] = useState([]);
-  const [rawData,    setRawData]    = useState([]);
-  const [lastUpdate, setLastUpdate] = useState('');
-  const [hubName,    setHubName]    = useState('');
-  const [isLoading,  setIsLoading]  = useState(true);
-  const [error,      setError]      = useState(null);
+  const [subHeaders,  setSubHeaders]  = useState([]);
+  const [dataRow,     setDataRow]     = useState([]);
+  const [isLoading,   setIsLoading]   = useState(true);
+  const [error,       setError]       = useState(null);
 
   // Scraper
   const [scraperState,    setScraperState]    = useState('idle');
@@ -57,22 +73,17 @@ const ControlStuckFMPage = () => {
 
   // ── Fetch ──────────────────────────────────────────────────
   const fetchData = async () => {
+    if (scraperState !== 'running') {
+      setScraperState('idle');
+      setScraperProgress(null);
+      if (pollRef[0]) { clearInterval(pollRef[0]); pollRef[0] = null; }
+    }
     setIsLoading(true);
     setError(null);
     try {
-      const { headers, data } = await getControlStuckFMData();
-      setRawHeaders(headers);
-      setRawData(data);
-
-      // Row 1 (index 0) = sub-headers (status names)
-      // Row 2 (index 1) = actual data values
-      if (data.length >= 1) {
-        // Hub name is in the first column of the sub-header row
-        const firstKey = headers[0] || '';
-        setHubName(data[1]?.[firstKey] || data[0]?.[firstKey] || '');
-        // Last update from "Last Update [Jam]" column
-        setLastUpdate(data[1]?.['Last Update [Jam]'] || data[0]?.['Last Update [Jam]'] || '');
-      }
+      const { subHeaders: sh, data: d } = await getControlStuckFMData();
+      setSubHeaders(sh);
+      setDataRow(d);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -81,29 +92,6 @@ const ControlStuckFMPage = () => {
   };
 
   useEffect(() => { fetchData(); }, []);
-
-  // ── Parse values ───────────────────────────────────────────
-  // Map sub-header row (row index 0) → status name → column key
-  // Map data row (row index 1) → status name → count value
-  const parseStatusValues = () => {
-    if (rawData.length < 2) return {};
-    const subHeaderRow = rawData[0]; // row 2 in sheet = status names
-    const dataRow      = rawData[1]; // row 3 in sheet = values
-
-    // Build: statusName → value
-    const result = {};
-    rawHeaders.forEach(colKey => {
-      const statusName = subHeaderRow[colKey];
-      const value      = dataRow[colKey];
-      if (statusName && statusName !== 'Hub Name' && statusName !== '') {
-        result[statusName] = value || '0';
-      }
-    });
-    return result;
-  };
-
-  const statusValues = parseStatusValues();
-  const remarks = rawData[1]?.['REMAKS'] || rawData[0]?.['REMAKS'] || '';
 
   // ── Scraper ────────────────────────────────────────────────
   const startScraper = async (action = 'run') => {
@@ -135,6 +123,14 @@ const ControlStuckFMPage = () => {
 
   useEffect(() => () => { if (pollRef[0]) clearInterval(pollRef[0]); }, []);
 
+  // ── Helpers ────────────────────────────────────────────────
+  const val = (idx) => dataRow[idx] !== undefined && dataRow[idx] !== '' ? dataRow[idx] : '0';
+  const hubName    = dataRow[0]  || 'Soko First Mile Hub';
+  const total      = val(12);
+  const remarks    = dataRow[13] || '';
+  const update1    = dataRow[14] || '';
+  const update2    = dataRow[15] || '';
+
   // ── Loading / Error ────────────────────────────────────────
   if (isLoading) return (
     <div className="flex items-center justify-center h-64">
@@ -163,7 +159,7 @@ const ControlStuckFMPage = () => {
   return (
     <div className="space-y-5">
 
-      {/* ── Scraper / Update Panel ── */}
+      {/* ── Scraper Panel ── */}
       <div className={`rounded-xl border p-4 shadow-sm ${
         scraperState === 'running' ? 'bg-blue-50 border-blue-200' :
         scraperState === 'done'    ? 'bg-green-50 border-green-200' :
@@ -190,17 +186,24 @@ const ControlStuckFMPage = () => {
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => startScraper('run')} disabled={scraperState === 'running'}
-              className="flex items-center gap-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors">
+              className="flex items-center gap-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium">
               {scraperState === 'running' ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
               Update
             </button>
-            <button onClick={fetchData}
-              className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium border border-gray-300">
+            <button onClick={() => startScraper('resume')} disabled={scraperState === 'running'}
+              title="Resume: lanjutkan tanpa fetch ulang dari awal"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 rounded-lg text-sm font-medium border border-gray-300">
+              <RotateCcw className="w-4 h-4" /> Resume
+            </button>
+            <button onClick={fetchData} disabled={scraperState === 'running'}
+              className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 rounded-lg text-sm font-medium border border-gray-300">
               <RefreshCw className="w-4 h-4" /> Refresh
             </button>
           </div>
         </div>
-        {scraperProgress && scraperState !== 'idle' && (
+
+        {/* Progress bar */}
+        {scraperProgress && scraperState !== 'idle' && scraperProgress.percent > 0 && (
           <div className="mt-4 space-y-2">
             <div>
               <div className="flex justify-between text-xs text-gray-600 mb-1">
@@ -219,31 +222,42 @@ const ControlStuckFMPage = () => {
               <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-xs text-red-600">
                 <p className="font-semibold mb-1">Detail Error:</p>
                 <p className="font-mono break-all">{scraperProgress.message.replace('❌ ', '')}</p>
-                <p className="mt-1 text-red-500">• Cookie expired → update via bookmarklet &nbsp;• API down → coba lagi</p>
+                <p className="mt-1 text-red-500">• Cookie expired → update via bookmarklet &nbsp;• API down → coba lagi &nbsp;• Timeout → klik Resume</p>
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* ── Info Card: Hub + Last Update ── */}
+      {/* ── Hub Info + Last Update ── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1">Hub</p>
-            <p className="text-xl font-bold text-gray-900">{hubName || 'Soko First Mile Hub'}</p>
+            <p className="text-xl font-bold text-gray-900">{hubName}</p>
           </div>
-          {lastUpdate && (
-            <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
-              <Clock className="w-4 h-4 text-gray-400" />
-              <div>
-                <p className="text-xs text-gray-500">Last Update</p>
-                <p className="text-sm font-semibold text-gray-900">{lastUpdate}</p>
+          <div className="flex items-center gap-3">
+            {update1 && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-lg border border-indigo-200">
+                <Clock className="w-4 h-4 text-indigo-500" />
+                <div>
+                  <p className="text-xs text-indigo-500">Update 1 (max 16.00)</p>
+                  <p className="text-sm font-bold text-indigo-800">{update1}</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+            {update2 && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+                <Clock className="w-4 h-4 text-gray-400" />
+                <div>
+                  <p className="text-xs text-gray-500">Update 2 (max 01.00)</p>
+                  <p className="text-sm font-bold text-gray-800">{update2}</p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-        {remarks && (
+        {remarks && remarks !== '( ISI SESUAI CONTOH KOLOM T )' && (
           <div className="mt-3 flex items-start gap-2 px-4 py-2.5 bg-amber-50 rounded-lg border border-amber-200">
             <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-amber-800 font-medium">{remarks}</p>
@@ -258,25 +272,15 @@ const ControlStuckFMPage = () => {
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">Forward</h3>
           <span className="text-blue-200 text-xs">Paket masuk ke FM Hub</span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-0 divide-x divide-y divide-gray-100">
-          {FORWARD_STATUSES.map(status => {
-            const color = getColor(status);
-            const value = statusValues[status] ?? '—';
-            const numVal = parseInt(value) || 0;
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-y divide-gray-100">
+          {FORWARD.map(({ idx, label }) => {
+            const c = COLORS[idx] || { bg: 'bg-gray-50', text: 'text-gray-600', dot: 'bg-gray-300', val: 'text-gray-900' };
+            const v = val(idx);
             return (
-              <div key={status} className={`p-5 ${color.bg}`}>
-                <div className={`w-2 h-2 rounded-full ${color.dot} mb-3`} />
-                <p className="text-3xl font-bold text-gray-900 mb-2">{value}</p>
-                <p className={`text-xs font-medium ${color.text} leading-snug`}>
-                  {status.replace(/_/g, ' ')}
-                </p>
-                {numVal > 0 && (
-                  <div className={`mt-2 h-1 rounded-full ${color.dot} opacity-30`}
-                    style={{ width: '100%' }}>
-                    <div className={`h-1 rounded-full ${color.dot}`}
-                      style={{ width: `${Math.min(numVal * 10, 100)}%` }} />
-                  </div>
-                )}
+              <div key={idx} className={`p-5 ${c.bg}`}>
+                <div className={`w-2 h-2 rounded-full ${c.dot} mb-3`} />
+                <p className={`text-4xl font-bold ${c.val} mb-2`}>{v}</p>
+                <p className={`text-xs font-medium ${c.text} leading-snug`}>{label}</p>
               </div>
             );
           })}
@@ -290,24 +294,15 @@ const ControlStuckFMPage = () => {
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">Reverse</h3>
           <span className="text-orange-100 text-xs">Paket return di FM Hub</span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-0 divide-x divide-y divide-gray-100">
-          {REVERSE_STATUSES.map(status => {
-            const color = getColor(status);
-            const value = statusValues[status] ?? '—';
-            const numVal = parseInt(value) || 0;
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-y divide-gray-100">
+          {REVERSE.map(({ idx, label }) => {
+            const c = COLORS[idx] || { bg: 'bg-gray-50', text: 'text-gray-600', dot: 'bg-gray-300', val: 'text-gray-900' };
+            const v = val(idx);
             return (
-              <div key={status} className={`p-5 ${color.bg}`}>
-                <div className={`w-2 h-2 rounded-full ${color.dot} mb-3`} />
-                <p className="text-3xl font-bold text-gray-900 mb-2">{value}</p>
-                <p className={`text-xs font-medium ${color.text} leading-snug`}>
-                  {status.replace(/_/g, ' ')}
-                </p>
-                {numVal > 0 && (
-                  <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
-                    <div className={`h-1 rounded-full ${color.dot}`}
-                      style={{ width: `${Math.min(numVal * 10, 100)}%` }} />
-                  </div>
-                )}
+              <div key={idx} className={`p-5 ${c.bg}`}>
+                <div className={`w-2 h-2 rounded-full ${c.dot} mb-3`} />
+                <p className={`text-4xl font-bold ${c.val} mb-2`}>{v}</p>
+                <p className={`text-xs font-medium ${c.text} leading-snug`}>{label}</p>
               </div>
             );
           })}
@@ -315,21 +310,19 @@ const ControlStuckFMPage = () => {
       </div>
 
       {/* ── Total Card ── */}
-      {statusValues['Total'] !== undefined && (
-        <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <BarChart2 className="w-6 h-6 text-gray-300" />
-            <div>
-              <p className="text-xs text-gray-400 uppercase tracking-wider">Total Stuck</p>
-              <p className="text-4xl font-bold text-white mt-0.5">{statusValues['Total']}</p>
-            </div>
-          </div>
-          <div className="text-right text-xs text-gray-400">
-            <p>Forward + Reverse</p>
-            <p className="mt-1 text-gray-500">Combined count</p>
+      <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl p-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <BarChart2 className="w-7 h-7 text-gray-300" />
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wider">Total Stuck</p>
+            <p className="text-5xl font-bold text-white mt-0.5">{total}</p>
           </div>
         </div>
-      )}
+        <div className="text-right text-sm text-gray-400 space-y-1">
+          <p>Forward + Reverse</p>
+          <p className="text-gray-500 text-xs">Combined count</p>
+        </div>
+      </div>
 
     </div>
   );

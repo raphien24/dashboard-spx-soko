@@ -1980,7 +1980,10 @@ export async function getControlStuckFMData() {
   if (!response.ok) throw new Error(`Backend error: ${response.status}`);
   const json = await response.json();
   if (!json.success) throw new Error(json.error || 'Failed to fetch Control Stuck FM data');
-  return { headers: json.headers || [], data: json.data || [] };
+  return {
+    subHeaders: json.subHeaders || [],  // row 2 — status names by index
+    data:       json.data       || [],  // row 3 — values by index (flat array)
+  };
 }
 
 export async function runControlStuckFMScraper(action = 'run') {

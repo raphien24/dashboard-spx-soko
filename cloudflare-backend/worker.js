@@ -446,19 +446,23 @@ async function handleControlStuckFM(env, corsHeaders) {
       });
     }
 
-    // Row 1 = headers
-    const headers = rows[0].map(h => String(h).trim());
-
-    // Rows 2+ = data
-    const data = rows.slice(1).map(row => {
-      const record = {};
-      headers.forEach((h, i) => {
-        record[h] = row[i] !== undefined ? row[i] : '';
-      });
-      return record;
+    // Row 1 = headers (category: Forward/Reverse/etc)
+    // Row 2 = sub-headers (status names)
+    // Row 3 = data values
+    // Return semua rows mentah agar frontend bisa layout sendiri
+    const raw = rows.map(row => {
+      // Pad to 16 cols
+      while (row.length < 16) row.push('');
+      return row;
     });
 
-    return new Response(JSON.stringify({ success: true, headers, data }), {
+    return new Response(JSON.stringify({
+      success: true,
+      raw,        // raw[0]=headers row1, raw[1]=sub-headers row2, raw[2]=data row3
+      headers: raw[0] || [],
+      subHeaders: raw[1] || [],
+      data: raw[2] || [],
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (err) {
