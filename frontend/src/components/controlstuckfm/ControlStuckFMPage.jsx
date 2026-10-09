@@ -95,9 +95,24 @@ const ControlStuckFMPage = () => {
 
   // ── Scraper ────────────────────────────────────────────────
   const startScraper = async (action = 'run') => {
+    // Reset state saat mulai Update/Resume baru
     setScraperState('running');
     setScraperProgress({ percent: 0, message: 'Mengirim perintah ke GAS...', updatedAt: '' });
     if (pollRef[0]) { clearInterval(pollRef[0]); pollRef[0] = null; }
+
+    // Sebelum kirim perintah, fetch status terakhir dari D2 dulu
+    // lalu tampilkan sebagai "last known state" selama menunggu
+    try {
+      const lastStatus = await getControlStuckFMStatus();
+      if (lastStatus?.status?.message) {
+        setScraperProgress({
+          percent:   0,
+          message:   `Memulai ${action === 'resume' ? 'resume' : 'update'} baru... (terakhir: ${lastStatus.status.message})`,
+          updatedAt: lastStatus.status.updatedAt || '',
+        });
+      }
+    } catch (_) {}
+
     try {
       await runControlStuckFMScraper(action);
       await new Promise(r => setTimeout(r, 3000));
@@ -112,7 +127,6 @@ const ControlStuckFMPage = () => {
           const isIdle  = result.command === 'IDLE';
           const msg     = result.status?.message || '';
 
-          // Selesai jika: percent 100, pesan ✅, atau IDLE setelah 30 detik
           const done = result.isDone ||
                        result.status?.percent >= 100 ||
                        msg.startsWith('✅') ||
@@ -122,11 +136,11 @@ const ControlStuckFMPage = () => {
             clearInterval(interval); pollRef[0] = null;
             const isError = msg.startsWith('❌');
             setScraperState(isError ? 'error' : 'done');
-            setScraperProgress(prev => ({
-              percent:    100,
-              message:    isError ? msg : (msg.startsWith('✅') ? msg : '✅ Update selesai!'),
-              updatedAt:  result.status?.updatedAt || prev?.updatedAt || '',
-            }));
+            setScraperProgress({
+              percent:   100,
+              message:   isError ? msg : (msg.startsWith('✅') ? msg : '✅ Update selesai! Data berhasil diperbarui.'),
+              updatedAt: result.status?.updatedAt || '',
+            });
             if (!isError) setTimeout(() => fetchData(), 2000);
           } else if (result.isRunning || result.command === 'RUNNING') {
             setScraperState('running');
@@ -139,6 +153,25 @@ const ControlStuckFMPage = () => {
       setScraperProgress({ percent: 0, message: '❌ ' + err.message, updatedAt: '' });
     }
   };
+
+  // Fetch + tampilkan status terakhir dari sheet (untuk cek tanpa trigger)
+  const checkLastStatus = async () => {
+    try {
+      const result = await getControlStuckFMStatus();
+      if (result?.status) {
+        const msg = result.status.message || '';
+        const isError = msg.startsWith('❌');
+        const isDone = msg.startsWith('✅') || result.status.percent >= 100;
+        if (isDone || isError) {
+          setScraperState(isError ? 'error' : 'done');
+          setScraperProgress(result.status);
+        }
+      }
+    } catch (_) {}
+  };
+
+  // Load status terakhir saat halaman dibuka
+  useEffect(() => { checkLastStatus(); }, []);
 
   useEffect(() => () => { if (pollRef[0]) clearInterval(pollRef[0]); }, []);
 
@@ -194,12 +227,14 @@ const ControlStuckFMPage = () => {
               <p className="text-sm font-semibold text-gray-800">
                 {scraperState === 'idle'    && 'Control Stuck FM Scraper'}
                 {scraperState === 'running' && 'Update sedang berjalan...'}
-                {scraperState === 'done'    && 'Update selesai!'}
-                {scraperState === 'error'   && 'Update gagal'}
+                {scraperState === 'done'    && '✅ Update berhasil!'}
+                {scraperState === 'error'   && '❌ Update gagal'}
               </p>
               <p className="text-xs text-gray-500 mt-0.5">
                 {scraperState === 'idle' && 'Klik "Update" untuk mengambil data terbaru dari SPX'}
-                {scraperProgress?.message && scraperState !== 'idle' && scraperProgress.message}
+                {scraperState === 'done' && 'Data sudah diperbarui. Klik "Update" lagi untuk update berikutnya.'}
+                {scraperState === 'error' && 'Terjadi error. Cek detail di bawah atau klik "Update" untuk coba lagi.'}
+                {scraperProgress?.message && scraperState === 'running' && scraperProgress.message}
               </p>
             </div>
           </div>
