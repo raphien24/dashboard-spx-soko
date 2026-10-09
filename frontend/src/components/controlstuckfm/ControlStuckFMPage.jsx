@@ -106,7 +106,9 @@ const ControlStuckFMPage = () => {
           const result = await getControlStuckFMStatus();
           if (!result) return;
           setScraperProgress(result.status);
-          if (result.isDone || (result.command === 'IDLE' && result.status?.percent === 100)) {
+          if (result.isDone ||
+              (result.command === 'IDLE' && result.status?.percent === 100) ||
+              (result.command === 'IDLE' && result.status?.message === 'Memulai...' && scraperState === 'running')) {
             clearInterval(interval); pollRef[0] = null;
             const isError = result.status?.message?.startsWith('❌');
             setScraperState(isError ? 'error' : 'done');
@@ -203,22 +205,35 @@ const ControlStuckFMPage = () => {
         </div>
 
         {/* Progress bar */}
-        {scraperProgress && scraperState !== 'idle' && scraperProgress.percent > 0 && (
+        {scraperState !== 'idle' && (
           <div className="mt-4 space-y-2">
             <div>
               <div className="flex justify-between text-xs text-gray-600 mb-1">
-                <span>{scraperProgress.percent}%</span>
-                {scraperProgress.updatedAt && <span className="text-gray-400">Updated: {scraperProgress.updatedAt}</span>}
+                <span className="font-medium">
+                  {scraperProgress?.percent > 0 ? `${scraperProgress.percent}%` : 'Menunggu progress...'}
+                </span>
+                {scraperProgress?.updatedAt && <span className="text-gray-400">Updated: {scraperProgress.updatedAt}</span>}
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className={`h-2 rounded-full transition-all duration-500 ${
-                  scraperProgress.message?.startsWith('❌') ? 'bg-red-500' :
-                  scraperState === 'done' ? 'bg-green-500' :
-                  scraperProgress.message?.startsWith('⚠️') ? 'bg-yellow-400' : 'bg-indigo-500'
-                }`} style={{ width: `${scraperProgress.percent}%` }} />
+              <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                {scraperProgress?.percent > 0 ? (
+                  <div className={`h-2.5 rounded-full transition-all duration-500 ${
+                    scraperProgress.message?.startsWith('❌') ? 'bg-red-500' :
+                    scraperState === 'done' ? 'bg-green-500' :
+                    scraperProgress.message?.startsWith('⚠️') ? 'bg-yellow-400' : 'bg-indigo-500'
+                  }`} style={{ width: `${scraperProgress.percent}%` }} />
+                ) : (
+                  /* Animated indeterminate bar saat percent masih 0 */
+                  <div className="h-2.5 bg-indigo-500 rounded-full animate-pulse w-1/3" 
+                    style={{ animation: 'slideRight 1.5s ease-in-out infinite' }} />
+                )}
               </div>
             </div>
-            {scraperProgress.message?.startsWith('❌') && (
+            {scraperProgress?.message && scraperProgress.message !== 'Mengirim perintah ke GAS...' && scraperProgress.message !== 'Memulai...' && (
+              <p className="text-xs text-gray-600 font-mono bg-gray-50 px-3 py-2 rounded-lg border">
+                {scraperProgress.message}
+              </p>
+            )}
+            {scraperProgress?.message?.startsWith('❌') && (
               <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-xs text-red-600">
                 <p className="font-semibold mb-1">Detail Error:</p>
                 <p className="font-mono break-all">{scraperProgress.message.replace('❌ ', '')}</p>
