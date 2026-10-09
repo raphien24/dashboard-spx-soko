@@ -110,18 +110,25 @@ const ControlStuckFMPage = () => {
 
           const elapsed = Date.now() - startedAt;
           const isIdle  = result.command === 'IDLE';
-          // Selesai jika: isDone, percent 100, atau kembali IDLE setelah 30 detik running
-          if (result.isDone || result.status?.percent === 100 || (isIdle && elapsed > 30000)) {
+          const msg     = result.status?.message || '';
+
+          // Selesai jika: percent 100, pesan ✅, atau IDLE setelah 30 detik
+          const done = result.isDone ||
+                       result.status?.percent >= 100 ||
+                       msg.startsWith('✅') ||
+                       (isIdle && elapsed > 30000);
+
+          if (done) {
             clearInterval(interval); pollRef[0] = null;
-            const isError = result.status?.message?.startsWith('❌');
+            const isError = msg.startsWith('❌');
             setScraperState(isError ? 'error' : 'done');
             setScraperProgress(prev => ({
-              ...prev,
-              percent: 100,
-              message: isError ? (prev?.message || '❌ Error') : '✅ Update selesai!',
+              percent:    100,
+              message:    isError ? msg : (msg.startsWith('✅') ? msg : '✅ Update selesai!'),
+              updatedAt:  result.status?.updatedAt || prev?.updatedAt || '',
             }));
             if (!isError) setTimeout(() => fetchData(), 2000);
-          } else if (result.isRunning) {
+          } else if (result.isRunning || result.command === 'RUNNING') {
             setScraperState('running');
           }
         } catch (_) {}
