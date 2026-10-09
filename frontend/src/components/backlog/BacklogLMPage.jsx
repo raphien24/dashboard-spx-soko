@@ -44,13 +44,15 @@ const BacklogLMPage = () => {
   const [sortKey, setSortKey] = useState('LM Hub Days');
   const [sortDir, setSortDir] = useState('desc');
 
-  // Copy to clipboard state
-  const [copiedId, setCopiedId] = useState(null);
+  // Copy all filtered Shipment IDs
+  const [copiedAll, setCopiedAll] = useState(false);
 
-  const handleCopy = (id) => {
-    navigator.clipboard.writeText(id).then(() => {
-      setCopiedId(id);
-      setTimeout(() => setCopiedId(null), 2000);
+  const handleCopyAll = () => {
+    const ids = filtered.map(r => r['Shipment ID']).filter(Boolean).join('\n');
+    if (!ids) return;
+    navigator.clipboard.writeText(ids).then(() => {
+      setCopiedAll(true);
+      setTimeout(() => setCopiedAll(false), 2000);
     });
   };
 
@@ -217,23 +219,7 @@ const BacklogLMPage = () => {
       const n = parseFloat(val) || 0;
       return <span className={`text-sm font-bold ${n > 7 ? 'text-red-600' : n > 5 ? 'text-orange-500' : 'text-yellow-600'}`}>{val || '—'}</span>;
     }
-    if (col.key === 'Shipment ID') return (
-      <div className="flex items-center gap-1.5 group/cell">
-        <span className="font-mono text-xs font-medium text-gray-800">{val || '—'}</span>
-        {val && (
-          <button
-            onClick={() => handleCopy(val)}
-            className="opacity-0 group-hover/cell:opacity-100 flex items-center gap-1 px-1.5 py-0.5 text-xs text-gray-500 hover:text-indigo-600 border border-gray-200 hover:border-indigo-300 rounded transition-all"
-            title="Copy Shipment ID"
-          >
-            {copiedId === val
-              ? <><Check className="w-3 h-3 text-green-600" /><span className="text-green-600">Copied!</span></>
-              : <><Copy className="w-3 h-3" /><span>Copy</span></>
-            }
-          </button>
-        )}
-      </div>
-    );
+    if (col.key === 'Shipment ID') return <span className="font-mono text-xs font-medium text-gray-800">{val || '—'}</span>;
     return <span className="text-sm text-gray-700 whitespace-nowrap">{val || '—'}</span>;
   };
 
@@ -461,6 +447,23 @@ const BacklogLMPage = () => {
                   <X className="w-3.5 h-3.5" /> Reset
                 </button>
               )}
+              {/* Copy All IDs */}
+              <button
+                onClick={handleCopyAll}
+                disabled={!filtered.length}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  copiedAll
+                    ? 'bg-green-100 text-green-700 border border-green-300'
+                    : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200'
+                }`}
+                title={`Copy ${filtered.length} Shipment ID ke clipboard`}
+              >
+                {copiedAll
+                  ? <><Check className="w-4 h-4" /> Copied {filtered.length} IDs</>
+                  : <><Copy className="w-4 h-4" /> Copy {filtered.length} IDs</>
+                }
+              </button>
+
               {/* Export */}
               <button onClick={exportCSV} disabled={!filtered.length}
                 className="flex items-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium">
