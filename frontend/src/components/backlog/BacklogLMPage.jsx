@@ -1,11 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-  RefreshCw, Search, X, Download, Image,
+  RefreshCw, Search, X, Download,
   ChevronUp, ChevronDown, Package, Clock, AlertTriangle,
   Play, RotateCcw, CheckCircle, XCircle, Loader2,
-  ShieldCheck, ShieldX, BarChart2, MapPin
+  ShieldCheck, ShieldX, BarChart2, MapPin, Copy, Check
 } from 'lucide-react';
-import html2canvas from 'html2canvas';
 import { getBacklogLMData, runBacklogLMScraper, getBacklogLMStatus } from '../../services/googleSheetsService';
 
 const COLUMNS = [
@@ -44,6 +43,16 @@ const BacklogLMPage = () => {
   // Sort
   const [sortKey, setSortKey] = useState('LM Hub Days');
   const [sortDir, setSortDir] = useState('desc');
+
+  // Copy to clipboard state
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopy = (id) => {
+    navigator.clipboard.writeText(id).then(() => {
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
 
   // ── Fetch ──────────────────────────────────────────────────
   const fetchData = async () => {
@@ -208,7 +217,23 @@ const BacklogLMPage = () => {
       const n = parseFloat(val) || 0;
       return <span className={`text-sm font-bold ${n > 7 ? 'text-red-600' : n > 5 ? 'text-orange-500' : 'text-yellow-600'}`}>{val || '—'}</span>;
     }
-    if (col.key === 'Shipment ID') return <span className="font-mono text-xs font-medium text-gray-800">{val || '—'}</span>;
+    if (col.key === 'Shipment ID') return (
+      <div className="flex items-center gap-1.5 group/cell">
+        <span className="font-mono text-xs font-medium text-gray-800">{val || '—'}</span>
+        {val && (
+          <button
+            onClick={() => handleCopy(val)}
+            className="opacity-0 group-hover/cell:opacity-100 flex items-center gap-1 px-1.5 py-0.5 text-xs text-gray-500 hover:text-indigo-600 border border-gray-200 hover:border-indigo-300 rounded transition-all"
+            title="Copy Shipment ID"
+          >
+            {copiedId === val
+              ? <><Check className="w-3 h-3 text-green-600" /><span className="text-green-600">Copied!</span></>
+              : <><Copy className="w-3 h-3" /><span>Copy</span></>
+            }
+          </button>
+        )}
+      </div>
+    );
     return <span className="text-sm text-gray-700 whitespace-nowrap">{val || '—'}</span>;
   };
 
