@@ -424,7 +424,7 @@ async function handleControlStuckFM(env, corsHeaders) {
   const SHEET  = 'Control Stuck FM';
   try {
     const accessToken = await getAccessToken(env);
-    const range   = encodeURIComponent(`'${SHEET}'!A1:P3`);
+    const range   = `${encodeURIComponent(SHEET)}!A1:P3`;
     const apiUrl  = `https://sheets.googleapis.com/v4/spreadsheets/${SS_ID}/values/${range}`;
     const res     = await fetch(apiUrl, {
       headers: { 'Authorization': `Bearer ${accessToken}` }
