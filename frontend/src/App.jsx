@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Play, Pause, RefreshCw } from 'lucide-react';
 import Sidebar from './components/common/Sidebar';
 import Dashboard from './components/dashboard/Dashboard';
+import AdjustTargetPage from './components/productivity/AdjustTargetPage';
 import PunishmentManagement from './components/punishment/PunishmentManagement';
 import ExpeditePage from './components/expedite/ExpeditePage';
 import BuyerRRPage from './components/buyerrr/BuyerRRPage';
@@ -14,7 +15,7 @@ import HSEWeekly5S from './components/hse/HSEWeekly5S';
 import useDashboardStore from './store/dashboardStore';
 
 function App() {
-  const [activePage, setActivePage] = useState('productivity');
+  const [activePage, setActivePage] = useState('productivity-dashboard');
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
   
   // Get raw data to detect last update date
@@ -35,7 +36,9 @@ function App() {
 
   // Determine page title based on active page
   const pageTitles = {
-    'productivity': 'Soko Hub Productivity Dashboard',
+    'productivity-dashboard': 'Soko Hub Productivity Dashboard',
+    'adjust-target':          'Adjust Weekly Target',
+    'productivity':           'Soko Hub Productivity Dashboard',
     'sp-generator': 'Punishment Management',
     'sp-record':    'Punishment Management',
     'expedite':          'Expedite Tracker',
@@ -49,7 +52,9 @@ function App() {
   };
 
   const pageSubtitles = {
-    'productivity': 'Fleet Operations Dashboard',
+    'productivity-dashboard': 'Fleet Operations Dashboard',
+    'adjust-target':          'Manage target appeal after approval',
+    'productivity':           'Fleet Operations Dashboard',
     'sp-generator': 'SP Generator — Surat Peringatan',
     'sp-record':    'SP Record — Database',
     'expedite':          'Monitor & track paket expedite',
@@ -66,6 +71,8 @@ function App() {
   const currentSubtitle = pageSubtitles[activePage] || '';
 
   // Is the active page a punishment management sub-page?
+  const isProductivityDash = activePage === 'productivity-dashboard' || activePage === 'productivity';
+  const isAdjustTarget     = activePage === 'adjust-target';
   const isPunishmentPage  = activePage === 'sp-generator' || activePage === 'sp-record';
   const isExpeditePage    = activePage === 'expedite';
   const isBacklogLMPage   = activePage === 'backlog-lm';
@@ -94,7 +101,7 @@ function App() {
                   <p className="text-xs sm:text-sm text-gray-500">
                     {currentSubtitle}
                   </p>
-                  {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && !isBacklogLMPage && !isHSEPage && (
+                  {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && !isBacklogLMPage && !isHSEPage && !isAdjustTarget && (
                     <>
                       <span className="hidden sm:inline text-gray-300">•</span>
                       <div className="flex items-center gap-1.5">
@@ -171,9 +178,8 @@ function App() {
         {/* Main Content - Scrollable */}
         <main className="flex-1 overflow-y-auto">
           <div className={`${isPunishmentPage ? 'p-3 sm:p-4 md:p-6 h-full' : 'p-3 sm:p-4 md:p-6'}`}>
-            {activePage === 'productivity' && (
-              <Dashboard autoRefreshEnabled={autoRefreshEnabled} />
-            )}
+            {isProductivityDash && <Dashboard autoRefreshEnabled={autoRefreshEnabled} />}
+            {isAdjustTarget     && <AdjustTargetPage />}
             {isPunishmentPage && (
               <PunishmentManagement activeSubPage={activePage} />
             )}
