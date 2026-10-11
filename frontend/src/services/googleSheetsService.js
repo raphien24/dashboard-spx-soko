@@ -1798,6 +1798,21 @@ class GoogleSheetsService {
    * Total = avg(dedicated, plus), kalau salah satu tidak ada pakai yang tersedia.
    */
   computeAchievementKPI(rawData, filters = {}) {
+    return this._computeAchievement(rawData, filters, '2WH');
+  }
+
+  /**
+   * Achievement KPI untuk Dedicated 4WH saja
+   */
+  computeAchievement4WH(rawData, filters = {}) {
+    return this._computeAchievement(rawData, filters, '4WH');
+  }
+
+  /**
+   * Core achievement computation — reusable for 2WH and 4WH
+   * @param {string} vehicleType - '2WH' | '4WH'
+   */
+  _computeAchievement(rawData, filters = {}, vehicleType = '2WH') {
     const THRESHOLD = 0.75;
     if (!rawData || rawData.length === 0) return null;
 
@@ -1806,8 +1821,13 @@ class GoogleSheetsService {
     records = this.deduplicateByIdAndDate(records);
     if (records.length === 0) return null;
 
-    const dedicated = records.filter(r => r[5] === 'Dedicated'         && r[6] === '2WH');
-    const plus      = records.filter(r => r[5]?.includes('Kurir Plus') && r[6] === '2WH');
+    const calcAchievement = (result, target) => {
+      if (target <= 0) return 0;
+      const tv = target * THRESHOLD;
+      if (result >= target) return 100;
+      if (result >= tv)     return parseFloat(((result - tv) / (target - tv) * 100).toFixed(2));
+      return 0;
+    };
 
     let weekStartDate = null;
     if (filters.dateRange?.start) weekStartDate = new Date(filters.dateRange.start);
@@ -1822,14 +1842,27 @@ class GoogleSheetsService {
       return { result: parseFloat(result.toFixed(2)), target: parseFloat(target.toFixed(2)) };
     };
 
-    const calcAchievement = (result, target) => {
-      if (target <= 0) return 0;
-      const tv = target * THRESHOLD;
-      if (result >= target) return 100;
-      if (result >= tv)     return parseFloat(((result - tv) / (target - tv) * 100).toFixed(2));
-      return 0;
-    };
+    if (vehicleType === '4WH') {
+      // Dedicated 4WH only
+      const ded4 = records.filter(r => r[5] === 'Dedicated' && r[6] === '4WH');
+      const dm   = groupMetrics(ded4);
+      const da   = calcAchievement(dm.result, dm.target);
+      return {
+        vehicle: '4WH',
+        dedicated: parseFloat(da.toFixed(2)),
+        plus:      null,
+        total:     parseFloat(da.toFixed(2)),
+        dedicatedResult: dm.result, dedicatedTarget: dm.target,
+        plusResult: 0, plusTarget: 0,
+        hasDedicated: ded4.length > 0,
+        hasPlus: false,
+        threshold: THRESHOLD * 100,
+      };
+    }
 
+    // 2WH: Dedicated + Kurir Plus
+    const dedicated = records.filter(r => r[5] === 'Dedicated'         && r[6] === '2WH');
+    const plus      = records.filter(r => r[5]?.includes('Kurir Plus') && r[6] === '2WH');
     const dm = groupMetrics(dedicated);
     const pm = groupMetrics(plus);
     const da = calcAchievement(dm.result, dm.target);
@@ -1843,6 +1876,7 @@ class GoogleSheetsService {
     else if (hp)   total = pa;
 
     return {
+      vehicle: '2WH',
       dedicated: parseFloat(da.toFixed(2)),
       plus:      parseFloat(pa.toFixed(2)),
       total:     parseFloat(total.toFixed(2)),

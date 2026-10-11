@@ -67,8 +67,11 @@ function Dashboard({ autoRefreshEnabled = true }) {
   };
 
   // ── Achievement KPI (computed from raw data + active date range) ──────────
-  const achievementKPI = rawCourierData
+  const achievementKPI   = rawCourierData
     ? googleSheetsService.computeAchievementKPI(rawCourierData, { dateRange: activeFilters?.dateRange })
+    : null;
+  const achievement4WH   = rawCourierData
+    ? googleSheetsService.computeAchievement4WH(rawCourierData, { dateRange: activeFilters?.dateRange })
     : null;
 
   // Detect date range from loaded data
@@ -290,9 +293,12 @@ function Dashboard({ autoRefreshEnabled = true }) {
         )}
       </ErrorBoundary>
 
-      {/* Achievement KPI Productivity Card */}
-      {achievementKPI && (
-        <AchievementKPICard achievement={achievementKPI} />
+      {/* Achievement KPI Productivity Cards — 2WH dan 4WH side by side */}
+      {(achievementKPI || achievement4WH) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {achievementKPI && <AchievementKPICard achievement={achievementKPI} />}
+          {achievement4WH && <AchievementKPICard achievement={achievement4WH} />}
+        </div>
       )}
 
       {/* Secondary Metrics (5 small cards) */}
