@@ -10,9 +10,9 @@ const TARGET_APPEAL_SHEET_NAME = 'TARGET_APPEAL';
  */
 function getTargetAppealSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getSheetByName(TARGET_APPEAL_SHEET_NAME););
-    
-    if (!sheet) {
+  let sheet = ss.getSheetByName(TARGET_APPEAL_SHEET_NAME);
+  
+  if (!sheet) {
       sheet = ss.insertSheet(TARGET_APPEAL_SHEET_NAME);
       
       // Setup headers
