@@ -12,6 +12,7 @@ import TopZonesChart from '../charts/TopZonesChart';
 import FleetCompositionChart from '../charts/FleetCompositionChart';
 import WeeklyScheduleTable from '../schedule/WeeklyScheduleTable';
 import ProductivityDrilldownModal from './ProductivityDrilldownModal';
+import AchievementKPICard from './AchievementKPICard';
 import googleSheetsService from '../../services/googleSheetsService';
 
 function Dashboard({ autoRefreshEnabled = true }) {
@@ -64,6 +65,11 @@ function Dashboard({ autoRefreshEnabled = true }) {
     setDrilldownWeekLabel(weekLabel);
     setDrilldownOpen(true);
   };
+
+  // ── Achievement KPI (computed from raw data + active date range) ──────────
+  const achievementKPI = rawCourierData
+    ? googleSheetsService.computeAchievementKPI(rawCourierData, { dateRange: activeFilters?.dateRange })
+    : null;
 
   // Detect date range from loaded data
   const dataDateRange = rawCourierData ? useDashboardStore.getState().detectDateRangeFromData(rawCourierData) : null;
@@ -283,6 +289,11 @@ function Dashboard({ autoRefreshEnabled = true }) {
           />
         )}
       </ErrorBoundary>
+
+      {/* Achievement KPI Productivity Card */}
+      {achievementKPI && (
+        <AchievementKPICard achievement={achievementKPI} />
+      )}
 
       {/* Secondary Metrics (5 small cards) */}
       <ErrorBoundary componentName="SecondaryMetricsSection">

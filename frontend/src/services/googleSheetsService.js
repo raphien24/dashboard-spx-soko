@@ -1787,6 +1787,71 @@ class GoogleSheetsService {
         return a.dateStr.localeCompare(b.dateStr);
       });
   }
+  /**
+   * Hitung Achievement KPI Productivity dengan threshold 75%
+   * Formula:
+   *   threshold_value = target × 0.75
+   *   IF result >= target       → achievement = 100%
+   *   IF result >= threshold_v  → achievement = (result - threshold_v) / (target - threshold_v)
+   *   IF result <  threshold_v  → achievement = 0%
+   *
+   * Total = avg(dedicated, plus), kalau salah satu tidak ada pakai yang tersedia.
+   */
+  computeAchievementKPI(rawData, filters = {}) {
+    const THRESHOLD = 0.75;
+    if (!rawData || rawData.length === 0) return null;
+
+    let records = rawData.filter(row => row[13] && this.parseNumeric(row[13]) > 0);
+    if (filters.dateRange) records = this.filterByDateRange(records, filters.dateRange);
+    records = this.deduplicateByIdAndDate(records);
+    if (records.length === 0) return null;
+
+    const dedicated = records.filter(r => r[5] === 'Dedicated'         && r[6] === '2WH');
+    const plus      = records.filter(r => r[5]?.includes('Kurir Plus') && r[6] === '2WH');
+
+    let weekStartDate = null;
+    if (filters.dateRange?.start) weekStartDate = new Date(filters.dateRange.start);
+    const targetMap = weekStartDate ? this.getTargetMapForWeek(rawData, weekStartDate) : {};
+
+    const groupMetrics = (rows) => {
+      if (rows.length === 0) return { result: 0, target: 0 };
+      const result = rows.reduce((s, r) => s + this.parseNumeric(r[13]), 0) / rows.length;
+      const target = weekStartDate
+        ? this.getTargetFromMap(targetMap, rows[0][5], rows[0][6])
+        : this.getTargetByContractAndVehicle(rows[0][5], rows[0][6]);
+      return { result: parseFloat(result.toFixed(2)), target: parseFloat(target.toFixed(2)) };
+    };
+
+    const calcAchievement = (result, target) => {
+      if (target <= 0) return 0;
+      const tv = target * THRESHOLD;
+      if (result >= target) return 100;
+      if (result >= tv)     return parseFloat(((result - tv) / (target - tv) * 100).toFixed(2));
+      return 0;
+    };
+
+    const dm = groupMetrics(dedicated);
+    const pm = groupMetrics(plus);
+    const da = calcAchievement(dm.result, dm.target);
+    const pa = calcAchievement(pm.result, pm.target);
+    const hd = dedicated.length > 0;
+    const hp = plus.length > 0;
+
+    let total = 0;
+    if (hd && hp)  total = (da + pa) / 2;
+    else if (hd)   total = da;
+    else if (hp)   total = pa;
+
+    return {
+      dedicated: parseFloat(da.toFixed(2)),
+      plus:      parseFloat(pa.toFixed(2)),
+      total:     parseFloat(total.toFixed(2)),
+      dedicatedResult: dm.result, dedicatedTarget: dm.target,
+      plusResult:      pm.result, plusTarget:      pm.target,
+      hasDedicated: hd, hasPlus: hp,
+      threshold: THRESHOLD * 100,
+    };
+  }
 }
 
 // Export singleton instance
