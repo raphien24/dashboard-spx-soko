@@ -649,7 +649,7 @@ async function handleMonitorSDHO(env, corsHeaders) {
  * Handle Target Appeals — Get all
  */
 async function handleTargetAppealsGet(env, corsHeaders) {
-  const GAS_URL = env.GAS_DEPLOYMENT_URL;
+  const GAS_URL = env.GAS_EXPEDITE_URL; // Reuse existing GAS URL
   try {
     const res = await fetch(`${GAS_URL}?action=getTargetAppeals`, { method: 'GET' });
     const json = await res.json();
@@ -667,7 +667,7 @@ async function handleTargetAppealsGet(env, corsHeaders) {
  * Handle Target Appeals — Submit/Update
  */
 async function handleTargetAppealsPost(env, corsHeaders, request) {
-  const GAS_URL = env.GAS_DEPLOYMENT_URL;
+  const GAS_URL = env.GAS_EXPEDITE_URL;
   try {
     const body = await request.json();
     const res = await fetch(`${GAS_URL}?action=submitTargetAppeal`, {
@@ -690,7 +690,7 @@ async function handleTargetAppealsPost(env, corsHeaders, request) {
  * Handle Target Appeals — Delete
  */
 async function handleTargetAppealsDelete(env, corsHeaders, request) {
-  const GAS_URL = env.GAS_DEPLOYMENT_URL;
+  const GAS_URL = env.GAS_EXPEDITE_URL;
   try {
     const body = await request.json();
     const res = await fetch(`${GAS_URL}?action=deleteTargetAppeal`, {
