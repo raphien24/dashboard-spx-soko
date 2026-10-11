@@ -236,7 +236,12 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  // ── 3. HEALTH CHECK ──────────────────────────────────────
+  // ── 3. TARGET APPEALS: Get all ───────────────────────────
+  if (e && e.parameter && e.parameter.action === 'getTargetAppeals') {
+    return doGetTargetAppeals();
+  }
+
+  // ── 4. HEALTH CHECK ──────────────────────────────────────
   return ContentService
     .createTextOutput(JSON.stringify({
       success: true,
@@ -264,6 +269,15 @@ function doPost(e) {
 
     const action = body.action || 'run';
 
+    // ── TARGET APPEALS ───────────────────────────────────────
+    if (action === 'submitTargetAppeal') {
+      return doPostTargetAppeal(e);
+    }
+    if (action === 'deleteTargetAppeal') {
+      return doDeleteTargetAppeal(e);
+    }
+
+    // ── EXPEDITE SCRAPER ─────────────────────────────────────
     // Reset progress cache sebelum mulai
     CacheService.getScriptCache().put(
       PROGRESS_CACHE_KEY,

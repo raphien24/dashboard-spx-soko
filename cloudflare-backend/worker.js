@@ -67,6 +67,22 @@ export default {
       return handleHSERange(env, corsHeaders, 'HSE!A7:Z9');
     }
 
+    // ── Target Appeal Routes ────────────────────────────────
+    // Get all appeals
+    if (url.pathname === '/api/target-appeals' && request.method === 'GET') {
+      return handleTargetAppealsGet(env, corsHeaders);
+    }
+
+    // Submit/update appeal
+    if (url.pathname === '/api/target-appeals' && request.method === 'POST') {
+      return handleTargetAppealsPost(env, corsHeaders, request);
+    }
+
+    // Delete appeal
+    if (url.pathname === '/api/target-appeals/delete' && request.method === 'POST') {
+      return handleTargetAppealsDelete(env, corsHeaders, request);
+    }
+
     // Route: Get Backlog LM data
     if (url.pathname === '/api/backlog-lm' && request.method === 'GET') {
       return handleSheetData(env, corsHeaders, '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Backlog LM');
@@ -624,6 +640,70 @@ async function handleMonitorSDHO(env, corsHeaders) {
 
   } catch (err) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Handle Target Appeals — Get all
+ */
+async function handleTargetAppealsGet(env, corsHeaders) {
+  const GAS_URL = env.GAS_DEPLOYMENT_URL;
+  try {
+    const res = await fetch(`${GAS_URL}?action=getTargetAppeals`, { method: 'GET' });
+    const json = await res.json();
+    return new Response(JSON.stringify(json), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, error: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Handle Target Appeals — Submit/Update
+ */
+async function handleTargetAppealsPost(env, corsHeaders, request) {
+  const GAS_URL = env.GAS_DEPLOYMENT_URL;
+  try {
+    const body = await request.json();
+    const res = await fetch(`${GAS_URL}?action=submitTargetAppeal`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const json = await res.json();
+    return new Response(JSON.stringify(json), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, message: err.message }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Handle Target Appeals — Delete
+ */
+async function handleTargetAppealsDelete(env, corsHeaders, request) {
+  const GAS_URL = env.GAS_DEPLOYMENT_URL;
+  try {
+    const body = await request.json();
+    const res = await fetch(`${GAS_URL}?action=deleteTargetAppeal`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const json = await res.json();
+    return new Response(JSON.stringify(json), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ success: false, message: err.message }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }

@@ -985,9 +985,18 @@ class GoogleSheetsService {
    * @param {Object} targetMap - Pre-calculated target map from getTargetMapForWeek()
    * @param {String} contractType - Contract type
    * @param {String} vehicleType - Vehicle type
+   * @param {Object} options - { useAppeal, weekStart, appealMap }
    * @returns {Number} - Target value
    */
-  getTargetFromMap(targetMap, contractType, vehicleType) {
+  getTargetFromMap(targetMap, contractType, vehicleType, options = {}) {
+    const { useAppeal = true, weekStart = null, appealMap = null } = options;
+    
+    // Check appeal first
+    if (useAppeal && weekStart) {
+      const appeal = this.getAppealTarget(weekStart, contractType, vehicleType, appealMap);
+      if (appeal !== null && appeal > 0) return appeal;
+    }
+    
     const key = `${contractType}-${vehicleType}`;
     
     if (targetMap[key]) {
@@ -998,6 +1007,44 @@ class GoogleSheetsService {
     const fallbackTarget = this.getTargetByContractAndVehicle(contractType, vehicleType);
     console.warn(`[getTargetFromMap] No Monday sample found for ${key}, using fallback: ${fallbackTarget}`);
     return fallbackTarget;
+  }
+
+  /**
+   * Load appeal targets and build map
+   */
+  async loadAppealTargetsMap() {
+    if (this._appealTargetsMap) return this._appealTargetsMap;
+    
+    try {
+      const { getTargetAppeals } = await import('./googleSheetsService');
+      const appeals = await getTargetAppeals();
+      const map = {};
+      appeals.forEach(a => {
+        const key = `${a['Week Start']}_${a.Contract}_${a.Vehicle}`;
+        map[key] = parseFloat(a['Appeal Target']) || 0;
+      });
+      this._appealTargetsMap = map;
+      return map;
+    } catch (err) {
+      console.warn('Failed to load appeal targets:', err);
+      return {};
+    }
+  }
+
+  /**
+   * Get appeal target for specific week + contract + vehicle
+   */
+  getAppealTarget(weekStart, contract, vehicle, appealMap = null) {
+    const map = appealMap || this._appealTargetsMap || {};
+    const key = `${weekStart}_${contract}_${vehicle}`;
+    return map[key] || null;
+  }
+
+  /**
+   * Clear appeal cache
+   */
+  clearAppealCache() {
+    this._appealTargetsMap = null;
   }
 
   /**
@@ -1797,22 +1844,24 @@ class GoogleSheetsService {
    *
    * Total = avg(dedicated, plus), kalau salah satu tidak ada pakai yang tersedia.
    */
-  computeAchievementKPI(rawData, filters = {}) {
-    return this._computeAchievement(rawData, filters, '2WH');
+  computeAchievementKPI(rawData, filters = {}, options = {}) {
+    return this._computeAchievement(rawData, filters, '2WH', options);
   }
 
   /**
    * Achievement KPI untuk Dedicated 4WH saja
    */
-  computeAchievement4WH(rawData, filters = {}) {
-    return this._computeAchievement(rawData, filters, '4WH');
+  computeAchievement4WH(rawData, filters = {}, options = {}) {
+    return this._computeAchievement(rawData, filters, '4WH', options);
   }
 
   /**
    * Core achievement computation — reusable for 2WH and 4WH
    * @param {string} vehicleType - '2WH' | '4WH'
+   * @param {Object} options - { useAppeal: boolean, appealMap: Object }
    */
-  _computeAchievement(rawData, filters = {}, vehicleType = '2WH') {
+  _computeAchievement(rawData, filters = {}, vehicleType = '2WH', options = {}) {
+    const { useAppeal = true, appealMap = null } = options;
     const THRESHOLD = 0.75;
     if (!rawData || rawData.length === 0) return null;
 
@@ -1836,9 +1885,18 @@ class GoogleSheetsService {
     const groupMetrics = (rows) => {
       if (rows.length === 0) return { result: 0, target: 0 };
       const result = rows.reduce((s, r) => s + this.parseNumeric(r[13]), 0) / rows.length;
+      
+      // Get target with appeal override
+      const sampleContract = rows[0][5];
+      const sampleVehicle  = rows[0][6];
       const target = weekStartDate
-        ? this.getTargetFromMap(targetMap, rows[0][5], rows[0][6])
-        : this.getTargetByContractAndVehicle(rows[0][5], rows[0][6]);
+        ? this.getTargetFromMap(targetMap, sampleContract, sampleVehicle, {
+            useAppeal,
+            weekStart: weekStartDate.toISOString().split('T')[0],
+            appealMap
+          })
+        : this.getTargetByContractAndVehicle(sampleContract, sampleVehicle);
+      
       return { result: parseFloat(result.toFixed(2)), target: parseFloat(target.toFixed(2)) };
     };
 
@@ -2163,4 +2221,43 @@ export async function getHSEWeeklyData() {
   const json = await response.json();
   if (!json.success) throw new Error(json.error || 'Failed to fetch HSE Weekly data');
   return json.rows || [];
+}
+
+// ============================================================
+// TARGET APPEALS
+// ============================================================
+export async function getTargetAppeals() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/target-appeals`);
+  if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to fetch target appeals');
+  return json.data || [];
+}
+
+export async function submitTargetAppeal(weekStart, contract, vehicle, appealTarget, updatedBy = 'Web') {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/target-appeals`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ weekStart, contract, vehicle, appealTarget, updatedBy }),
+  });
+  const json = await response.json();
+  if (!json.success) throw new Error(json.message || 'Failed to submit appeal');
+  return json;
+}
+
+export async function deleteTargetAppeal(weekStart, contract, vehicle) {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/target-appeals/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ weekStart, contract, vehicle }),
+  });
+  const json = await response.json();
+  if (!json.success) throw new Error(json.message || 'Failed to delete appeal');
+  return json;
 }
