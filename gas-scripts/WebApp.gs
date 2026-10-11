@@ -212,7 +212,9 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  // ── 3. TARGET APPEALS: Get all ───────────────────────────
+  // ── 3. TARGET APPEALS: Get all (via POST body, not query param) ──
+  // Note: Organization workspace restricts query params, so we handle via POST in doPost()
+  // This section kept for backwards compatibility but not used
   if (e && e.parameter && e.parameter.action === 'getTargetAppeals') {
     return doGetTargetAppeals();
   }
@@ -246,6 +248,9 @@ function doPost(e) {
     const action = body.action || 'run';
 
     // ── TARGET APPEALS ───────────────────────────────────────
+    if (action === 'getTargetAppeals') {
+      return doGetTargetAppeals();
+    }
     if (action === 'submitTargetAppeal') {
       return doPostTargetAppeal(e);
     }
