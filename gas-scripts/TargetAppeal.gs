@@ -4,13 +4,12 @@
   */
 
 const TARGET_APPEAL_SHEET_NAME = 'TARGET_APPEAL';
-const PRODUCTIVITY_SPREADSHEET_ID = '1wrQhe7ySqkITVe-L3f9aK3lo368WVzolL1nViONKYCA'; // Productivity sheet
 
 /**
- * Get or create TARGET_APPEAL sheet in Productivity spreadsheet
+ * Get or create TARGET_APPEAL sheet
  */
 function getTargetAppealSheet() {
-  const ss = SpreadsheetApp.openById(PRODUCTIVITY_SPREADSHEET_ID);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sheet = ss.getSheetByName(TARGET_APPEAL_SHEET_NAME););
     
     if (!sheet) {
