@@ -652,13 +652,34 @@ async function handleTargetAppealsGet(env, corsHeaders) {
   const GAS_URL = env.GAS_EXPEDITE_URL; // Reuse existing GAS URL
   try {
     const res = await fetch(`${GAS_URL}?action=getTargetAppeals`, { method: 'GET' });
+    
+    // Check if response is JSON
+    const contentType = res.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      // GAS returned HTML error — likely TargetAppeal.gs not deployed yet
+      console.error('GAS returned non-JSON response, returning empty array');
+      return new Response(JSON.stringify({ 
+        success: true, 
+        data: [],
+        warning: 'TargetAppeal.gs not deployed in GAS yet. Upload TargetAppeal.gs and redeploy GAS.'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
     const json = await res.json();
     return new Response(JSON.stringify(json), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (err) {
-    return new Response(JSON.stringify({ success: false, error: err.message }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    console.error('handleTargetAppealsGet error:', err);
+    return new Response(JSON.stringify({ 
+      success: true, 
+      data: [], 
+      error: err.message 
+    }), {
+      status: 200, // Return 200 with empty data instead of 500
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 }
