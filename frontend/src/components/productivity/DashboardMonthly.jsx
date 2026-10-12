@@ -46,12 +46,7 @@ const DashboardMonthly = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Process monthly data whenever filters change
-  useEffect(() => {
-    if (selectedMonth && rawCourierData) {
-      handleLoadMonthlyData();
-    }
-  }, [selectedMonth, selectedContract, selectedVehicle, rawCourierData, appealTargetsMap]);
+  // Remove auto-load on filter change - only load when button clicked
 
   const handleLoadMonthlyData = () => {
     if (!selectedMonth || !rawCourierData) return;
