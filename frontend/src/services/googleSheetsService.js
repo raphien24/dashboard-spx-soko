@@ -1876,6 +1876,121 @@ class GoogleSheetsService {
       achievement: achievementPercentage.toFixed(1) + '%',
     });
 
+    // ─── Calculate Productivity 2WH KPI (Dedicated + Kurir Plus Average) ─────
+    
+    // Filter for 2WH only (Dedicated + Kurir Plus)
+    const dedicated2WH = activeRecords.filter(row => 
+      row[5] === 'Dedicated' && row[6] === '2WH'
+    );
+    const kurirPlus2WH = activeRecords.filter(row => 
+      row[5] === 'Kurir Plus' && row[6] === '2WH'
+    );
+
+    // Calculate Dedicated 2WH achievement with threshold
+    const dedicatedDelivered = dedicated2WH.reduce((sum, row) => sum + this.parseNumeric(row[13]), 0);
+    const dedicatedShifts = dedicated2WH.length;
+    const dedicatedAvg = dedicatedShifts > 0 ? dedicatedDelivered / dedicatedShifts : 0;
+    
+    // Get target for Dedicated 2WH (use appeal if available, otherwise calculate from data)
+    let dedicatedTarget = 0;
+    let dedicatedTargetCount = 0;
+    Object.keys(weekGroups).forEach(weekKey => {
+      const weekRecords = weekGroups[weekKey].filter(row => row[5] === 'Dedicated' && row[6] === '2WH');
+      if (weekRecords.length === 0) return;
+      
+      const sampleRecord = weekRecords[0];
+      let weekTarget = null;
+      
+      if (useAppeal && appealMap) {
+        weekTarget = this.getAppealTarget(weekKey, 'Dedicated', '2WH', appealMap);
+      }
+      
+      if (weekTarget === null) {
+        const mondayRecords = weekRecords.filter(row => {
+          const date = this.parseDate(row[3]);
+          return date && date.getDay() === 1;
+        });
+        weekTarget = mondayRecords.length > 0 ? this.parseNumeric(mondayRecords[0][9]) : this.parseNumeric(sampleRecord[9]);
+      }
+      
+      const uniqueDatesInWeek = new Set(weekRecords.map(row => row[3]));
+      const daysInMonth = Array.from(uniqueDatesInWeek).filter(dateStr => {
+        const date = this.parseDate(dateStr);
+        return date && date >= dateRange.start && date <= dateRange.end;
+      }).length;
+      
+      dedicatedTarget += weekTarget * daysInMonth;
+      dedicatedTargetCount += daysInMonth;
+    });
+    const dedicatedAvgTarget = dedicatedTargetCount > 0 ? dedicatedTarget / dedicatedTargetCount : 0;
+    
+    const dedicatedThreshold = dedicatedAvgTarget * 0.75;
+    let dedicatedAchievement = 0;
+    if (dedicatedAvg >= dedicatedAvgTarget) {
+      dedicatedAchievement = 100;
+    } else if (dedicatedAvg >= dedicatedThreshold) {
+      const range = dedicatedAvgTarget - dedicatedThreshold;
+      const progress = dedicatedAvg - dedicatedThreshold;
+      dedicatedAchievement = (progress / range) * 100;
+    }
+
+    // Calculate Kurir Plus 2WH achievement with threshold
+    const kurirPlusDelivered = kurirPlus2WH.reduce((sum, row) => sum + this.parseNumeric(row[13]), 0);
+    const kurirPlusShifts = kurirPlus2WH.length;
+    const kurirPlusAvg = kurirPlusShifts > 0 ? kurirPlusDelivered / kurirPlusShifts : 0;
+    
+    // Get target for Kurir Plus 2WH
+    let kurirPlusTarget = 0;
+    let kurirPlusTargetCount = 0;
+    Object.keys(weekGroups).forEach(weekKey => {
+      const weekRecords = weekGroups[weekKey].filter(row => row[5] === 'Kurir Plus' && row[6] === '2WH');
+      if (weekRecords.length === 0) return;
+      
+      const sampleRecord = weekRecords[0];
+      let weekTarget = null;
+      
+      if (useAppeal && appealMap) {
+        weekTarget = this.getAppealTarget(weekKey, 'Kurir Plus', '2WH', appealMap);
+      }
+      
+      if (weekTarget === null) {
+        const mondayRecords = weekRecords.filter(row => {
+          const date = this.parseDate(row[3]);
+          return date && date.getDay() === 1;
+        });
+        weekTarget = mondayRecords.length > 0 ? this.parseNumeric(mondayRecords[0][9]) : this.parseNumeric(sampleRecord[9]);
+      }
+      
+      const uniqueDatesInWeek = new Set(weekRecords.map(row => row[3]));
+      const daysInMonth = Array.from(uniqueDatesInWeek).filter(dateStr => {
+        const date = this.parseDate(dateStr);
+        return date && date >= dateRange.start && date <= dateRange.end;
+      }).length;
+      
+      kurirPlusTarget += weekTarget * daysInMonth;
+      kurirPlusTargetCount += daysInMonth;
+    });
+    const kurirPlusAvgTarget = kurirPlusTargetCount > 0 ? kurirPlusTarget / kurirPlusTargetCount : 0;
+    
+    const kurirPlusThreshold = kurirPlusAvgTarget * 0.75;
+    let kurirPlusAchievement = 0;
+    if (kurirPlusAvg >= kurirPlusAvgTarget) {
+      kurirPlusAchievement = 100;
+    } else if (kurirPlusAvg >= kurirPlusThreshold) {
+      const range = kurirPlusAvgTarget - kurirPlusThreshold;
+      const progress = kurirPlusAvg - kurirPlusThreshold;
+      kurirPlusAchievement = (progress / range) * 100;
+    }
+
+    // Average both achievements for Productivity 2WH KPI
+    const productivity2WHAchievement = (dedicatedAchievement + kurirPlusAchievement) / 2;
+
+    console.log('[processMonthlyMetrics] Productivity 2WH KPI:', {
+      dedicated: { avg: dedicatedAvg.toFixed(1), target: dedicatedAvgTarget.toFixed(1), achievement: dedicatedAchievement.toFixed(1) + '%' },
+      kurirPlus: { avg: kurirPlusAvg.toFixed(1), target: kurirPlusAvgTarget.toFixed(1), achievement: kurirPlusAchievement.toFixed(1) + '%' },
+      final2WH: productivity2WHAchievement.toFixed(1) + '%'
+    });
+
     // ─── Build Daily Breakdown Table Data ───────────────────────────────────
     
     // Group records by date for daily breakdown
@@ -2036,8 +2151,36 @@ class GoogleSheetsService {
       }
     };
 
+    // Build Productivity 2WH KPI (Main KPI for Monthly Dashboard)
+    const productivity2WHKPI = {
+      label: 'PRODUCTIVITY 2WH',
+      badge: 'CORE KPI',
+      achievement: parseFloat(productivity2WHAchievement.toFixed(1)) || 0,
+      unit: '%',
+      formula: 'Average of Dedicated 2WH & Kurir Plus 2WH Achievements',
+      subMetrics: {
+        dedicated: {
+          avg: parseFloat(dedicatedAvg.toFixed(1)) || 0,
+          target: parseFloat(dedicatedAvgTarget.toFixed(1)) || 0,
+          threshold: parseFloat(dedicatedThreshold.toFixed(1)) || 0,
+          achievement: parseFloat(dedicatedAchievement.toFixed(1)) || 0,
+          shifts: dedicatedShifts || 0,
+          delivered: dedicatedDelivered || 0,
+        },
+        kurirPlus: {
+          avg: parseFloat(kurirPlusAvg.toFixed(1)) || 0,
+          target: parseFloat(kurirPlusAvgTarget.toFixed(1)) || 0,
+          threshold: parseFloat(kurirPlusThreshold.toFixed(1)) || 0,
+          achievement: parseFloat(kurirPlusAchievement.toFixed(1)) || 0,
+          shifts: kurirPlusShifts || 0,
+          delivered: kurirPlusDelivered || 0,
+        }
+      }
+    };
+
     return {
       achievement,
+      productivity2WHKPI, // Main KPI for monthly dashboard
       summary: {
         totalDelivered: totalDelivered || 0,
         totalActiveShifts: totalActiveShifts || 0,

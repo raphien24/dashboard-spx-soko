@@ -208,7 +208,129 @@ const DashboardMonthly = () => {
 
       {!isLoading && monthlyMetrics && (
         <>
-          {/* Achievement KPI Card */}
+          {/* Productivity 2WH KPI - MAIN KPI */}
+          {monthlyMetrics.productivity2WHKPI && (
+            <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl shadow-lg border-2 border-indigo-400 p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h2 className="text-2xl font-bold text-white">{monthlyMetrics.productivity2WHKPI.label}</h2>
+                    <span className="px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
+                      {monthlyMetrics.productivity2WHKPI.badge}
+                    </span>
+                  </div>
+                  <p className="text-indigo-100 text-sm">{monthlyMetrics.productivity2WHKPI.formula}</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-5xl font-extrabold text-white mb-1">
+                    {monthlyMetrics.productivity2WHKPI.achievement}%
+                  </div>
+                  <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${
+                    monthlyMetrics.productivity2WHKPI.achievement >= 100 ? 'bg-green-400 text-green-900' :
+                    monthlyMetrics.productivity2WHKPI.achievement >= 75 ? 'bg-yellow-300 text-yellow-900' :
+                    'bg-red-400 text-red-900'
+                  }`}>
+                    {monthlyMetrics.productivity2WHKPI.achievement >= 100 ? '✓ Target Met' :
+                     monthlyMetrics.productivity2WHKPI.achievement >= 75 ? '◐ In Progress' :
+                     '✗ Below Threshold'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Sub-metrics: Dedicated vs Kurir Plus */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Dedicated 2WH */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-white font-semibold">Dedicated 2WH</h3>
+                    <span className="text-2xl font-bold text-white">
+                      {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement}%
+                    </span>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between text-indigo-100">
+                      <span>Avg Productivity:</span>
+                      <span className="font-semibold text-white">
+                        {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-indigo-100">
+                      <span>Target:</span>
+                      <span className="font-semibold text-white">
+                        {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-indigo-100">
+                      <span>Threshold (75%):</span>
+                      <span className="font-semibold text-white">
+                        {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}
+                      </span>
+                    </div>
+                    <div className="pt-2 border-t border-white/20">
+                      <div className="flex justify-between text-indigo-100">
+                        <span>Total Shifts:</span>
+                        <span className="font-semibold text-white">
+                          {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.shifts.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-indigo-100">
+                        <span>Total Delivered:</span>
+                        <span className="font-semibold text-white">
+                          {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.delivered.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Kurir Plus 2WH */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-white font-semibold">Kurir Plus 2WH</h3>
+                    <span className="text-2xl font-bold text-white">
+                      {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement}%
+                    </span>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between text-indigo-100">
+                      <span>Avg Productivity:</span>
+                      <span className="font-semibold text-white">
+                        {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.avg}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-indigo-100">
+                      <span>Target:</span>
+                      <span className="font-semibold text-white">
+                        {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.target}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-indigo-100">
+                      <span>Threshold (75%):</span>
+                      <span className="font-semibold text-white">
+                        {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.threshold}
+                      </span>
+                    </div>
+                    <div className="pt-2 border-t border-white/20">
+                      <div className="flex justify-between text-indigo-100">
+                        <span>Total Shifts:</span>
+                        <span className="font-semibold text-white">
+                          {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.shifts.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-indigo-100">
+                        <span>Total Delivered:</span>
+                        <span className="font-semibold text-white">
+                          {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.delivered.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Achievement KPI Card (Old - kept for reference) */}
           {monthlyMetrics.achievement && (
             <AchievementKPICard achievement={monthlyMetrics.achievement} />
           )}
