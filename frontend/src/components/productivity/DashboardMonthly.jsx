@@ -439,25 +439,20 @@ const DashboardMonthly = () => {
 
                 {/* Step 4: Achievement Calculation */}
                 <div className="mb-4 pb-4 border-b border-white/10">
-                  <h5 className="text-yellow-300 font-semibold text-sm mb-2">Step 4: Calculate Achievement (With Threshold Logic)</h5>
+                  <h5 className="text-yellow-300 font-semibold text-sm mb-2">Step 4: Calculate Achievement (Always Using Threshold Formula)</h5>
                   <div className="text-indigo-100 text-xs space-y-2 ml-3">
                     <div className="bg-white/5 p-3 rounded">
-                      <p className="text-green-300 font-semibold mb-1">Case 1: IF Result ≥ Target</p>
-                      <p className="ml-2 font-mono">Achievement = 100%</p>
-                      <p className="ml-2 text-xs mt-1">(Target met or exceeded)</p>
+                      <p className="text-white font-semibold mb-2">Universal Formula (for ALL cases):</p>
+                      <p className="ml-2 font-mono text-yellow-300">Achievement = (Result - Threshold) ÷ (Target - Threshold) × 100%</p>
+                      <p className="ml-2 font-mono text-yellow-300">= (Result - Target×75%) ÷ (Target - Target×75%) × 100%</p>
+                      <p className="ml-2 text-xs mt-2 text-indigo-200">Then capped between 0% (minimum) and 100% (maximum)</p>
                     </div>
                     
-                    <div className="bg-white/5 p-3 rounded">
-                      <p className="text-yellow-300 font-semibold mb-1">Case 2: IF Threshold ≤ Result &lt; Target</p>
-                      <p className="ml-2 font-mono">Achievement = (Result - Threshold) ÷ (Target - Threshold) × 100%</p>
-                      <p className="ml-2 font-mono text-white">= (Result - Target×75%) ÷ (Target - Target×75%) × 100%</p>
-                      <p className="ml-2 text-xs mt-1">(Linear scale between threshold and target)</p>
-                    </div>
-                    
-                    <div className="bg-white/5 p-3 rounded">
-                      <p className="text-red-300 font-semibold mb-1">Case 3: IF Result &lt; Threshold</p>
-                      <p className="ml-2 font-mono">Achievement = 0%</p>
-                      <p className="ml-2 text-xs mt-1">(Below minimum threshold)</p>
+                    <div className="bg-indigo-600/30 p-3 rounded border border-indigo-400/30">
+                      <p className="text-white font-semibold mb-2">Behavior:</p>
+                      <p className="ml-2">• If Result &lt; Threshold → Achievement will be negative → <span className="text-yellow-300 font-semibold">capped at 0%</span></p>
+                      <p className="ml-2">• If Threshold ≤ Result &lt; Target → Achievement scales from 0% to 100%</p>
+                      <p className="ml-2">• If Result ≥ Target → Achievement will be > 100% → <span className="text-yellow-300 font-semibold">capped at 100%</span></p>
                     </div>
 
                     <div className="mt-3 p-3 bg-indigo-600/30 rounded border border-indigo-400/30">
@@ -465,13 +460,14 @@ const DashboardMonthly = () => {
                       <p className="ml-2">• Result: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</p>
                       <p className="ml-2">• Target: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</p>
                       <p className="ml-2">• Threshold: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}</p>
+                      <p className="ml-2 mt-2 font-mono text-sm text-yellow-300">
+                        Achievement = ({monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg} - {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}) ÷ ({monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target} - {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}) × 100%
+                      </p>
+                      <p className="ml-2 mt-1 font-mono text-sm text-yellow-300">
+                        = {((monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg - monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold) / (monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target - monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold) * 100).toFixed(2)}%
+                      </p>
                       <p className="ml-2 mt-1">
-                        {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg >= monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target 
-                          ? `✓ Result ≥ Target → Achievement = 100%`
-                          : monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg >= monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold
-                          ? `✓ Threshold ≤ Result < Target → Achievement = (${monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg} - ${monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}) ÷ (${monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target} - ${monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}) × 100% = ${monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%`
-                          : `✗ Result < Threshold → Achievement = 0%`
-                        }
+                        → <span className="text-white font-bold text-base">Final: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%</span> (after capping 0-100%)
                       </p>
                     </div>
                   </div>

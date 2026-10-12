@@ -1858,15 +1858,14 @@ class GoogleSheetsService {
     const threshold = avgMonthlyTarget * 0.75;
     let achievementPercentage = 0;
 
-    if (avgProductivity >= avgMonthlyTarget) {
-      achievementPercentage = 100;
-    } else if (avgProductivity >= threshold) {
-      // Linear scale from threshold to target
+    // Always calculate using threshold formula
+    if (avgMonthlyTarget > 0 && threshold > 0) {
       const range = avgMonthlyTarget - threshold;
       const progress = avgProductivity - threshold;
       achievementPercentage = (progress / range) * 100;
-    } else {
-      achievementPercentage = 0;
+      
+      // Cap between 0% and 100%
+      achievementPercentage = Math.max(0, Math.min(100, achievementPercentage));
     }
 
     console.log('[processMonthlyMetrics] Achievement calculation:', {
@@ -1958,12 +1957,15 @@ class GoogleSheetsService {
     
     const dedicatedThreshold = dedicatedAvgTarget * 0.75;
     let dedicatedAchievement = 0;
-    if (dedicatedAvg >= dedicatedAvgTarget) {
-      dedicatedAchievement = 100;
-    } else if (dedicatedAvg >= dedicatedThreshold) {
+    
+    // Always calculate using threshold formula
+    if (dedicatedAvgTarget > 0 && dedicatedThreshold > 0) {
       const range = dedicatedAvgTarget - dedicatedThreshold;
       const progress = dedicatedAvg - dedicatedThreshold;
       dedicatedAchievement = (progress / range) * 100;
+      
+      // Cap between 0% and 100%
+      dedicatedAchievement = Math.max(0, Math.min(100, dedicatedAchievement));
     }
 
     // Calculate Kurir Plus 2WH achievement with threshold
@@ -2006,12 +2008,15 @@ class GoogleSheetsService {
     
     const kurirPlusThreshold = kurirPlusAvgTarget * 0.75;
     let kurirPlusAchievement = 0;
-    if (kurirPlusAvg >= kurirPlusAvgTarget) {
-      kurirPlusAchievement = 100;
-    } else if (kurirPlusAvg >= kurirPlusThreshold) {
+    
+    // Always calculate using threshold formula
+    if (kurirPlusAvgTarget > 0 && kurirPlusThreshold > 0) {
       const range = kurirPlusAvgTarget - kurirPlusThreshold;
       const progress = kurirPlusAvg - kurirPlusThreshold;
       kurirPlusAchievement = (progress / range) * 100;
+      
+      // Cap between 0% and 100%
+      kurirPlusAchievement = Math.max(0, Math.min(100, kurirPlusAchievement));
     }
 
     // Average both achievements for Productivity 2WH KPI
@@ -2137,14 +2142,14 @@ class GoogleSheetsService {
       const threshold = dayTarget * 0.75;
       let dayAchievement = 0;
 
-      if (avgDaily >= dayTarget) {
-        dayAchievement = 100;
-      } else if (avgDaily >= threshold) {
+      // Always calculate using threshold formula
+      if (dayTarget > 0 && threshold > 0) {
         const range = dayTarget - threshold;
         const progress = avgDaily - threshold;
         dayAchievement = (progress / range) * 100;
-      } else {
-        dayAchievement = 0;
+        
+        // Cap between 0% and 100%
+        dayAchievement = Math.max(0, Math.min(100, dayAchievement));
       }
 
       return {
