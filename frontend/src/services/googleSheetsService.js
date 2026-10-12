@@ -1888,30 +1888,27 @@ class GoogleSheetsService {
 
     // Get target for each day based on its week
     const dailyData = Object.values(dailyBreakdown).map(day => {
-      // Find Monday of the week for this day
-      // IMPORTANT: We follow US convention where Sunday is the START of the week
-      // So Sunday belongs to the week starting NEXT Monday (1 day ahead)
-      // Monday-Saturday belong to the week starting on that Monday
+      // Find Monday of the week for this day (ISO 8601: Monday-Sunday week)
+      // Week starts on Monday and ends on Sunday
+      // Appeal for "Monday 28 Sept" applies to Mon 28 - Sun 4 Oct
+      // So Sunday 27 Sept belongs to the week of Monday 21 Sept (6 days before)
       const dayOfWeek = day.parsedDate.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-      let daysToMonday;
+      let daysFromMonday;
       
       if (dayOfWeek === 0) {
-        // Sunday: belongs to the week starting tomorrow (Monday)
-        daysToMonday = 1;
-      } else if (dayOfWeek === 1) {
-        // Monday: this IS Monday
-        daysToMonday = 0;
+        // Sunday: last day of week, Monday was 6 days ago
+        daysFromMonday = 6;
       } else {
-        // Tuesday-Saturday: find Monday of current week (go back)
-        daysToMonday = -(dayOfWeek - 1);
+        // Monday-Saturday: find Monday of current week
+        daysFromMonday = dayOfWeek - 1;
       }
       
       const monday = new Date(day.parsedDate);
-      monday.setDate(day.parsedDate.getDate() + daysToMonday);
+      monday.setDate(day.parsedDate.getDate() - daysFromMonday);
       monday.setHours(0, 0, 0, 0);
       const weekKey = monday.toISOString().split('T')[0];
       
-      console.log(`[Daily Week Calc] ${day.date} (day ${dayOfWeek}) → Monday: ${weekKey} (offset ${daysToMonday})`);
+      console.log(`[Daily Week Calc] ${day.date} (day ${dayOfWeek}) → Monday: ${weekKey} (${daysFromMonday} days back)`);
 
       // Get target for this week
       const weekRecords = weekGroups[weekKey] || [];
