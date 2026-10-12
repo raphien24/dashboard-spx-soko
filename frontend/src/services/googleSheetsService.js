@@ -1871,22 +1871,42 @@ class GoogleSheetsService {
         
         // Try appeal target first
         if (useAppeal && appealMap) {
-          dayTarget = this.getAppealTarget(weekKey, weekContract, weekVehicle, appealMap) || 0;
+          const appealTarget = this.getAppealTarget(weekKey, weekContract, weekVehicle, appealMap);
+          if (appealTarget !== null && appealTarget > 0) {
+            dayTarget = appealTarget;
+            console.log(`[Daily] ${day.date} - Using appeal target: ${dayTarget}`);
+          }
         }
         
-        // Fallback to Monday baseline
+        // If no appeal, use Monday target from the week's records
         if (dayTarget === 0) {
-          const weekStartDate = new Date(weekKey);
-          const targetMap = this.getTargetMapForWeek(rawData, weekStartDate);
-          dayTarget = this.getTargetFromMap(targetMap, weekContract, weekVehicle, { 
-            useAppeal: false, 
-            weekStart: null, 
-            appealMap: null 
+          // Find Monday records in this week's data
+          const mondayRecords = weekRecords.filter(row => {
+            const dateStr = row[3];
+            const date = this.parseDate(dateStr);
+            if (!date) return false;
+            return date.getDay() === 1; // Monday
           });
+          
+          if (mondayRecords.length > 0) {
+            // Use first Monday record's Assigned Target
+            dayTarget = this.parseNumeric(mondayRecords[0][9]); // Column 9 = Assigned Target
+            console.log(`[Daily] ${day.date} - Using Monday Assigned Target from data: ${dayTarget}`);
+          } else {
+            // No Monday in this week's filtered data, use any day's target
+            const anyTarget = this.parseNumeric(weekRecords[0][9]);
+            if (anyTarget > 0) {
+              dayTarget = anyTarget;
+              console.log(`[Daily] ${day.date} - Using any day's Assigned Target: ${dayTarget}`);
+            }
+          }
         }
-      } else {
-        // No records for this day's week, use average target
+      }
+      
+      // Final fallback to average target if still 0
+      if (dayTarget === 0) {
         dayTarget = avgMonthlyTarget;
+        console.log(`[Daily] ${day.date} - Using average monthly target fallback: ${dayTarget}`);
       }
 
       // Calculate daily metrics
