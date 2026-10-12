@@ -452,7 +452,7 @@ const DashboardMonthly = () => {
                       <p className="text-white font-semibold mb-2">Behavior:</p>
                       <p className="ml-2">• If Result &lt; Threshold → Achievement will be negative → <span className="text-yellow-300 font-semibold">capped at 0%</span></p>
                       <p className="ml-2">• If Threshold ≤ Result &lt; Target → Achievement scales from 0% to 100%</p>
-                      <p className="ml-2">• If Result ≥ Target → Achievement will be > 100% → <span className="text-yellow-300 font-semibold">capped at 100%</span></p>
+                      <p className="ml-2">• If Result ≥ Target → Achievement will be &gt; 100% → <span className="text-yellow-300 font-semibold">capped at 100%</span></p>
                     </div>
 
                     <div className="mt-3 p-3 bg-indigo-600/30 rounded border border-indigo-400/30">
