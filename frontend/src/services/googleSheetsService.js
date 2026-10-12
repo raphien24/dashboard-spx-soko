@@ -1775,14 +1775,19 @@ class GoogleSheetsService {
       const date = this.parseDate(dateStr);
       if (!date) return;
 
-      // Find Monday of this week
+      // Find Monday of this week (ISO 8601)
       const dayOfWeek = date.getDay();
       const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-      const monday = new Date(date);
-      monday.setDate(date.getDate() - daysFromMonday);
-      monday.setHours(0, 0, 0, 0);
-
-      const weekKey = monday.toISOString().split('T')[0]; // YYYY-MM-DD
+      
+      // Calculate Monday by subtracting milliseconds (consistent with daily breakdown)
+      const mondayTime = date.getTime() - (daysFromMonday * 24 * 60 * 60 * 1000);
+      const monday = new Date(mondayTime);
+      
+      // Format as YYYY-MM-DD in local timezone (Jakarta)
+      const year = monday.getFullYear();
+      const month = String(monday.getMonth() + 1).padStart(2, '0');
+      const dayNum = String(monday.getDate()).padStart(2, '0');
+      const weekKey = `${year}-${month}-${dayNum}`;
       
       if (!weekGroups[weekKey]) {
         weekGroups[weekKey] = [];
@@ -1791,6 +1796,7 @@ class GoogleSheetsService {
     });
 
     console.log('[processMonthlyMetrics] Found', Object.keys(weekGroups).length, 'weeks');
+    console.log('[processMonthlyMetrics] Week keys:', Object.keys(weekGroups).join(', '));
 
     // For each week, get target (appeal or Monday baseline)
     // Calculate total target considering cross-month splits
