@@ -397,13 +397,96 @@ const DashboardMonthly = () => {
               </div>
 
               {/* Calculation Formula Info */}
-              <div className="mt-6 bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-                <h4 className="text-white font-semibold text-sm mb-2">📊 Achievement Calculation</h4>
-                <div className="text-indigo-100 text-xs space-y-1">
-                  <p>• <span className="text-white font-semibold">Final Achievement</span> = Average of Dedicated and Kurir Plus achievements</p>
-                  <p>• <span className="text-white font-semibold">If Productivity ≥ Target</span> → Achievement = 100%</p>
-                  <p>• <span className="text-white font-semibold">If Productivity ≥ Threshold (75% × Target)</span> → Achievement = Linear scale from 0% to 100%</p>
-                  <p>• <span className="text-white font-semibold">If Productivity &lt; Threshold</span> → Achievement = 0%</p>
+              <div className="mt-6 bg-white/5 backdrop-blur-sm rounded-lg p-5 border border-white/10">
+                <h4 className="text-white font-bold text-base mb-3 flex items-center gap-2">
+                  📊 Detailed Calculation Formula
+                </h4>
+                
+                {/* Step 1: Productivity Calculation */}
+                <div className="mb-4 pb-4 border-b border-white/10">
+                  <h5 className="text-yellow-300 font-semibold text-sm mb-2">Step 1: Calculate Average Productivity (Per Contract Type)</h5>
+                  <div className="text-indigo-100 text-xs space-y-1 ml-3">
+                    <p className="font-mono bg-white/5 p-2 rounded">Avg Productivity = Total Delivered ÷ Total Active Shifts</p>
+                    <p className="mt-2">Example for Dedicated 2WH:</p>
+                    <p className="ml-2">• Total Delivered: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.delivered.toLocaleString()}</p>
+                    <p className="ml-2">• Total Shifts: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.shifts.toLocaleString()}</p>
+                    <p className="ml-2">• <span className="text-white font-semibold">Result: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</span> delivered per shift</p>
+                  </div>
+                </div>
+
+                {/* Step 2: Target Calculation */}
+                <div className="mb-4 pb-4 border-b border-white/10">
+                  <h5 className="text-yellow-300 font-semibold text-sm mb-2">Step 2: Calculate Monthly Target (From Appeal or Original)</h5>
+                  <div className="text-indigo-100 text-xs space-y-1 ml-3">
+                    <p>• Target is calculated per week (Monday-Sunday)</p>
+                    <p>• Priority: <span className="text-white font-semibold">Appeal Target</span> (from Supabase) → <span className="text-white font-semibold">Monday Original Target</span> (from raw data)</p>
+                    <p>• For cross-month weeks, target is split by days in each month</p>
+                    <p className="mt-2">Example for Dedicated 2WH:</p>
+                    <p className="ml-2">• <span className="text-white font-semibold">Average Target: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</span> per shift</p>
+                  </div>
+                </div>
+
+                {/* Step 3: Threshold Calculation */}
+                <div className="mb-4 pb-4 border-b border-white/10">
+                  <h5 className="text-yellow-300 font-semibold text-sm mb-2">Step 3: Calculate Threshold (75% of Target)</h5>
+                  <div className="text-indigo-100 text-xs space-y-1 ml-3">
+                    <p className="font-mono bg-white/5 p-2 rounded">Threshold = Target × 75% = Target × 0.75</p>
+                    <p className="mt-2">Example for Dedicated 2WH:</p>
+                    <p className="ml-2">• Target: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</p>
+                    <p className="ml-2">• <span className="text-white font-semibold">Threshold: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}</span> ({monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target} × 0.75)</p>
+                  </div>
+                </div>
+
+                {/* Step 4: Achievement Calculation */}
+                <div className="mb-4 pb-4 border-b border-white/10">
+                  <h5 className="text-yellow-300 font-semibold text-sm mb-2">Step 4: Calculate Achievement (With Threshold Logic)</h5>
+                  <div className="text-indigo-100 text-xs space-y-2 ml-3">
+                    <div className="bg-white/5 p-3 rounded">
+                      <p className="text-green-300 font-semibold mb-1">Case 1: IF Result ≥ Target</p>
+                      <p className="ml-2 font-mono">Achievement = 100%</p>
+                      <p className="ml-2 text-xs mt-1">(Target met or exceeded)</p>
+                    </div>
+                    
+                    <div className="bg-white/5 p-3 rounded">
+                      <p className="text-yellow-300 font-semibold mb-1">Case 2: IF Threshold ≤ Result &lt; Target</p>
+                      <p className="ml-2 font-mono">Achievement = (Result - Threshold) ÷ (Target - Threshold) × 100%</p>
+                      <p className="ml-2 font-mono text-white">= (Result - Target×75%) ÷ (Target - Target×75%) × 100%</p>
+                      <p className="ml-2 text-xs mt-1">(Linear scale between threshold and target)</p>
+                    </div>
+                    
+                    <div className="bg-white/5 p-3 rounded">
+                      <p className="text-red-300 font-semibold mb-1">Case 3: IF Result &lt; Threshold</p>
+                      <p className="ml-2 font-mono">Achievement = 0%</p>
+                      <p className="ml-2 text-xs mt-1">(Below minimum threshold)</p>
+                    </div>
+
+                    <div className="mt-3 p-3 bg-indigo-600/30 rounded border border-indigo-400/30">
+                      <p className="text-white font-semibold mb-1">Example for Dedicated 2WH:</p>
+                      <p className="ml-2">• Result: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</p>
+                      <p className="ml-2">• Target: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</p>
+                      <p className="ml-2">• Threshold: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}</p>
+                      <p className="ml-2 mt-1">
+                        {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg >= monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target 
+                          ? `✓ Result ≥ Target → Achievement = 100%`
+                          : monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg >= monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold
+                          ? `✓ Threshold ≤ Result < Target → Achievement = (${monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg} - ${monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}) ÷ (${monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target} - ${monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}) × 100% = ${monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%`
+                          : `✗ Result < Threshold → Achievement = 0%`
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Step 5: Final KPI */}
+                <div>
+                  <h5 className="text-yellow-300 font-semibold text-sm mb-2">Step 5: Calculate Final PRODUCTIVITY 2WH KPI</h5>
+                  <div className="text-indigo-100 text-xs space-y-1 ml-3">
+                    <p className="font-mono bg-white/5 p-2 rounded">Final KPI = (Dedicated Achievement + Kurir Plus Achievement) ÷ 2</p>
+                    <p className="mt-2">Current calculation:</p>
+                    <p className="ml-2">• Dedicated 2WH Achievement: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%</p>
+                    <p className="ml-2">• Kurir Plus 2WH Achievement: {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}%</p>
+                    <p className="ml-2 mt-1">• <span className="text-white font-bold text-base">Final PRODUCTIVITY 2WH = ({monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)} + {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}) ÷ 2 = {monthlyMetrics.productivity2WHKPI.achievement}%</span></p>
+                  </div>
                 </div>
               </div>
             </div>
