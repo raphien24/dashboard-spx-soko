@@ -15,6 +15,16 @@ const AchievementKPICard = ({ achievement, title }) => {
 
   const is4WH = vehicle === '4WH';
 
+  // Safely convert to numbers with fallback
+  const safeDedicated = typeof dedicated === 'number' ? dedicated : 0;
+  const safePlus = typeof plus === 'number' ? plus : 0;
+  const safeTotal = typeof total === 'number' ? total : 0;
+  const safeDedicatedResult = typeof dedicatedResult === 'number' ? dedicatedResult : 0;
+  const safeDedicatedTarget = typeof dedicatedTarget === 'number' ? dedicatedTarget : 0;
+  const safePlusResult = typeof plusResult === 'number' ? plusResult : 0;
+  const safePlusTarget = typeof plusTarget === 'number' ? plusTarget : 0;
+  const safeThreshold = typeof threshold === 'number' ? threshold : 75;
+
   const achvColor = (pct) => {
     if (pct >= 100) return { bar: 'bg-green-500',  text: 'text-green-700',  badge: 'bg-green-100 text-green-700'  };
     if (pct >= 75)  return { bar: 'bg-yellow-400', text: 'text-yellow-700', badge: 'bg-yellow-100 text-yellow-700' };
@@ -22,15 +32,15 @@ const AchievementKPICard = ({ achievement, title }) => {
     return           { bar: 'bg-red-500',    text: 'text-red-700',    badge: 'bg-red-100 text-red-700'    };
   };
 
-  const totalColor = achvColor(total);
-  const dedColor   = achvColor(dedicated);
-  const plusColor  = hasPlus ? achvColor(plus) : null;
+  const totalColor = achvColor(safeTotal);
+  const dedColor   = achvColor(safeDedicated);
+  const plusColor  = hasPlus ? achvColor(safePlus) : null;
 
   const cardTitle  = title || (is4WH
     ? 'Achievement KPI Productivity (4W)'
     : 'Achievement KPI Productivity (2W)');
 
-  const badgeLabel = total >= 100 ? 'Achieved' : total >= 75 ? 'On Track' : total >= 50 ? 'At Risk' : 'Below';
+  const badgeLabel = safeTotal >= 100 ? 'Achieved' : safeTotal >= 75 ? 'On Track' : safeTotal >= 50 ? 'At Risk' : 'Below';
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-amber-200 p-6 hover:shadow-md transition-shadow">
@@ -44,7 +54,7 @@ const AchievementKPICard = ({ achievement, title }) => {
             <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
               {cardTitle}
             </h3>
-            <p className="text-xs text-gray-500 mt-0.5">After Threshold {threshold}%</p>
+            <p className="text-xs text-gray-500 mt-0.5">After Threshold {safeThreshold}%</p>
           </div>
         </div>
         <div className={`px-2 py-1 text-xs font-semibold rounded ${is4WH ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
@@ -56,7 +66,7 @@ const AchievementKPICard = ({ achievement, title }) => {
       <div className="mb-5">
         <div className="flex items-baseline gap-2 mb-2">
           <span className={`text-5xl font-bold ${totalColor.text}`}>
-            {total.toFixed(1)}
+            {safeTotal.toFixed(1)}
           </span>
           <span className="text-xl text-gray-500 font-medium">%</span>
           <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-semibold ${totalColor.badge}`}>
@@ -65,7 +75,7 @@ const AchievementKPICard = ({ achievement, title }) => {
         </div>
         <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
           <div className={`h-3 rounded-full transition-all duration-700 ${totalColor.bar}`}
-            style={{ width: `${Math.min(total, 100)}%` }} />
+            style={{ width: `${Math.min(safeTotal, 100)}%` }} />
         </div>
         <p className="text-xs text-gray-400 mt-1 text-right">
           {is4WH ? '% Achievement Dedicated 4WH' : '% Achievement Total'}
@@ -79,33 +89,33 @@ const AchievementKPICard = ({ achievement, title }) => {
           <div className="flex items-center justify-between mb-1">
             <p className="text-xs text-gray-500 font-medium">Dedicated {is4WH ? '4WH' : '2WH'}</p>
             <span className={`text-sm font-bold ${dedColor.text}`}>
-              {hasDedicated ? `${dedicated.toFixed(1)}%` : 'N/A'}
+              {hasDedicated ? `${safeDedicated.toFixed(1)}%` : 'N/A'}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden mb-1">
             <div className={`h-1.5 rounded-full ${dedColor.bar}`}
-              style={{ width: hasDedicated ? `${Math.min(dedicated, 100)}%` : '0%' }} />
+              style={{ width: hasDedicated ? `${Math.min(safeDedicated, 100)}%` : '0%' }} />
           </div>
           <div className="flex items-center justify-between text-xs text-gray-400">
-            <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{dedicatedResult.toFixed(1)}</span>
-            <span className="flex items-center gap-1"><Target className="w-3 h-3" />{dedicatedTarget.toFixed(1)}</span>
+            <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{safeDedicatedResult.toFixed(1)}</span>
+            <span className="flex items-center gap-1"><Target className="w-3 h-3" />{safeDedicatedTarget.toFixed(1)}</span>
           </div>
         </div>
 
         {/* Kurir Plus — only for 2WH */}
-        {!is4WH && hasPlus && (
+        {!is4WH && hasPlus && plusColor && (
           <div className="rounded-lg p-3 bg-gray-50">
             <div className="flex items-center justify-between mb-1">
               <p className="text-xs text-gray-500 font-medium">Kurir Plus 2WH</p>
-              <span className={`text-sm font-bold ${plusColor.text}`}>{plus.toFixed(1)}%</span>
+              <span className={`text-sm font-bold ${plusColor.text}`}>{safePlus.toFixed(1)}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden mb-1">
               <div className={`h-1.5 rounded-full ${plusColor.bar}`}
-                style={{ width: `${Math.min(plus, 100)}%` }} />
+                style={{ width: `${Math.min(safePlus, 100)}%` }} />
             </div>
             <div className="flex items-center justify-between text-xs text-gray-400">
-              <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{plusResult.toFixed(1)}</span>
-              <span className="flex items-center gap-1"><Target className="w-3 h-3" />{plusTarget.toFixed(1)}</span>
+              <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{safePlusResult.toFixed(1)}</span>
+              <span className="flex items-center gap-1"><Target className="w-3 h-3" />{safePlusTarget.toFixed(1)}</span>
             </div>
           </div>
         )}
@@ -113,7 +123,7 @@ const AchievementKPICard = ({ achievement, title }) => {
 
       {/* Formula hint */}
       <p className="text-xs text-gray-400 italic mt-3">
-        Formula: (Result − Target×{threshold}%) ÷ (Target − Target×{threshold}%)
+        Formula: (Result − Target×{safeThreshold}%) ÷ (Target − Target×{safeThreshold}%)
       </p>
     </div>
   );
