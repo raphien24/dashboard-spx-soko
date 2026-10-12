@@ -1834,27 +1834,27 @@ class GoogleSheetsService {
     const achievement = {
       label: `MONTHLY ACHIEVEMENT - ${contract} ${vehicle}`,
       badge: 'MONTHLY',
-      result: parseFloat(avgProductivity.toFixed(1)),
-      target: parseFloat(avgMonthlyTarget.toFixed(1)),
-      threshold: parseFloat(threshold.toFixed(1)),
-      achievement: parseFloat(achievementPercentage.toFixed(1)),
+      result: parseFloat(avgProductivity.toFixed(1)) || 0,
+      target: parseFloat(avgMonthlyTarget.toFixed(1)) || 0,
+      threshold: parseFloat(threshold.toFixed(1)) || 0,
+      achievement: parseFloat(achievementPercentage.toFixed(1)) || 0,
       unit: 'Delivered / Active Shift',
       formula: 'Total Delivered ÷ Total Active Shifts',
       subMetrics: {
-        totalDelivered,
-        totalActiveShifts,
-        operatingDays,
-        avgPerDay: parseFloat((totalActiveShifts / operatingDays).toFixed(1)),
+        totalDelivered: totalDelivered || 0,
+        totalActiveShifts: totalActiveShifts || 0,
+        operatingDays: operatingDays || 0,
+        avgPerDay: operatingDays > 0 ? parseFloat((totalActiveShifts / operatingDays).toFixed(1)) : 0,
       }
     };
 
     return {
       achievement,
       summary: {
-        totalDelivered,
-        totalActiveShifts,
-        avgProductivity: parseFloat(avgProductivity.toFixed(1)),
-        operatingDays,
+        totalDelivered: totalDelivered || 0,
+        totalActiveShifts: totalActiveShifts || 0,
+        avgProductivity: parseFloat(avgProductivity.toFixed(1)) || 0,
+        operatingDays: operatingDays || 0,
       }
     };
   }
