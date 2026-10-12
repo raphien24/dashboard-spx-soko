@@ -1023,12 +1023,29 @@ class GoogleSheetsService {
     
     try {
       const appeals = await getTargetAppeals();
+      console.log('[loadAppealTargetsMap] Raw appeals from API:', appeals);
+      
       const map = {};
       appeals.forEach(a => {
-        const key = `${a.weekStart}_${a.contract}_${a.vehicleType}`;
+        // Normalize date format to YYYY-MM-DD
+        let weekStartNormalized = a.weekStart;
+        
+        // If weekStart is already a date string, parse and normalize it
+        if (typeof weekStartNormalized === 'string') {
+          const dateObj = new Date(weekStartNormalized);
+          if (!isNaN(dateObj.getTime())) {
+            weekStartNormalized = dateObj.toISOString().split('T')[0];
+          }
+        }
+        
+        const key = `${weekStartNormalized}_${a.contract}_${a.vehicleType}`;
         map[key] = parseFloat(a.appealTarget) || 0;
+        
+        console.log('[loadAppealTargetsMap] Created key:', key, '→', map[key]);
       });
+      
       this._appealTargetsMap = map;
+      console.log('[loadAppealTargetsMap] Final map:', map);
       return map;
     } catch (err) {
       console.warn('Failed to load appeal targets:', err);
@@ -1047,8 +1064,10 @@ class GoogleSheetsService {
     console.log('[getAppealTarget] ━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('[getAppealTarget] Looking for key:', key);
     console.log('[getAppealTarget] Contract:', contract, '| Vehicle:', vehicle);
-    console.log('[getAppealTarget] Available keys in map:', Object.keys(map));
-    console.log('[getAppealTarget] Full map:', map);
+    console.log('[getAppealTarget] Available keys in map:');
+    Object.keys(map).forEach(k => {
+      console.log('  -', k, '→', map[k]);
+    });
     
     const value = map[key] || null;
     
@@ -1056,6 +1075,8 @@ class GoogleSheetsService {
       console.log('[getAppealTarget] ✅ FOUND appeal target:', value);
     } else {
       console.log('[getAppealTarget] ❌ NOT FOUND - will use original target');
+      console.log('[getAppealTarget] Searching for:', key);
+      console.log('[getAppealTarget] Available:', Object.keys(map).join(', '));
     }
     console.log('[getAppealTarget] ━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
