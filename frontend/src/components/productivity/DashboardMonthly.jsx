@@ -642,7 +642,7 @@ const DashboardMonthly = () => {
                       <td className="py-3 px-4 text-right font-bold text-indigo-900">{monthlyMetrics.summary.avgProductivity.toFixed(1)}</td>
                       <td className="py-3 px-4 text-right font-bold text-indigo-700">{monthlyMetrics.summary.avgTarget.toFixed(1)}</td>
                       <td className="py-3 px-4 text-right font-bold text-indigo-900">
-                        {monthlyMetrics.achievement.achievement.toFixed(1)}%
+                        {monthlyMetrics.achievement.pureAchievement.toFixed(1)}%
                       </td>
                     </tr>
                   </tfoot>

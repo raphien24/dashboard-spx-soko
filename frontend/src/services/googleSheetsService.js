@@ -1868,11 +1868,17 @@ class GoogleSheetsService {
       achievementPercentage = Math.max(0, Math.min(100, achievementPercentage));
     }
 
+    // Calculate pure achievement (without threshold) - for display only
+    const pureAchievement = avgMonthlyTarget > 0 
+      ? Math.min(100, (avgProductivity / avgMonthlyTarget) * 100)
+      : 0;
+
     console.log('[processMonthlyMetrics] Achievement calculation:', {
       avgProductivity: avgProductivity.toFixed(2),
       target: avgMonthlyTarget.toFixed(2),
       threshold: threshold.toFixed(2),
       achievement: achievementPercentage.toFixed(1) + '%',
+      pureAchievement: pureAchievement.toFixed(1) + '%',
     });
 
     // ─── Calculate Productivity 2WH KPI (Dedicated + Kurir Plus Average) ─────
@@ -2178,6 +2184,7 @@ class GoogleSheetsService {
       target: parseFloat(avgMonthlyTarget.toFixed(1)) || 0,
       threshold: parseFloat(threshold.toFixed(1)) || 0,
       achievement: parseFloat(achievementPercentage.toFixed(1)) || 0,
+      pureAchievement: parseFloat(pureAchievement.toFixed(1)) || 0, // Achievement without threshold
       unit: 'Delivered / Active Shift',
       formula: 'Total Delivered ÷ Total Active Shifts',
       subMetrics: {
