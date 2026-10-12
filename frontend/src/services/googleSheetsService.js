@@ -1854,6 +1854,7 @@ class GoogleSheetsService {
         totalDelivered: totalDelivered || 0,
         totalActiveShifts: totalActiveShifts || 0,
         avgProductivity: parseFloat(avgProductivity.toFixed(1)) || 0,
+        avgTarget: parseFloat(avgMonthlyTarget.toFixed(1)) || 0,
         operatingDays: operatingDays || 0,
       }
     };

@@ -220,7 +220,7 @@ const DashboardMonthly = () => {
 
           {/* Summary Stats Grid */}
           {monthlyMetrics.summary && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-medium text-gray-600">Total Delivered</h3>
@@ -247,6 +247,18 @@ const DashboardMonthly = () => {
                     : '0.0'}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">Delivered per shift</p>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-indigo-200 p-6 bg-indigo-50">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-indigo-700">Monthly Target</h3>
+                </div>
+                <p className="text-3xl font-bold text-indigo-900">
+                  {monthlyMetrics.summary.avgTarget != null 
+                    ? monthlyMetrics.summary.avgTarget.toFixed(1) 
+                    : '0.0'}
+                </p>
+                <p className="text-sm text-indigo-600 mt-1">Target per shift (avg)</p>
               </div>
 
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
