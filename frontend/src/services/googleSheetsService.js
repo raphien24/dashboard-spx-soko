@@ -1878,11 +1878,43 @@ class GoogleSheetsService {
 
     // ─── Calculate Productivity 2WH KPI (Dedicated + Kurir Plus Average) ─────
     
+    // For Productivity 2WH KPI, we need ALL 2WH records regardless of contract filter
+    // to calculate both Dedicated and Kurir Plus
+    let all2WHRecords = rawData.filter(row => 
+      row[13] && this.parseNumeric(row[13]) > 0 && row[6] === '2WH'
+    );
+    all2WHRecords = this.filterByDateRange(all2WHRecords, dateRange);
+    all2WHRecords = this.deduplicateByIdAndDate(all2WHRecords);
+
+    // Group all 2WH records by week for target calculation
+    const all2WHWeekGroups = {};
+    all2WHRecords.forEach(row => {
+      const dateStr = row[3];
+      const date = this.parseDate(dateStr);
+      if (!date) return;
+
+      const dayOfWeek = date.getDay();
+      const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      
+      const mondayTime = date.getTime() - (daysFromMonday * 24 * 60 * 60 * 1000);
+      const monday = new Date(mondayTime);
+      
+      const year = monday.getFullYear();
+      const month = String(monday.getMonth() + 1).padStart(2, '0');
+      const dayNum = String(monday.getDate()).padStart(2, '0');
+      const weekKey = `${year}-${month}-${dayNum}`;
+      
+      if (!all2WHWeekGroups[weekKey]) {
+        all2WHWeekGroups[weekKey] = [];
+      }
+      all2WHWeekGroups[weekKey].push(row);
+    });
+    
     // Filter for 2WH only (Dedicated + Kurir Plus)
-    const dedicated2WH = activeRecords.filter(row => 
+    const dedicated2WH = all2WHRecords.filter(row => 
       row[5] === 'Dedicated' && row[6] === '2WH'
     );
-    const kurirPlus2WH = activeRecords.filter(row => 
+    const kurirPlus2WH = all2WHRecords.filter(row => 
       row[5] === 'Kurir Plus' && row[6] === '2WH'
     );
 
@@ -1894,8 +1926,8 @@ class GoogleSheetsService {
     // Get target for Dedicated 2WH (use appeal if available, otherwise calculate from data)
     let dedicatedTarget = 0;
     let dedicatedTargetCount = 0;
-    Object.keys(weekGroups).forEach(weekKey => {
-      const weekRecords = weekGroups[weekKey].filter(row => row[5] === 'Dedicated' && row[6] === '2WH');
+    Object.keys(all2WHWeekGroups).forEach(weekKey => {
+      const weekRecords = all2WHWeekGroups[weekKey].filter(row => row[5] === 'Dedicated' && row[6] === '2WH');
       if (weekRecords.length === 0) return;
       
       const sampleRecord = weekRecords[0];
@@ -1942,8 +1974,8 @@ class GoogleSheetsService {
     // Get target for Kurir Plus 2WH
     let kurirPlusTarget = 0;
     let kurirPlusTargetCount = 0;
-    Object.keys(weekGroups).forEach(weekKey => {
-      const weekRecords = weekGroups[weekKey].filter(row => row[5] === 'Kurir Plus' && row[6] === '2WH');
+    Object.keys(all2WHWeekGroups).forEach(weekKey => {
+      const weekRecords = all2WHWeekGroups[weekKey].filter(row => row[5] === 'Kurir Plus' && row[6] === '2WH');
       if (weekRecords.length === 0) return;
       
       const sampleRecord = weekRecords[0];
