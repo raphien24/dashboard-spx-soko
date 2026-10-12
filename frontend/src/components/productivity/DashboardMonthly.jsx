@@ -566,7 +566,7 @@ const DashboardMonthly = () => {
                       <th className="text-left py-3 px-4 font-semibold text-gray-700">Day</th>
                       <th className="text-right py-3 px-4 font-semibold text-gray-700">Delivered</th>
                       <th className="text-right py-3 px-4 font-semibold text-gray-700">Shifts</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Avg/Shift</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Productivity</th>
                       <th className="text-right py-3 px-4 font-semibold text-gray-700">Target</th>
                       <th className="text-right py-3 px-4 font-semibold text-gray-700">Achievement</th>
                     </tr>
