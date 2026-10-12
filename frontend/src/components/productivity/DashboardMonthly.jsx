@@ -428,7 +428,7 @@ const DashboardMonthly = () => {
 
                 {/* Collapsible Content */}
                 {isFormulaExpanded && (
-                  <div className="p-5 pt-0 border-t border-white/10"
+                  <div className="p-5 pt-0 border-t border-white/10">
                 
                 {/* Step 1: Productivity Calculation */}
                 <div className="mb-4 pb-4 border-b border-white/10">
