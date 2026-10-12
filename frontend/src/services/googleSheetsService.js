@@ -1895,6 +1895,8 @@ class GoogleSheetsService {
       monday.setDate(day.parsedDate.getDate() - daysFromMonday);
       monday.setHours(0, 0, 0, 0);
       const weekKey = monday.toISOString().split('T')[0];
+      
+      console.log(`[Daily Week Calc] ${day.date} (day ${dayOfWeek}) → Monday: ${weekKey} (${daysFromMonday} days back)`);
 
       // Get target for this week
       const weekRecords = weekGroups[weekKey] || [];
