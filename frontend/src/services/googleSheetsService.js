@@ -2034,6 +2034,97 @@ class GoogleSheetsService {
       final2WH: productivity2WHAchievement.toFixed(1) + '%'
     });
 
+    // ─── Calculate Productivity 4WH Dedicated KPI ─────────────────────────────
+    
+    // Filter for Dedicated 4WH only
+    let dedicated4WHRecords = rawData.filter(row => 
+      row[13] && this.parseNumeric(row[13]) > 0 && row[5] === 'Dedicated' && row[6] === '4WH'
+    );
+    dedicated4WHRecords = this.filterByDateRange(dedicated4WHRecords, dateRange);
+    dedicated4WHRecords = this.deduplicateByIdAndDate(dedicated4WHRecords);
+
+    // Group Dedicated 4WH records by week for target calculation
+    const dedicated4WHWeekGroups = {};
+    dedicated4WHRecords.forEach(row => {
+      const dateStr = row[3];
+      const date = this.parseDate(dateStr);
+      if (!date) return;
+
+      const dayOfWeek = date.getDay();
+      const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      
+      const mondayTime = date.getTime() - (daysFromMonday * 24 * 60 * 60 * 1000);
+      const monday = new Date(mondayTime);
+      
+      const year = monday.getFullYear();
+      const month = String(monday.getMonth() + 1).padStart(2, '0');
+      const dayNum = String(monday.getDate()).padStart(2, '0');
+      const weekKey = `${year}-${month}-${dayNum}`;
+      
+      if (!dedicated4WHWeekGroups[weekKey]) {
+        dedicated4WHWeekGroups[weekKey] = [];
+      }
+      dedicated4WHWeekGroups[weekKey].push(row);
+    });
+
+    // Calculate Dedicated 4WH achievement with threshold
+    const dedicated4WHDelivered = dedicated4WHRecords.reduce((sum, row) => sum + this.parseNumeric(row[13]), 0);
+    const dedicated4WHShifts = dedicated4WHRecords.length;
+    const dedicated4WHAvg = dedicated4WHShifts > 0 ? dedicated4WHDelivered / dedicated4WHShifts : 0;
+    
+    // Get target for Dedicated 4WH (use appeal if available, otherwise calculate from data)
+    let dedicated4WHTarget = 0;
+    let dedicated4WHTargetCount = 0;
+    Object.keys(dedicated4WHWeekGroups).forEach(weekKey => {
+      const weekRecords = dedicated4WHWeekGroups[weekKey];
+      if (weekRecords.length === 0) return;
+      
+      const sampleRecord = weekRecords[0];
+      let weekTarget = null;
+      
+      if (useAppeal && appealMap) {
+        weekTarget = this.getAppealTarget(weekKey, 'Dedicated', '4WH', appealMap);
+      }
+      
+      if (weekTarget === null) {
+        const mondayRecords = weekRecords.filter(row => {
+          const date = this.parseDate(row[3]);
+          return date && date.getDay() === 1;
+        });
+        weekTarget = mondayRecords.length > 0 ? this.parseNumeric(mondayRecords[0][9]) : this.parseNumeric(sampleRecord[9]);
+      }
+      
+      const uniqueDatesInWeek = new Set(weekRecords.map(row => row[3]));
+      const daysInMonth = Array.from(uniqueDatesInWeek).filter(dateStr => {
+        const date = this.parseDate(dateStr);
+        return date && date >= dateRange.start && date <= dateRange.end;
+      }).length;
+      
+      dedicated4WHTarget += weekTarget * daysInMonth;
+      dedicated4WHTargetCount += daysInMonth;
+    });
+    const dedicated4WHAvgTarget = dedicated4WHTargetCount > 0 ? dedicated4WHTarget / dedicated4WHTargetCount : 0;
+    
+    const dedicated4WHThreshold = dedicated4WHAvgTarget * 0.75;
+    let dedicated4WHAchievement = 0;
+    
+    // Always calculate using threshold formula
+    if (dedicated4WHAvgTarget > 0 && dedicated4WHThreshold > 0) {
+      const range = dedicated4WHAvgTarget - dedicated4WHThreshold;
+      const progress = dedicated4WHAvg - dedicated4WHThreshold;
+      dedicated4WHAchievement = (progress / range) * 100;
+      
+      // Cap between 0% and 100%
+      dedicated4WHAchievement = Math.max(0, Math.min(100, dedicated4WHAchievement));
+    }
+
+    console.log('[processMonthlyMetrics] Productivity 4WH Dedicated KPI:', {
+      avg: dedicated4WHAvg.toFixed(1),
+      target: dedicated4WHAvgTarget.toFixed(1),
+      threshold: dedicated4WHThreshold.toFixed(1),
+      achievement: dedicated4WHAchievement.toFixed(1) + '%'
+    });
+
     // ─── Build Daily Breakdown Table Data ───────────────────────────────────
     
     // Group records by date for daily breakdown
@@ -2228,9 +2319,27 @@ class GoogleSheetsService {
       }
     };
 
+    // Build Productivity 4WH Dedicated KPI (Core KPI for Monthly Dashboard)
+    const productivity4WHDedicatedKPI = {
+      label: 'PRODUCTIVITY 4WH DEDICATED',
+      badge: 'CORE KPI',
+      achievement: parseFloat(dedicated4WHAchievement.toFixed(1)) || 0,
+      unit: '%',
+      formula: 'Dedicated 4WH Achievement with Threshold (75%)',
+      subMetrics: {
+        avg: parseFloat(dedicated4WHAvg.toFixed(1)) || 0,
+        target: parseFloat(dedicated4WHAvgTarget.toFixed(1)) || 0,
+        threshold: parseFloat(dedicated4WHThreshold.toFixed(1)) || 0,
+        achievement: parseFloat(dedicated4WHAchievement.toFixed(1)) || 0,
+        shifts: dedicated4WHShifts || 0,
+        delivered: dedicated4WHDelivered || 0,
+      }
+    };
+
     return {
       achievement,
       productivity2WHKPI, // Main KPI for monthly dashboard
+      productivity4WHDedicatedKPI, // Core KPI for Dedicated 4WH
       summary: {
         totalDelivered: totalDelivered || 0,
         totalActiveShifts: totalActiveShifts || 0,

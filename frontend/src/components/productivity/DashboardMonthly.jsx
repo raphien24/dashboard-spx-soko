@@ -518,6 +518,113 @@ const DashboardMonthly = () => {
             </div>
           )}
 
+          {/* Productivity 4WH Dedicated KPI - CORE KPI */}
+          {monthlyMetrics.productivity4WHDedicatedKPI && (
+            <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl shadow-lg border-2 border-purple-400 p-8">
+              {/* Header Section */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h2 className="text-2xl font-bold text-white">{monthlyMetrics.productivity4WHDedicatedKPI.label}</h2>
+                    <span className="px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
+                      {monthlyMetrics.productivity4WHDedicatedKPI.badge}
+                    </span>
+                  </div>
+                  <p className="text-purple-100 text-sm mb-1">{monthlyMetrics.productivity4WHDedicatedKPI.formula}</p>
+                  <p className="text-purple-200 text-xs italic">Threshold: 75% of Target | Achievement = 0% if below threshold</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-6xl font-extrabold text-white mb-2">
+                    {monthlyMetrics.productivity4WHDedicatedKPI.achievement}%
+                  </div>
+                  <div className={`inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-bold ${
+                    monthlyMetrics.productivity4WHDedicatedKPI.achievement >= 100 ? 'bg-green-400 text-green-900' :
+                    monthlyMetrics.productivity4WHDedicatedKPI.achievement >= 75 ? 'bg-yellow-300 text-yellow-900' :
+                    'bg-red-400 text-red-900'
+                  }`}>
+                    {monthlyMetrics.productivity4WHDedicatedKPI.achievement >= 100 ? '✓ Target Met' :
+                     monthlyMetrics.productivity4WHDedicatedKPI.achievement >= 75 ? '◐ In Progress' :
+                     '✗ Below Threshold'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Metrics */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
+                {/* Achievement Bar */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-purple-100 text-sm font-semibold">DEDICATED 4WH</span>
+                    <span className="text-3xl font-bold text-white">
+                      {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement.toFixed(1)}%
+                    </span>
+                  </div>
+                  {/* Progress Bar */}
+                  <div className="relative">
+                    <div className="h-3 bg-white/20 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-3 rounded-full transition-all duration-500 ${
+                          monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement >= 100 ? 'bg-green-400' :
+                          monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement >= 75 ? 'bg-yellow-300' :
+                          'bg-red-400'
+                        }`}
+                        style={{ width: `${Math.min(monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Metrics Grid */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="bg-white/5 rounded-lg p-3">
+                    <p className="text-purple-200 text-xs mb-1">Avg Productivity</p>
+                    <p className="text-white text-xl font-bold">
+                      {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.avg}
+                    </p>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-3">
+                    <p className="text-purple-200 text-xs mb-1">Target</p>
+                    <p className="text-white text-xl font-bold">
+                      {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.target}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Threshold Info */}
+                <div className="bg-white/5 rounded-lg p-3 mb-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-purple-200 text-xs">Threshold (75%):</span>
+                    <span className="text-yellow-300 font-bold">
+                      {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.threshold}
+                    </span>
+                  </div>
+                  <div className="text-purple-200 text-xs mt-1">
+                    {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.avg >= monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.threshold
+                      ? `✓ Above threshold (+${(monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.avg - monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.threshold).toFixed(1)})`
+                      : `✗ Below threshold (-${(monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.threshold - monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.avg).toFixed(1)})`
+                    }
+                  </div>
+                </div>
+
+                {/* Additional Stats */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center bg-white/5 rounded-lg p-2">
+                    <p className="text-purple-200 text-xs mb-1">Total Shifts</p>
+                    <p className="text-white font-bold text-lg">
+                      {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.shifts.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="text-center bg-white/5 rounded-lg p-2">
+                    <p className="text-purple-200 text-xs mb-1">Total Delivered</p>
+                    <p className="text-white font-bold text-lg">
+                      {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.delivered.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Summary Stats Grid */}
           {monthlyMetrics.summary && (
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
