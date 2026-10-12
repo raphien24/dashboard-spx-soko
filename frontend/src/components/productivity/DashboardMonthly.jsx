@@ -627,7 +627,7 @@ const DashboardMonthly = () => {
                           <td className="py-3 px-4 text-right text-indigo-700 font-medium">{day.target.toFixed(1)}</td>
                           <td className="py-3 px-4 text-right">
                             <span className={`px-2 py-1 rounded-md font-semibold ${achievementColor}`}>
-                              {day.achievement.toFixed(1)}%
+                              {day.pureAchievement.toFixed(1)}%
                             </span>
                           </td>
                         </tr>

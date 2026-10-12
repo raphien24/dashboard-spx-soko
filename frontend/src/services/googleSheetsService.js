@@ -2158,6 +2158,11 @@ class GoogleSheetsService {
         dayAchievement = Math.max(0, Math.min(100, dayAchievement));
       }
 
+      // Calculate pure achievement (without threshold) for display
+      const dayPureAchievement = dayTarget > 0 
+        ? Math.min(100, (avgDaily / dayTarget) * 100)
+        : 0;
+
       return {
         date: day.date,
         parsedDate: day.parsedDate,
@@ -2168,6 +2173,7 @@ class GoogleSheetsService {
         target: parseFloat(dayTarget.toFixed(1)),
         threshold: parseFloat(threshold.toFixed(1)),
         achievement: parseFloat(dayAchievement.toFixed(1)),
+        pureAchievement: parseFloat(dayPureAchievement.toFixed(1)), // Pure achievement without threshold
       };
     });
 
