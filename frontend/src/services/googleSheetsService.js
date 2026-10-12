@@ -1022,6 +1022,7 @@ class GoogleSheetsService {
     if (this._appealTargetsMap) return this._appealTargetsMap;
     
     try {
+      console.log('[loadAppealTargetsMap] 🔄 BUILD VERSION: 2024-v3 - ISO 8601 Week Logic');
       const appeals = await getTargetAppeals();
       console.log('[loadAppealTargetsMap] Raw appeals from API:', appeals);
       
