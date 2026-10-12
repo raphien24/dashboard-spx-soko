@@ -7,16 +7,20 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     
-    // CORS headers
+    // CORS headers - more permissive
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+      'Access-Control-Max-Age': '86400', // 24 hours
     };
 
     // Handle OPTIONS request (CORS preflight)
     if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: corsHeaders });
+      return new Response(null, { 
+        status: 204,
+        headers: corsHeaders 
+      });
     }
 
     // Health check
@@ -68,6 +72,11 @@ export default {
     }
 
     // ── Target Appeal Routes ────────────────────────────────
+    // Health check for Supabase connection
+    if (url.pathname === '/api/target-appeals/health' && request.method === 'GET') {
+      return handleTargetAppealsHealth(env, corsHeaders);
+    }
+    
     // Get all appeals
     if (url.pathname === '/api/target-appeals' && request.method === 'GET') {
       return handleTargetAppealsGet(env, corsHeaders);
@@ -646,86 +655,308 @@ async function handleMonitorSDHO(env, corsHeaders) {
 }
 
 /**
- * Handle Target Appeals — Get all
+ * Handle Target Appeals Health Check (Supabase)
  */
-async function handleTargetAppealsGet(env, corsHeaders) {
-  const GAS_URL = env.GAS_PRODUCTIVITY_URL || env.GAS_EXPEDITE_URL; // Prefer productivity URL
+async function handleTargetAppealsHealth(env, corsHeaders) {
   try {
-    const res = await fetch(`${GAS_URL}?action=getTargetAppeals`, { method: 'GET' });
+    const supabaseUrl = env.SUPABASE_URL || 'https://tnzwrnvggqrkstokcrrr.supabase.co';
+    const supabaseKey = env.SUPABASE_ANON_KEY;
     
-    // Check if response is JSON
-    const contentType = res.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      // GAS returned HTML error — likely TargetAppeal.gs not deployed yet
-      console.error('GAS returned non-JSON response, returning empty array');
+    if (!supabaseKey) {
       return new Response(JSON.stringify({ 
-        success: true, 
-        data: [],
-        warning: 'TargetAppeal.gs not deployed in GAS yet. Upload TargetAppeal.gs and redeploy GAS.'
+        status: 'error',
+        message: 'SUPABASE_ANON_KEY not configured',
+        supabaseConfigured: false
       }), {
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
     
-    const json = await res.json();
-    return new Response(JSON.stringify(json), {
+    // Test Supabase connection by fetching table schema
+    const res = await fetch(`${supabaseUrl}/rest/v1/target_appeals?limit=1`, {
+      method: 'GET',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!res.ok) {
+      const error = await res.text();
+      return new Response(JSON.stringify({ 
+        status: 'error',
+        message: `Supabase connection failed: ${error}`,
+        supabaseConfigured: true,
+        tableExists: false
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    return new Response(JSON.stringify({ 
+      status: 'ok',
+      message: 'Supabase connected successfully',
+      supabaseConfigured: true,
+      tableExists: true,
+      timestamp: new Date().toISOString()
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (err) {
+    console.error('handleTargetAppealsHealth error:', err);
+    return new Response(JSON.stringify({ 
+      status: 'error',
+      message: err.message,
+      supabaseConfigured: false
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+/**
+ * Handle Target Appeals — Get all (Supabase)
+ */
+async function handleTargetAppealsGet(env, corsHeaders) {
+  try {
+    const supabaseUrl = env.SUPABASE_URL || 'https://tnzwrnvggqrkstokcrrr.supabase.co';
+    const supabaseKey = env.SUPABASE_ANON_KEY;
+    
+    if (!supabaseKey) {
+      throw new Error('SUPABASE_ANON_KEY not configured');
+    }
+    
+    // Fetch all target appeals, sorted by week_start DESC
+    const res = await fetch(`${supabaseUrl}/rest/v1/target_appeals?order=week_start.desc`, {
+      method: 'GET',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(`Supabase error: ${error}`);
+    }
+    
+    const data = await res.json();
+    
+    // Transform to match frontend format
+    const appeals = data.map(row => ({
+      weekStart: row.week_start,
+      contract: row.contract,
+      vehicleType: row.vehicle_type,
+      appealTarget: row.appeal_target,
+      lastUpdated: row.updated_at,
+      updatedBy: row.updated_by || 'Unknown'
+    }));
+    
+    return new Response(JSON.stringify({ 
+      success: true, 
+      data: appeals 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (err) {
     console.error('handleTargetAppealsGet error:', err);
     return new Response(JSON.stringify({ 
-      success: true, 
+      success: false, 
       data: [], 
       error: err.message 
     }), {
-      status: 200, // Return 200 with empty data instead of 500
+      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 }
 
 /**
- * Handle Target Appeals — Submit/Update
+ * Handle Target Appeals — Submit/Update (Supabase)
  */
 async function handleTargetAppealsPost(env, corsHeaders, request) {
-  const GAS_URL = env.GAS_PRODUCTIVITY_URL || env.GAS_EXPEDITE_URL;
   try {
+    const supabaseUrl = env.SUPABASE_URL || 'https://tnzwrnvggqrkstokcrrr.supabase.co';
+    const supabaseKey = env.SUPABASE_ANON_KEY;
+    
+    if (!supabaseKey) {
+      throw new Error('SUPABASE_ANON_KEY not configured');
+    }
+    
     const body = await request.json();
-    const res = await fetch(`${GAS_URL}?action=submitTargetAppeal`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const json = await res.json();
-    return new Response(JSON.stringify(json), {
+    const { weekStart, contract, vehicleType, appealTarget, updatedBy } = body;
+    
+    // Debug log
+    console.log('Received POST body:', JSON.stringify(body));
+    
+    // Validate required fields with detailed error
+    const missing = [];
+    if (!weekStart) missing.push('weekStart');
+    if (!contract) missing.push('contract');
+    if (!vehicleType) missing.push('vehicleType');
+    if (!appealTarget && appealTarget !== 0) missing.push('appealTarget');
+    
+    if (missing.length > 0) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        message: `Missing required fields: ${missing.join(', ')}`,
+        received: body
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    // Validate vehicleType
+    if (!['2WH', '4WH'].includes(vehicleType)) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        message: `Invalid vehicleType: ${vehicleType}. Must be '2WH' or '4WH'`
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    // Check if record exists first
+    const checkRes = await fetch(
+      `${supabaseUrl}/rest/v1/target_appeals?week_start=eq.${weekStart}&contract=eq.${encodeURIComponent(contract)}&vehicle_type=eq.${vehicleType}`,
+      {
+        method: 'GET',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    const existing = await checkRes.json();
+    
+    let res;
+    if (existing && existing.length > 0) {
+      // Update existing record
+      res = await fetch(
+        `${supabaseUrl}/rest/v1/target_appeals?week_start=eq.${weekStart}&contract=eq.${encodeURIComponent(contract)}&vehicle_type=eq.${vehicleType}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            appeal_target: appealTarget,
+            updated_by: updatedBy || 'Unknown',
+            updated_at: new Date().toISOString()
+          })
+        }
+      );
+    } else {
+      // Insert new record
+      res = await fetch(`${supabaseUrl}/rest/v1/target_appeals`, {
+        method: 'POST',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          week_start: weekStart,
+          contract: contract,
+          vehicle_type: vehicleType,
+          appeal_target: appealTarget,
+          updated_by: updatedBy || 'Unknown'
+        })
+      });
+    }
+    
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(`Supabase error: ${error}`);
+    }
+    
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: 'Target appeal saved successfully' 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (err) {
-    return new Response(JSON.stringify({ success: false, message: err.message }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    console.error('handleTargetAppealsPost error:', err);
+    return new Response(JSON.stringify({ 
+      success: false, 
+      message: err.message 
+    }), {
+      status: 500, 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 }
 
 /**
- * Handle Target Appeals — Delete
+ * Handle Target Appeals — Delete (Supabase)
  */
 async function handleTargetAppealsDelete(env, corsHeaders, request) {
-  const GAS_URL = env.GAS_PRODUCTIVITY_URL || env.GAS_EXPEDITE_URL;
   try {
+    const supabaseUrl = env.SUPABASE_URL || 'https://tnzwrnvggqrkstokcrrr.supabase.co';
+    const supabaseKey = env.SUPABASE_ANON_KEY;
+    
+    if (!supabaseKey) {
+      throw new Error('SUPABASE_ANON_KEY not configured');
+    }
+    
     const body = await request.json();
-    const res = await fetch(`${GAS_URL}?action=deleteTargetAppeal`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const json = await res.json();
-    return new Response(JSON.stringify(json), {
+    const { weekStart, contract, vehicleType } = body;
+    
+    // Validate required fields
+    if (!weekStart || !contract || !vehicleType) {
+      return new Response(JSON.stringify({ 
+        success: false, 
+        message: 'Missing required fields' 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    // Delete with composite key filter
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/target_appeals?week_start=eq.${weekStart}&contract=eq.${contract}&vehicle_type=eq.${vehicleType}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(`Supabase error: ${error}`);
+    }
+    
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: 'Target appeal deleted successfully' 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (err) {
-    return new Response(JSON.stringify({ success: false, message: err.message }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    console.error('handleTargetAppealsDelete error:', err);
+    return new Response(JSON.stringify({ 
+      success: false, 
+      message: err.message 
+    }), {
+      status: 500, 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 }

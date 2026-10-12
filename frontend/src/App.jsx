@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Play, Pause, RefreshCw } from 'lucide-react';
 import Sidebar from './components/common/Sidebar';
 import Dashboard from './components/dashboard/Dashboard';
+import DashboardMonthly from './components/productivity/DashboardMonthly';
 import AdjustTargetPage from './components/productivity/AdjustTargetPage';
 import PunishmentManagement from './components/punishment/PunishmentManagement';
 import ExpeditePage from './components/expedite/ExpeditePage';
@@ -37,6 +38,7 @@ function App() {
   // Determine page title based on active page
   const pageTitles = {
     'productivity-dashboard': 'Soko Hub Productivity Dashboard',
+    'productivity-monthly':   'Monthly Productivity Dashboard',
     'adjust-target':          'Adjust Weekly Target',
     'productivity':           'Soko Hub Productivity Dashboard',
     'sp-generator': 'Punishment Management',
@@ -52,7 +54,8 @@ function App() {
   };
 
   const pageSubtitles = {
-    'productivity-dashboard': 'Fleet Operations Dashboard',
+    'productivity-dashboard': 'Weekly Fleet Operations Dashboard',
+    'productivity-monthly':   'Monthly Aggregated Performance Metrics',
     'adjust-target':          'Manage target appeal after approval',
     'productivity':           'Fleet Operations Dashboard',
     'sp-generator': 'SP Generator — Surat Peringatan',
@@ -72,6 +75,7 @@ function App() {
 
   // Is the active page a punishment management sub-page?
   const isProductivityDash = activePage === 'productivity-dashboard' || activePage === 'productivity';
+  const isProductivityMonthly = activePage === 'productivity-monthly';
   const isAdjustTarget     = activePage === 'adjust-target';
   const isPunishmentPage  = activePage === 'sp-generator' || activePage === 'sp-record';
   const isExpeditePage    = activePage === 'expedite';
@@ -126,7 +130,7 @@ function App() {
               </div>
               
               {/* Controls — only show on productivity page */}
-              {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && !isBacklogLMPage && (
+              {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && !isBacklogLMPage && !isHSEPage && !isAdjustTarget && (
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   {/* Last Update Display */}
                   <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
@@ -179,6 +183,7 @@ function App() {
         <main className="flex-1 overflow-y-auto">
           <div className={`${isPunishmentPage ? 'p-3 sm:p-4 md:p-6 h-full' : 'p-3 sm:p-4 md:p-6'}`}>
             {isProductivityDash && <Dashboard autoRefreshEnabled={autoRefreshEnabled} />}
+            {isProductivityMonthly && <DashboardMonthly />}
             {isAdjustTarget     && <AdjustTargetPage />}
             {isPunishmentPage && (
               <PunishmentManagement activeSubPage={activePage} />

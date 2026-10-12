@@ -32,8 +32,9 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       active: true,
       hasSubmenu: true,
       submenu: [
-        { id: 'productivity-dashboard', label: 'Dashboard',      parent: 'productivity' },
-        { id: 'adjust-target',          label: 'Adjust Target', parent: 'productivity' },
+        { id: 'productivity-dashboard', label: 'Dashboard Weekly',  parent: 'productivity' },
+        { id: 'productivity-monthly',   label: 'Dashboard Monthly', parent: 'productivity' },
+        { id: 'adjust-target',          label: 'Adjust Target',     parent: 'productivity' },
       ],
     },
     {

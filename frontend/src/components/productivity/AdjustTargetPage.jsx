@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { RefreshCw, Plus, Trash2, Save, AlertTriangle, CheckCircle, Calendar, Target as TargetIcon } from 'lucide-react';
 import { getTargetAppeals, submitTargetAppeal, deleteTargetAppeal } from '../../services/googleSheetsService';
+import googleSheetsService from '../../services/googleSheetsService';
 
 const AdjustTargetPage = () => {
   const [appeals, setAppeals] = useState([]);
@@ -67,6 +68,9 @@ const AdjustTargetPage = () => {
       setSubmitStatus({ type: 'success', message: 'Target appeal saved successfully!' });
       setAppealTarget('');
       await fetchAppeals();
+      
+      // Clear appeal cache so Dashboard reloads it
+      googleSheetsService.clearAppealCache();
     } catch (err) {
       setSubmitStatus({ type: 'error', message: err.message });
     } finally {
@@ -76,11 +80,14 @@ const AdjustTargetPage = () => {
   };
 
   const handleDelete = async (appeal) => {
-    if (!confirm(`Delete appeal for ${appeal.Contract} ${appeal.Vehicle} week ${appeal['Week Start']}?`)) return;
+    if (!confirm(`Delete appeal for ${appeal.contract} ${appeal.vehicleType} week ${appeal.weekStart}?`)) return;
 
     try {
-      await deleteTargetAppeal(appeal['Week Start'], appeal.Contract, appeal.Vehicle);
+      await deleteTargetAppeal(appeal.weekStart, appeal.contract, appeal.vehicleType);
       await fetchAppeals();
+      
+      // Clear appeal cache so Dashboard reloads it
+      googleSheetsService.clearAppealCache();
     } catch (err) {
       alert('Delete failed: ' + err.message);
     }
@@ -89,8 +96,8 @@ const AdjustTargetPage = () => {
   // Sort appeals by week desc
   const sortedAppeals = useMemo(() => {
     return [...appeals].sort((a, b) => {
-      const dateA = new Date(a['Week Start']);
-      const dateB = new Date(b['Week Start']);
+      const dateA = new Date(a.weekStart);
+      const dateB = new Date(b.weekStart);
       return dateB - dateA; // newest first
     });
   }, [appeals]);
@@ -237,18 +244,18 @@ const AdjustTargetPage = () => {
               <tbody className="divide-y divide-gray-100">
                 {sortedAppeals.map((appeal, i) => (
                   <tr key={i} className="hover:bg-indigo-50/30 transition-colors">
-                    <td className="px-4 py-3 text-gray-800 font-mono text-xs">{appeal['Week Start']}</td>
-                    <td className="px-4 py-3 text-gray-700">{appeal.Contract}</td>
+                    <td className="px-4 py-3 text-gray-800 font-mono text-xs">{appeal.weekStart}</td>
+                    <td className="px-4 py-3 text-gray-700">{appeal.contract}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                        appeal.Vehicle === '2WH' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
-                      }`}>{appeal.Vehicle}</span>
+                        appeal.vehicleType === '2WH' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
+                      }`}>{appeal.vehicleType}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <span className="text-lg font-bold text-indigo-700">{appeal['Appeal Target']}</span>
+                      <span className="text-lg font-bold text-indigo-700">{appeal.appealTarget}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{appeal['Last Updated']}</td>
-                    <td className="px-4 py-3 text-gray-600 text-xs">{appeal['Updated By']}</td>
+                    <td className="px-4 py-3 text-gray-500 text-xs">{appeal.lastUpdated}</td>
+                    <td className="px-4 py-3 text-gray-600 text-xs">{appeal.updatedBy}</td>
                     <td className="px-4 py-3 text-center">
                       <button onClick={() => handleDelete(appeal)}
                         className="inline-flex items-center gap-1 px-2 py-1 text-red-600 hover:bg-red-50 border border-red-200 rounded text-xs">

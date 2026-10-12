@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Loader, RefreshCw, AlertCircle } from 'lucide-react';
 import useDashboardStore from '../../store/dashboardStore';
 import useAutoRefresh from '../../hooks/useAutoRefresh';
@@ -44,6 +44,10 @@ function Dashboard({ autoRefreshEnabled = true }) {
   const [drilldownOpen,    setDrilldownOpen]    = useState(false);
   const [drilldownData,    setDrilldownData]    = useState([]);
   const [drilldownWeekLabel, setDrilldownWeekLabel] = useState('');
+  
+  // ── Appeal targets state ──────────────────────────────────────
+  const [appealTargetsMap, setAppealTargetsMap] = useState(null);
+  const [useAppealTargets, setUseAppealTargets] = useState(true); // Default: use appeal
 
   const handleProductivityClick = () => {
     if (!rawCourierData) return;
@@ -66,13 +70,25 @@ function Dashboard({ autoRefreshEnabled = true }) {
     setDrilldownOpen(true);
   };
 
-  // ── Achievement KPI (computed from raw data + active date range) ──────────
-  const achievementKPI   = rawCourierData
-    ? googleSheetsService.computeAchievementKPI(rawCourierData, { dateRange: activeFilters?.dateRange })
-    : null;
-  const achievement4WH   = rawCourierData
-    ? googleSheetsService.computeAchievement4WH(rawCourierData, { dateRange: activeFilters?.dateRange })
-    : null;
+  // ── Achievement KPI (computed from raw data + active date range + appeal targets) ──────────
+  // Re-compute when appealTargetsMap changes (after loaded)
+  const achievementKPI   = useMemo(() => {
+    if (!rawCourierData) return null;
+    return googleSheetsService.computeAchievementKPI(
+      rawCourierData, 
+      { dateRange: activeFilters?.dateRange }, 
+      { useAppeal: useAppealTargets, appealMap: appealTargetsMap }
+    );
+  }, [rawCourierData, activeFilters?.dateRange, useAppealTargets, appealTargetsMap]);
+  
+  const achievement4WH   = useMemo(() => {
+    if (!rawCourierData) return null;
+    return googleSheetsService.computeAchievement4WH(
+      rawCourierData, 
+      { dateRange: activeFilters?.dateRange }, 
+      { useAppeal: useAppealTargets, appealMap: appealTargetsMap }
+    );
+  }, [rawCourierData, activeFilters?.dateRange, useAppealTargets, appealTargetsMap]);
 
   // Detect date range from loaded data
   const dataDateRange = rawCourierData ? useDashboardStore.getState().detectDateRangeFromData(rawCourierData) : null;
@@ -92,7 +108,26 @@ function Dashboard({ autoRefreshEnabled = true }) {
     // Only call fetchDashboardData - it already loads raw data and computes everything
     // fetchCourierSchedule is redundant as computeDashboardData already includes schedule
     fetchDashboardData(null); // null = no date filter, show all data
+    
+    // Load appeal targets map initially
+    loadAppealMap();
   }, [fetchDashboardData]);
+  
+  // Function to load appeal map
+  const loadAppealMap = async () => {
+    const map = await googleSheetsService.loadAppealTargetsMap();
+    console.log('[Dashboard] Loaded appeal targets map:', map);
+    setAppealTargetsMap(map);
+  };
+  
+  // Re-load appeal map periodically (every 30 seconds) to catch updates from Adjust Target page
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadAppealMap();
+    }, 30000); // 30 seconds
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Auto-apply default filter after raw data is loaded
   useEffect(() => {
@@ -137,6 +172,8 @@ function Dashboard({ autoRefreshEnabled = true }) {
       dateRange: filterData.dateRange,
       contract: filterData.contract,
       vehicle: filterData.vehicle,
+      useAppeal: useAppealTargets,
+      appealMap: appealTargetsMap,
     };
     
     // Compute dashboard with all filters at once

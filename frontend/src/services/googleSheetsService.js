@@ -991,15 +991,21 @@ class GoogleSheetsService {
   getTargetFromMap(targetMap, contractType, vehicleType, options = {}) {
     const { useAppeal = true, weekStart = null, appealMap = null } = options;
     
+    console.log('[getTargetFromMap] Called with:', { contractType, vehicleType, useAppeal, weekStart, hasAppealMap: !!appealMap });
+    
     // Check appeal first
     if (useAppeal && weekStart) {
       const appeal = this.getAppealTarget(weekStart, contractType, vehicleType, appealMap);
-      if (appeal !== null && appeal > 0) return appeal;
+      if (appeal !== null && appeal > 0) {
+        console.log('[getTargetFromMap] Using appeal target:', appeal);
+        return appeal;
+      }
     }
     
     const key = `${contractType}-${vehicleType}`;
     
     if (targetMap[key]) {
+      console.log('[getTargetFromMap] Using Monday target from map:', targetMap[key]);
       return targetMap[key];
     }
     
@@ -1016,12 +1022,11 @@ class GoogleSheetsService {
     if (this._appealTargetsMap) return this._appealTargetsMap;
     
     try {
-      const { getTargetAppeals } = await import('./googleSheetsService');
       const appeals = await getTargetAppeals();
       const map = {};
       appeals.forEach(a => {
-        const key = `${a['Week Start']}_${a.Contract}_${a.Vehicle}`;
-        map[key] = parseFloat(a['Appeal Target']) || 0;
+        const key = `${a.weekStart}_${a.contract}_${a.vehicleType}`;
+        map[key] = parseFloat(a.appealTarget) || 0;
       });
       this._appealTargetsMap = map;
       return map;
@@ -1037,7 +1042,10 @@ class GoogleSheetsService {
   getAppealTarget(weekStart, contract, vehicle, appealMap = null) {
     const map = appealMap || this._appealTargetsMap || {};
     const key = `${weekStart}_${contract}_${vehicle}`;
-    return map[key] || null;
+    console.log('[getAppealTarget] Looking for:', key, 'in map:', map);
+    const value = map[key] || null;
+    console.log('[getAppealTarget] Found:', value);
+    return value;
   }
 
   /**
@@ -1493,6 +1501,17 @@ class GoogleSheetsService {
     // Get target map for all contract+vehicle types (ONE sample per type)
     const targetMap = this.getTargetMapForWeek(rawData, weekStartDate);
     
+    // Convert weekStartDate to YYYY-MM-DD for appeal lookup
+    let weekStartStr = null;
+    if (weekStartDate) {
+      const localDate = new Date(weekStartDate.getTime() - weekStartDate.getTimezoneOffset() * 60000);
+      weekStartStr = localDate.toISOString().split('T')[0];
+    }
+    
+    // Get appeal map from filters options
+    const useAppeal = filters.useAppeal !== undefined ? filters.useAppeal : true;
+    const appealMap = filters.appealMap || null;
+    
     // Group by courier to get target per courier (using the target map)
     const courierTargets = {};
     activeRecords.forEach(row => {
@@ -1501,7 +1520,8 @@ class GoogleSheetsService {
         const target = this.getTargetFromMap(
           targetMap,
           row[5], // contract type
-          row[6]  // vehicle type
+          row[6], // vehicle type
+          { useAppeal, weekStart: weekStartStr, appealMap }
         );
         courierTargets[courierId] = target;
       }
@@ -1633,6 +1653,208 @@ class GoogleSheetsService {
           avgCouriersPerDay: parseFloat(avgCouriersPerDay.toFixed(1)),
           formula: 'Active Shifts ÷ (Unique Headcount × Op Days)'
         }
+      }
+    };
+  }
+
+  /**
+   * Process monthly metrics from raw data
+   * Handles cross-month weeks by splitting at month boundaries
+   * Uses appeal targets when available, split by daily targets
+   * 
+   * @param {Array} rawData - Full raw data array
+   * @param {Object} filters - { dateRange: { start, end }, contract, vehicle, useAppeal, appealMap }
+   * @returns {Object} - Monthly achievement and summary metrics
+   */
+  processMonthlyMetrics(rawData, filters = {}) {
+    if (!rawData || rawData.length === 0) {
+      console.warn('[processMonthlyMetrics] No raw data provided');
+      return null;
+    }
+
+    const { dateRange, contract, vehicle, useAppeal = true, appealMap = null } = filters;
+    
+    if (!dateRange || !dateRange.start || !dateRange.end) {
+      console.warn('[processMonthlyMetrics] Date range required');
+      return null;
+    }
+
+    console.log('[processMonthlyMetrics] Processing monthly metrics:', {
+      month: `${dateRange.start.toLocaleDateString()} - ${dateRange.end.toLocaleDateString()}`,
+      contract,
+      vehicle,
+      useAppeal,
+    });
+
+    // Filter active records (Delivered > 0)
+    let activeRecords = rawData.filter(row => 
+      row[13] && this.parseNumeric(row[13]) > 0
+    );
+
+    // Apply date range filter
+    activeRecords = this.filterByDateRange(activeRecords, dateRange);
+    
+    // Apply contract filter
+    if (contract && contract !== 'all') {
+      activeRecords = activeRecords.filter(row => row[5] === contract);
+    }
+    
+    // Apply vehicle filter
+    if (vehicle && vehicle !== 'all') {
+      activeRecords = activeRecords.filter(row => row[6] === vehicle);
+    }
+
+    // Deduplicate: 1 courier per date only
+    activeRecords = this.deduplicateByIdAndDate(activeRecords);
+
+    console.log('[processMonthlyMetrics] After filtering:', activeRecords.length, 'records');
+
+    if (activeRecords.length === 0) {
+      return null;
+    }
+
+    // Calculate summary metrics
+    const totalDelivered = activeRecords.reduce((sum, row) => 
+      sum + this.parseNumeric(row[13]), 0
+    );
+    const totalActiveShifts = activeRecords.length;
+    const avgProductivity = totalActiveShifts > 0 
+      ? totalDelivered / totalActiveShifts 
+      : 0;
+
+    // Get unique dates for operating days count
+    const uniqueDates = new Set(activeRecords.map(row => row[3]));
+    const operatingDays = uniqueDates.size;
+
+    // ─── Calculate Monthly Achievement with Cross-Month Week Logic ───────────
+    
+    // Group records by week (Monday-Sunday) to identify cross-month weeks
+    const weekGroups = {};
+    activeRecords.forEach(row => {
+      const dateStr = row[3];
+      const date = this.parseDate(dateStr);
+      if (!date) return;
+
+      // Find Monday of this week
+      const dayOfWeek = date.getDay();
+      const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      const monday = new Date(date);
+      monday.setDate(date.getDate() - daysFromMonday);
+      monday.setHours(0, 0, 0, 0);
+
+      const weekKey = monday.toISOString().split('T')[0]; // YYYY-MM-DD
+      
+      if (!weekGroups[weekKey]) {
+        weekGroups[weekKey] = [];
+      }
+      weekGroups[weekKey].push(row);
+    });
+
+    console.log('[processMonthlyMetrics] Found', Object.keys(weekGroups).length, 'weeks');
+
+    // For each week, get target (appeal or Monday baseline)
+    // Calculate total target considering cross-month splits
+    let totalTargetSum = 0;
+    let totalDaysCount = 0;
+
+    Object.keys(weekGroups).forEach(weekStartStr => {
+      const weekRecords = weekGroups[weekStartStr];
+      const weekStartDate = new Date(weekStartStr);
+      
+      // Get target for this week (appeal or Monday baseline)
+      // Find a sample record from this week to get contract/vehicle type
+      const sampleRecord = weekRecords[0];
+      const weekContract = sampleRecord[5];
+      const weekVehicle = sampleRecord[6];
+      
+      // Try to get appeal target first
+      let weekTarget = null;
+      if (useAppeal && appealMap) {
+        weekTarget = this.getAppealTarget(weekStartStr, weekContract, weekVehicle, appealMap);
+      }
+      
+      // Fallback to Monday baseline from raw data
+      if (weekTarget === null) {
+        const targetMap = this.getTargetMapForWeek(rawData, weekStartDate);
+        weekTarget = this.getTargetFromMap(targetMap, weekContract, weekVehicle, { 
+          useAppeal: false, // Don't double-check appeal
+          weekStart: null, 
+          appealMap: null 
+        });
+      }
+      
+      console.log('[processMonthlyMetrics] Week', weekStartStr, '- Target:', weekTarget);
+
+      // Count days in this week that fall within the selected month
+      const uniqueDatesInWeek = new Set(weekRecords.map(row => row[3]));
+      const daysInMonth = Array.from(uniqueDatesInWeek).filter(dateStr => {
+        const date = this.parseDate(dateStr);
+        if (!date) return false;
+        return date >= dateRange.start && date <= dateRange.end;
+      }).length;
+
+      console.log('[processMonthlyMetrics] Week', weekStartStr, '- Days in month:', daysInMonth);
+
+      // Add to total target (target × days in month for this week)
+      totalTargetSum += weekTarget * daysInMonth;
+      totalDaysCount += daysInMonth;
+    });
+
+    // Average target across all days in the month
+    const avgMonthlyTarget = totalDaysCount > 0 
+      ? totalTargetSum / totalDaysCount 
+      : 0;
+
+    console.log('[processMonthlyMetrics] Total target sum:', totalTargetSum, 'Total days:', totalDaysCount, 'Avg target:', avgMonthlyTarget);
+
+    // ─── Calculate Achievement with Threshold (75%) ───────────────────────────
+    
+    const threshold = avgMonthlyTarget * 0.75;
+    let achievementPercentage = 0;
+
+    if (avgProductivity >= avgMonthlyTarget) {
+      achievementPercentage = 100;
+    } else if (avgProductivity >= threshold) {
+      // Linear scale from threshold to target
+      const range = avgMonthlyTarget - threshold;
+      const progress = avgProductivity - threshold;
+      achievementPercentage = (progress / range) * 100;
+    } else {
+      achievementPercentage = 0;
+    }
+
+    console.log('[processMonthlyMetrics] Achievement calculation:', {
+      avgProductivity: avgProductivity.toFixed(2),
+      target: avgMonthlyTarget.toFixed(2),
+      threshold: threshold.toFixed(2),
+      achievement: achievementPercentage.toFixed(1) + '%',
+    });
+
+    // Build achievement object (similar to AchievementKPICard format)
+    const achievement = {
+      label: `MONTHLY ACHIEVEMENT - ${contract} ${vehicle}`,
+      badge: 'MONTHLY',
+      result: parseFloat(avgProductivity.toFixed(1)),
+      target: parseFloat(avgMonthlyTarget.toFixed(1)),
+      threshold: parseFloat(threshold.toFixed(1)),
+      achievement: parseFloat(achievementPercentage.toFixed(1)),
+      unit: 'Delivered / Active Shift',
+      formula: 'Total Delivered ÷ Total Active Shifts',
+      subMetrics: {
+        totalDelivered,
+        totalActiveShifts,
+        operatingDays,
+        avgPerDay: parseFloat((totalActiveShifts / operatingDays).toFixed(1)),
+      }
+    };
+
+    return {
+      achievement,
+      summary: {
+        totalDelivered,
+        totalActiveShifts,
+        avgProductivity: parseFloat(avgProductivity.toFixed(1)),
+        operatingDays,
       }
     };
   }
@@ -1889,10 +2111,18 @@ class GoogleSheetsService {
       // Get target with appeal override
       const sampleContract = rows[0][5];
       const sampleVehicle  = rows[0][6];
+      
+      // Convert weekStartDate to YYYY-MM-DD format (local date)
+      let weekStartStr = null;
+      if (weekStartDate) {
+        const localDate = new Date(weekStartDate.getTime() - weekStartDate.getTimezoneOffset() * 60000);
+        weekStartStr = localDate.toISOString().split('T')[0];
+      }
+      
       const target = weekStartDate
         ? this.getTargetFromMap(targetMap, sampleContract, sampleVehicle, {
             useAppeal,
-            weekStart: weekStartDate.toISOString().split('T')[0],
+            weekStart: weekStartStr,
             appealMap
           })
         : this.getTargetByContractAndVehicle(sampleContract, sampleVehicle);
@@ -2242,7 +2472,7 @@ export async function submitTargetAppeal(weekStart, contract, vehicle, appealTar
   const response = await fetch(`${backendUrl}/api/target-appeals`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ weekStart, contract, vehicle, appealTarget, updatedBy }),
+    body: JSON.stringify({ weekStart, contract, vehicleType: vehicle, appealTarget, updatedBy }),
   });
   const json = await response.json();
   if (!json.success) throw new Error(json.message || 'Failed to submit appeal');
@@ -2255,7 +2485,7 @@ export async function deleteTargetAppeal(weekStart, contract, vehicle) {
   const response = await fetch(`${backendUrl}/api/target-appeals/delete`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ weekStart, contract, vehicle }),
+    body: JSON.stringify({ weekStart, contract, vehicleType: vehicle }),
   });
   const json = await response.json();
   if (!json.success) throw new Error(json.message || 'Failed to delete appeal');
