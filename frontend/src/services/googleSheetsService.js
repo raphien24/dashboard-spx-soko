@@ -94,6 +94,7 @@ class GoogleSheetsService {
 
   /**
    * Helper: Parse date from MM/DD/YYYY format (US date format)
+   * Always use Jakarta timezone (UTC+7) to avoid timezone shift issues
    */
   parseDate(dateString) {
     if (!dateString) return null;
@@ -106,7 +107,10 @@ class GoogleSheetsService {
     const day = parseInt(parts[1]);
     const year = parseInt(parts[2]);
     
-    const date = new Date(year, month, day);
+    // Create date string in ISO format and parse in Jakarta timezone (UTC+7)
+    // This ensures the date is interpreted consistently regardless of browser timezone
+    const isoDateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}T00:00:00+07:00`;
+    const date = new Date(isoDateString);
     
     // Validate date
     if (isNaN(date.getTime())) {
@@ -1904,10 +1908,15 @@ class GoogleSheetsService {
         daysFromMonday = dayOfWeek - 1;
       }
       
-      const monday = new Date(day.parsedDate);
-      monday.setDate(day.parsedDate.getDate() - daysFromMonday);
-      monday.setHours(0, 0, 0, 0);
-      const weekKey = monday.toISOString().split('T')[0];
+      // Calculate Monday by subtracting milliseconds (avoids timezone issues)
+      const mondayTime = day.parsedDate.getTime() - (daysFromMonday * 24 * 60 * 60 * 1000);
+      const monday = new Date(mondayTime);
+      
+      // Format as YYYY-MM-DD in local timezone (Jakarta) for appeal lookup
+      const year = monday.getFullYear();
+      const month = String(monday.getMonth() + 1).padStart(2, '0');
+      const dayNum = String(monday.getDate()).padStart(2, '0');
+      const weekKey = `${year}-${month}-${dayNum}`;
       
       console.log(`[Daily Week Calc] ${day.date} (day ${dayOfWeek}) → Monday: ${weekKey} (${daysFromMonday} days back)`);
 
