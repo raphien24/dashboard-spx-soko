@@ -54,7 +54,7 @@ const AchievementKPICard = ({ achievement, title }) => {
             <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
               {cardTitle}
             </h3>
-            <p className="text-xs text-gray-500 mt-0.5">After Threshold {safeThreshold}%</p>
+            <p className="text-xs text-gray-500 mt-0.5">Threshold: 75% of Target</p>
           </div>
         </div>
         <div className={`px-2 py-1 text-xs font-semibold rounded ${is4WH ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
