@@ -216,56 +216,51 @@ const DashboardMonthly = () => {
 
       {!isLoading && monthlyMetrics && (
         <>
-          {/* Productivity 2WH KPI - MAIN KPI */}
-          {monthlyMetrics.productivity2WHKPI && (
-            <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl shadow-lg border-2 border-indigo-400 p-8">
-              {/* Header Section */}
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <h2 className="text-2xl font-bold text-white">{monthlyMetrics.productivity2WHKPI.label}</h2>
-                    <span className="px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
-                      {monthlyMetrics.productivity2WHKPI.badge}
-                    </span>
-                  </div>
-                  <p className="text-indigo-100 text-sm mb-1">{monthlyMetrics.productivity2WHKPI.formula}</p>
-                  <p className="text-indigo-200 text-xs italic">Threshold: 75% of Target | Achievement = 0% if below threshold</p>
-                </div>
-                <div className="text-right">
-                  <div className="text-6xl font-extrabold text-white mb-2">
-                    {monthlyMetrics.productivity2WHKPI.achievement}%
-                  </div>
-                  <div className={`inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-bold ${
-                    monthlyMetrics.productivity2WHKPI.achievement >= 100 ? 'bg-green-400 text-green-900' :
-                    monthlyMetrics.productivity2WHKPI.achievement >= 75 ? 'bg-yellow-300 text-yellow-900' :
-                    'bg-red-400 text-red-900'
-                  }`}>
-                    {monthlyMetrics.productivity2WHKPI.achievement >= 100 ? '✓ Target Met' :
-                     monthlyMetrics.productivity2WHKPI.achievement >= 75 ? '◐ In Progress' :
-                     '✗ Below Threshold'}
-                  </div>
-                </div>
-              </div>
-
-              {/* Sub-metrics: Dedicated vs Kurir Plus */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Dedicated 2WH */}
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-5 border border-white/20">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-white font-bold text-lg">Dedicated 2WH</h3>
-                      <p className="text-indigo-200 text-xs">Contract: Dedicated | Vehicle: 2WH</p>
+          {/* Core KPI Cards - Compact Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Productivity 2WH KPI */}
+            {monthlyMetrics.productivity2WHKPI && (
+              <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-lg p-6">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-lg font-bold text-white">PRODUCTIVITY 2WH</h3>
+                      <span className="px-2 py-0.5 bg-yellow-400 text-yellow-900 text-[10px] font-bold rounded">
+                        CORE KPI
+                      </span>
                     </div>
-                    <span className="text-3xl font-bold text-white">
-                      {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%
-                    </span>
+                    <p className="text-indigo-100 text-xs">Avg: Dedicated 2WH + Kurir Plus 2WH</p>
                   </div>
-                  
-                  {/* Progress Bar */}
-                  <div className="mb-4">
-                    <div className="w-full bg-white/20 rounded-full h-3 overflow-hidden">
+                  <div className="text-right">
+                    <div className="text-4xl font-black text-white">
+                      {monthlyMetrics.productivity2WHKPI.achievement.toFixed(1)}%
+                    </div>
+                    <div className={`inline-block px-2 py-1 rounded text-[10px] font-bold mt-1 ${
+                      monthlyMetrics.productivity2WHKPI.achievement >= 100 ? 'bg-green-400 text-green-900' :
+                      monthlyMetrics.productivity2WHKPI.achievement >= 75 ? 'bg-yellow-300 text-yellow-900' :
+                      'bg-red-400 text-red-900'
+                    }`}>
+                      {monthlyMetrics.productivity2WHKPI.achievement >= 100 ? '✓ MET' :
+                       monthlyMetrics.productivity2WHKPI.achievement >= 75 ? '◐ PROGRESS' :
+                       '✗ BELOW'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sub-metrics Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Dedicated 2WH */}
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white text-xs font-semibold">Dedicated</span>
+                      <span className="text-white text-lg font-bold">
+                        {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-white/20 rounded-full h-2 mb-2">
                       <div 
-                        className={`h-3 rounded-full transition-all duration-500 ${
+                        className={`h-2 rounded-full ${
                           monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement >= 100 ? 'bg-green-400' :
                           monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement >= 75 ? 'bg-yellow-300' :
                           'bg-red-400'
@@ -273,76 +268,33 @@ const DashboardMonthly = () => {
                         style={{ width: `${Math.min(monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement, 100)}%` }}
                       />
                     </div>
-                  </div>
-
-                  {/* Metrics Grid */}
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <div className="bg-white/5 rounded-lg p-3">
-                      <p className="text-indigo-200 text-xs mb-1">Avg Productivity</p>
-                      <p className="text-white text-xl font-bold">
-                        {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}
-                      </p>
-                    </div>
-                    <div className="bg-white/5 rounded-lg p-3">
-                      <p className="text-indigo-200 text-xs mb-1">Target</p>
-                      <p className="text-white text-xl font-bold">
-                        {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}
-                      </p>
+                    <div className="text-indigo-100 text-[11px] space-y-1">
+                      <div className="flex justify-between">
+                        <span>Avg:</span>
+                        <span className="font-semibold">{monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Target:</span>
+                        <span className="font-semibold">{monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</span>
+                      </div>
+                      <div className="flex justify-between text-yellow-300">
+                        <span>Thr 75%:</span>
+                        <span className="font-semibold">{monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Threshold Info */}
-                  <div className="bg-white/5 rounded-lg p-3 mb-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-indigo-200 text-xs">Threshold (75%):</span>
-                      <span className="text-yellow-300 font-bold">
-                        {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}
+                  {/* Kurir Plus 2WH */}
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white text-xs font-semibold">Kurir Plus</span>
+                      <span className="text-white text-lg font-bold">
+                        {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="text-indigo-200 text-xs mt-1">
-                      {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg >= monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold
-                        ? `✓ Above threshold (+${(monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg - monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold).toFixed(1)})`
-                        : `✗ Below threshold (-${(monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold - monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg).toFixed(1)})`
-                      }
-                    </div>
-                  </div>
-
-                  {/* Volume Stats */}
-                  <div className="pt-3 border-t border-white/20">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <p className="text-indigo-200 text-xs mb-1">Total Shifts</p>
-                        <p className="text-white font-bold text-lg">
-                          {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.shifts.toLocaleString()}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-indigo-200 text-xs mb-1">Total Delivered</p>
-                        <p className="text-white font-bold text-lg">
-                          {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.delivered.toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Kurir Plus 2WH */}
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-5 border border-white/20">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-white font-bold text-lg">Kurir Plus 2WH</h3>
-                      <p className="text-indigo-200 text-xs">Contract: Kurir Plus | Vehicle: 2WH</p>
-                    </div>
-                    <span className="text-3xl font-bold text-white">
-                      {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}%
-                    </span>
-                  </div>
-                  
-                  {/* Progress Bar */}
-                  <div className="mb-4">
-                    <div className="w-full bg-white/20 rounded-full h-3 overflow-hidden">
+                    <div className="w-full bg-white/20 rounded-full h-2 mb-2">
                       <div 
-                        className={`h-3 rounded-full transition-all duration-500 ${
+                        className={`h-2 rounded-full ${
                           monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement >= 100 ? 'bg-green-400' :
                           monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement >= 75 ? 'bg-yellow-300' :
                           'bg-red-400'
@@ -350,275 +302,182 @@ const DashboardMonthly = () => {
                         style={{ width: `${Math.min(monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement, 100)}%` }}
                       />
                     </div>
-                  </div>
-
-                  {/* Metrics Grid */}
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <div className="bg-white/5 rounded-lg p-3">
-                      <p className="text-indigo-200 text-xs mb-1">Avg Productivity</p>
-                      <p className="text-white text-xl font-bold">
-                        {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.avg}
-                      </p>
-                    </div>
-                    <div className="bg-white/5 rounded-lg p-3">
-                      <p className="text-indigo-200 text-xs mb-1">Target</p>
-                      <p className="text-white text-xl font-bold">
-                        {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.target}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Threshold Info */}
-                  <div className="bg-white/5 rounded-lg p-3 mb-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-indigo-200 text-xs">Threshold (75%):</span>
-                      <span className="text-yellow-300 font-bold">
-                        {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.threshold}
-                      </span>
-                    </div>
-                    <div className="text-indigo-200 text-xs mt-1">
-                      {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.avg >= monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.threshold
-                        ? `✓ Above threshold (+${(monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.avg - monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.threshold).toFixed(1)})`
-                        : `✗ Below threshold (-${(monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.threshold - monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.avg).toFixed(1)})`
-                      }
-                    </div>
-                  </div>
-
-                  {/* Volume Stats */}
-                  <div className="pt-3 border-t border-white/20">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <p className="text-indigo-200 text-xs mb-1">Total Shifts</p>
-                        <p className="text-white font-bold text-lg">
-                          {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.shifts.toLocaleString()}
-                        </p>
+                    <div className="text-indigo-100 text-[11px] space-y-1">
+                      <div className="flex justify-between">
+                        <span>Avg:</span>
+                        <span className="font-semibold">{monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.avg}</span>
                       </div>
-                      <div>
-                        <p className="text-indigo-200 text-xs mb-1">Total Delivered</p>
-                        <p className="text-white font-bold text-lg">
-                          {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.delivered.toLocaleString()}
-                        </p>
+                      <div className="flex justify-between">
+                        <span>Target:</span>
+                        <span className="font-semibold">{monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.target}</span>
+                      </div>
+                      <div className="flex justify-between text-yellow-300">
+                        <span>Thr 75%:</span>
+                        <span className="font-semibold">{monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.threshold}</span>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Calculation Formula Info - Collapsible */}
-              <div className="mt-6 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden">
-                {/* Header with Toggle Button */}
+                {/* Formula Toggle */}
                 <button
                   onClick={() => setIsFormulaExpanded(!isFormulaExpanded)}
-                  className="w-full p-5 flex items-center justify-between hover:bg-white/5 transition-colors"
+                  className="w-full mt-3 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-indigo-100 text-xs font-medium flex items-center justify-between"
                 >
-                  <h4 className="text-white font-bold text-base flex items-center gap-2">
-                    📊 Detailed Calculation Formula
-                  </h4>
-                  <div className="flex items-center gap-2">
-                    <span className="text-indigo-200 text-sm">
-                      {isFormulaExpanded ? 'Click to minimize' : 'Click to expand'}
-                    </span>
-                    {isFormulaExpanded ? (
-                      <ChevronUp className="w-5 h-5 text-white" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-white" />
-                    )}
-                  </div>
+                  <span>📊 View Calculation Formula</span>
+                  {isFormulaExpanded ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
                 </button>
-
-                {/* Collapsible Content */}
-                {isFormulaExpanded && (
-                  <div className="p-5 pt-0 border-t border-white/10">
-                
-                {/* Step 1: Productivity Calculation */}
-                <div className="mb-4 pb-4 border-b border-white/10">
-                  <h5 className="text-yellow-300 font-semibold text-sm mb-2">Step 1: Calculate Average Productivity (Per Contract Type)</h5>
-                  <div className="text-indigo-100 text-xs space-y-1 ml-3">
-                    <p className="font-mono bg-white/5 p-2 rounded">Avg Productivity = Total Delivered ÷ Total Active Shifts</p>
-                    <p className="mt-2">Example for Dedicated 2WH:</p>
-                    <p className="ml-2">• Total Delivered: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.delivered.toLocaleString()}</p>
-                    <p className="ml-2">• Total Shifts: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.shifts.toLocaleString()}</p>
-                    <p className="ml-2">• <span className="text-white font-semibold">Result: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</span> delivered per shift</p>
-                  </div>
-                </div>
-
-                {/* Step 2: Target Calculation */}
-                <div className="mb-4 pb-4 border-b border-white/10">
-                  <h5 className="text-yellow-300 font-semibold text-sm mb-2">Step 2: Calculate Monthly Target (From Appeal or Original)</h5>
-                  <div className="text-indigo-100 text-xs space-y-1 ml-3">
-                    <p>• Target is calculated per week (Monday-Sunday)</p>
-                    <p>• Priority: <span className="text-white font-semibold">Appeal Target</span> (from Supabase) → <span className="text-white font-semibold">Monday Original Target</span> (from raw data)</p>
-                    <p>• For cross-month weeks, target is split by days in each month</p>
-                    <p className="mt-2">Example for Dedicated 2WH:</p>
-                    <p className="ml-2">• <span className="text-white font-semibold">Average Target: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</span> per shift</p>
-                  </div>
-                </div>
-
-                {/* Step 3: Threshold Calculation */}
-                <div className="mb-4 pb-4 border-b border-white/10">
-                  <h5 className="text-yellow-300 font-semibold text-sm mb-2">Step 3: Calculate Threshold (75% of Target)</h5>
-                  <div className="text-indigo-100 text-xs space-y-1 ml-3">
-                    <p className="font-mono bg-white/5 p-2 rounded">Threshold = Target × 75% = Target × 0.75</p>
-                    <p className="mt-2">Example for Dedicated 2WH:</p>
-                    <p className="ml-2">• Target: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</p>
-                    <p className="ml-2">• <span className="text-white font-semibold">Threshold: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}</span> ({monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target} × 0.75)</p>
-                  </div>
-                </div>
-
-                {/* Step 4: Achievement Calculation */}
-                <div className="mb-4 pb-4 border-b border-white/10">
-                  <h5 className="text-yellow-300 font-semibold text-sm mb-2">Step 4: Calculate Achievement (Always Using Threshold Formula)</h5>
-                  <div className="text-indigo-100 text-xs space-y-2 ml-3">
-                    <div className="bg-white/5 p-3 rounded">
-                      <p className="text-white font-semibold mb-2">Universal Formula (for ALL cases):</p>
-                      <p className="ml-2 font-mono text-yellow-300">Achievement = (Result - Threshold) ÷ (Target - Threshold) × 100%</p>
-                      <p className="ml-2 font-mono text-yellow-300">= (Result - Target×75%) ÷ (Target - Target×75%) × 100%</p>
-                      <p className="ml-2 text-xs mt-2 text-indigo-200">Then capped between 0% (minimum) and 100% (maximum)</p>
-                    </div>
-                    
-                    <div className="bg-indigo-600/30 p-3 rounded border border-indigo-400/30">
-                      <p className="text-white font-semibold mb-2">Behavior:</p>
-                      <p className="ml-2">• If Result &lt; Threshold → Achievement will be negative → <span className="text-yellow-300 font-semibold">capped at 0%</span></p>
-                      <p className="ml-2">• If Threshold ≤ Result &lt; Target → Achievement scales from 0% to 100%</p>
-                      <p className="ml-2">• If Result ≥ Target → Achievement will be &gt; 100% → <span className="text-yellow-300 font-semibold">capped at 100%</span></p>
-                    </div>
-
-                    <div className="mt-3 p-3 bg-indigo-600/30 rounded border border-indigo-400/30">
-                      <p className="text-white font-semibold mb-1">Example for Dedicated 2WH:</p>
-                      <p className="ml-2">• Result: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</p>
-                      <p className="ml-2">• Target: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</p>
-                      <p className="ml-2">• Threshold: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}</p>
-                      <p className="ml-2 mt-2 font-mono text-sm text-yellow-300">
-                        Achievement = ({monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg} - {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}) ÷ ({monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target} - {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}) × 100%
-                      </p>
-                      <p className="ml-2 mt-1 font-mono text-sm text-yellow-300">
-                        = {((monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg - monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold) / (monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target - monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold) * 100).toFixed(2)}%
-                      </p>
-                      <p className="ml-2 mt-1">
-                        → <span className="text-white font-bold text-base">Final: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%</span> (after capping 0-100%)
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Step 5: Final KPI */}
-                <div>
-                  <h5 className="text-yellow-300 font-semibold text-sm mb-2">Step 5: Calculate Final PRODUCTIVITY 2WH KPI</h5>
-                  <div className="text-indigo-100 text-xs space-y-1 ml-3">
-                    <p className="font-mono bg-white/5 p-2 rounded">Final KPI = (Dedicated Achievement + Kurir Plus Achievement) ÷ 2</p>
-                    <p className="mt-2">Current calculation:</p>
-                    <p className="ml-2">• Dedicated 2WH Achievement: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%</p>
-                    <p className="ml-2">• Kurir Plus 2WH Achievement: {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}%</p>
-                    <p className="ml-2 mt-1">• <span className="text-white font-bold text-base">Final PRODUCTIVITY 2WH = ({monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)} + {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}) ÷ 2 = {monthlyMetrics.productivity2WHKPI.achievement}%</span></p>
-                  </div>
-                </div>
-                  </div>
-                )}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Productivity 4WH Dedicated KPI - CORE KPI */}
-          {monthlyMetrics.productivity4WHDedicatedKPI && (
-            <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl shadow-lg border-2 border-purple-400 p-8">
-              {/* Header Section */}
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <h2 className="text-2xl font-bold text-white">{monthlyMetrics.productivity4WHDedicatedKPI.label}</h2>
-                    <span className="px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
-                      {monthlyMetrics.productivity4WHDedicatedKPI.badge}
-                    </span>
+            {/* Productivity 4WH Dedicated KPI */}
+            {monthlyMetrics.productivity4WHDedicatedKPI && (
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-lg font-bold text-white">PRODUCTIVITY 4WH</h3>
+                      <span className="px-2 py-0.5 bg-yellow-400 text-yellow-900 text-[10px] font-bold rounded">
+                        CORE KPI
+                      </span>
+                    </div>
+                    <p className="text-purple-100 text-xs">Dedicated 4WH Only</p>
                   </div>
-                  <p className="text-purple-100 text-sm mb-1">{monthlyMetrics.productivity4WHDedicatedKPI.formula}</p>
-                  <p className="text-purple-200 text-xs italic">Threshold: 75% of Target | Achievement = 0% if below threshold</p>
+                  <div className="text-right">
+                    <div className="text-4xl font-black text-white">
+                      {monthlyMetrics.productivity4WHDedicatedKPI.achievement.toFixed(1)}%
+                    </div>
+                    <div className={`inline-block px-2 py-1 rounded text-[10px] font-bold mt-1 ${
+                      monthlyMetrics.productivity4WHDedicatedKPI.achievement >= 100 ? 'bg-green-400 text-green-900' :
+                      monthlyMetrics.productivity4WHDedicatedKPI.achievement >= 75 ? 'bg-yellow-300 text-yellow-900' :
+                      'bg-red-400 text-red-900'
+                    }`}>
+                      {monthlyMetrics.productivity4WHDedicatedKPI.achievement >= 100 ? '✓ MET' :
+                       monthlyMetrics.productivity4WHDedicatedKPI.achievement >= 75 ? '◐ PROGRESS' :
+                       '✗ BELOW'}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-6xl font-extrabold text-white mb-2">
-                    {monthlyMetrics.productivity4WHDedicatedKPI.achievement}%
-                  </div>
-                  <div className={`inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-bold ${
-                    monthlyMetrics.productivity4WHDedicatedKPI.achievement >= 100 ? 'bg-green-400 text-green-900' :
-                    monthlyMetrics.productivity4WHDedicatedKPI.achievement >= 75 ? 'bg-yellow-300 text-yellow-900' :
-                    'bg-red-400 text-red-900'
-                  }`}>
-                    {monthlyMetrics.productivity4WHDedicatedKPI.achievement >= 100 ? '✓ Target Met' :
-                     monthlyMetrics.productivity4WHDedicatedKPI.achievement >= 75 ? '◐ In Progress' :
-                     '✗ Below Threshold'}
-                  </div>
-                </div>
-              </div>
 
-              {/* Main Metrics */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-                {/* Achievement Bar */}
-                <div className="mb-4">
+                {/* Metrics Card */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                  {/* Progress Bar */}
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-purple-100 text-sm font-semibold">DEDICATED 4WH</span>
-                    <span className="text-3xl font-bold text-white">
+                    <span className="text-white text-sm font-semibold">Dedicated 4WH</span>
+                    <span className="text-white text-xl font-bold">
                       {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement.toFixed(1)}%
                     </span>
                   </div>
-                  {/* Progress Bar */}
-                  <div className="relative">
-                    <div className="h-3 bg-white/20 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-3 rounded-full transition-all duration-500 ${
-                          monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement >= 100 ? 'bg-green-400' :
-                          monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement >= 75 ? 'bg-yellow-300' :
-                          'bg-red-400'
-                        }`}
-                        style={{ width: `${Math.min(monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement, 100)}%` }}
-                      />
+                  <div className="w-full bg-white/20 rounded-full h-2.5 mb-4">
+                    <div 
+                      className={`h-2.5 rounded-full ${
+                        monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement >= 100 ? 'bg-green-400' :
+                        monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement >= 75 ? 'bg-yellow-300' :
+                        'bg-red-400'
+                      }`}
+                      style={{ width: `${Math.min(monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement, 100)}%` }}
+                    />
+                  </div>
+
+                  {/* Metrics Grid */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white/5 rounded p-2">
+                      <p className="text-purple-200 text-[10px] mb-1">Avg Productivity</p>
+                      <p className="text-white text-lg font-bold">
+                        {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.avg}
+                      </p>
+                    </div>
+                    <div className="bg-white/5 rounded p-2">
+                      <p className="text-purple-200 text-[10px] mb-1">Target</p>
+                      <p className="text-white text-lg font-bold">
+                        {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.target}
+                      </p>
+                    </div>
+                    <div className="bg-white/5 rounded p-2">
+                      <p className="text-purple-200 text-[10px] mb-1">Threshold 75%</p>
+                      <p className="text-yellow-300 text-lg font-bold">
+                        {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.threshold}
+                      </p>
+                    </div>
+                    <div className="bg-white/5 rounded p-2">
+                      <p className="text-purple-200 text-[10px] mb-1">Total Shifts</p>
+                      <p className="text-white text-lg font-bold">
+                        {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.shifts.toLocaleString()}
+                      </p>
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
+          </div>
 
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="bg-white/5 rounded-lg p-3">
-                    <p className="text-purple-200 text-xs mb-1">Avg Productivity</p>
-                    <p className="text-white text-xl font-bold">
-                      {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.avg}
-                    </p>
-                  </div>
-                  <div className="bg-white/5 rounded-lg p-3">
-                    <p className="text-purple-200 text-xs mb-1">Target</p>
-                    <p className="text-white text-xl font-bold">
-                      {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.target}
-                    </p>
+          {/* Detailed Calculation Formula - Collapsible */}
+          {monthlyMetrics.productivity2WHKPI && isFormulaExpanded && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 border-b border-gray-200">
+                <h4 className="text-gray-900 font-bold text-sm flex items-center gap-2">
+                  📊 Detailed Calculation Formula - Productivity 2WH KPI
+                </h4>
+              </div>
+              <div className="p-5 space-y-4">
+                {/* Step 1 */}
+                <div className="pb-4 border-b border-gray-200">
+                  <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 1: Calculate Average Productivity</h5>
+                  <div className="text-gray-700 text-xs space-y-1 ml-3">
+                    <p className="font-mono bg-gray-50 p-2 rounded border border-gray-200">Avg Productivity = Total Delivered ÷ Total Active Shifts</p>
+                    <p className="mt-2">Example for Dedicated 2WH:</p>
+                    <p className="ml-2">• Total Delivered: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.delivered.toLocaleString()}</p>
+                    <p className="ml-2">• Total Shifts: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.shifts.toLocaleString()}</p>
+                    <p className="ml-2">• <span className="text-gray-900 font-semibold">Result: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</span> per shift</p>
                   </div>
                 </div>
 
-                {/* Threshold Info */}
-                <div className="bg-white/5 rounded-lg p-3 mb-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-purple-200 text-xs">Threshold (75%):</span>
-                    <span className="text-yellow-300 font-bold">
-                      {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.threshold}
-                    </span>
-                  </div>
-                  <div className="text-purple-200 text-xs mt-1">
-                    {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.avg >= monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.threshold
-                      ? `✓ Above threshold (+${(monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.avg - monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.threshold).toFixed(1)})`
-                      : `✗ Below threshold (-${(monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.threshold - monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.avg).toFixed(1)})`
-                    }
+                {/* Step 2 */}
+                <div className="pb-4 border-b border-gray-200">
+                  <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 2: Get Target (Appeal → Original)</h5>
+                  <div className="text-gray-700 text-xs space-y-1 ml-3">
+                    <p>Priority: <span className="font-semibold">Appeal Target</span> (Supabase) → <span className="font-semibold">Monday Original</span> (Raw data)</p>
+                    <p className="ml-2">• Dedicated 2WH Target: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</p>
                   </div>
                 </div>
 
-                {/* Additional Stats */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="text-center bg-white/5 rounded-lg p-2">
-                    <p className="text-purple-200 text-xs mb-1">Total Shifts</p>
-                    <p className="text-white font-bold text-lg">
-                      {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.shifts.toLocaleString()}
-                    </p>
+                {/* Step 3 */}
+                <div className="pb-4 border-b border-gray-200">
+                  <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 3: Calculate Threshold (75%)</h5>
+                  <div className="text-gray-700 text-xs space-y-1 ml-3">
+                    <p className="font-mono bg-gray-50 p-2 rounded border border-gray-200">Threshold = Target × 0.75</p>
+                    <p className="ml-2">• Dedicated 2WH: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold} = {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target} × 0.75</p>
                   </div>
-                  <div className="text-center bg-white/5 rounded-lg p-2">
-                    <p className="text-purple-200 text-xs mb-1">Total Delivered</p>
-                    <p className="text-white font-bold text-lg">
-                      {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.delivered.toLocaleString()}
-                    </p>
+                </div>
+
+                {/* Step 4 */}
+                <div className="pb-4 border-b border-gray-200">
+                  <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 4: Apply Threshold Formula</h5>
+                  <div className="text-gray-700 text-xs space-y-1 ml-3">
+                    <p className="font-mono bg-gray-50 p-2 rounded border border-gray-200">Achievement = (Result − Threshold) ÷ (Target − Threshold) × 100%</p>
+                    <p className="mt-2">Then cap between 0-100%</p>
+                    <p className="ml-2 mt-2">Example for Dedicated 2WH:</p>
+                    <p className="ml-2">• Result: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</p>
+                    <p className="ml-2">• Threshold: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}</p>
+                    <p className="ml-2">• Target: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</p>
+                    <p className="ml-2">• Achievement: <span className="text-gray-900 font-bold">{monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%</span></p>
+                  </div>
+                </div>
+
+                {/* Step 5 */}
+                <div>
+                  <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 5: Average Both Contract Types</h5>
+                  <div className="text-gray-700 text-xs space-y-1 ml-3">
+                    <p className="font-mono bg-gray-50 p-2 rounded border border-gray-200">Final KPI = (Dedicated Achievement + Kurir Plus Achievement) ÷ 2</p>
+                    <p className="mt-2">Current calculation:</p>
+                    <p className="ml-2">• Dedicated: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%</p>
+                    <p className="ml-2">• Kurir Plus: {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}%</p>
+                    <p className="ml-2 mt-1">• <span className="text-indigo-600 font-bold text-base">Final = {monthlyMetrics.productivity2WHKPI.achievement}%</span></p>
                   </div>
                 </div>
               </div>
