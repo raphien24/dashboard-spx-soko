@@ -1830,6 +1830,98 @@ class GoogleSheetsService {
       achievement: achievementPercentage.toFixed(1) + '%',
     });
 
+    // ─── Build Daily Breakdown Table Data ───────────────────────────────────
+    
+    // Group records by date for daily breakdown
+    const dailyBreakdown = {};
+    activeRecords.forEach(row => {
+      const dateStr = row[3];
+      const date = this.parseDate(dateStr);
+      if (!date) return;
+
+      if (!dailyBreakdown[dateStr]) {
+        dailyBreakdown[dateStr] = {
+          date: dateStr,
+          parsedDate: date,
+          delivered: 0,
+          activeShifts: 0,
+        };
+      }
+      dailyBreakdown[dateStr].delivered += this.parseNumeric(row[13]);
+      dailyBreakdown[dateStr].activeShifts += 1;
+    });
+
+    // Get target for each day based on its week
+    const dailyData = Object.values(dailyBreakdown).map(day => {
+      // Find which week this day belongs to
+      const dayOfWeek = day.parsedDate.getDay();
+      const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+      const monday = new Date(day.parsedDate);
+      monday.setDate(day.parsedDate.getDate() - daysFromMonday);
+      monday.setHours(0, 0, 0, 0);
+      const weekKey = monday.toISOString().split('T')[0];
+
+      // Get target for this week
+      const weekRecords = weekGroups[weekKey] || [];
+      let dayTarget = 0;
+      if (weekRecords.length > 0) {
+        const sampleRecord = weekRecords[0];
+        const weekContract = sampleRecord[5];
+        const weekVehicle = sampleRecord[6];
+        
+        // Try appeal target first
+        if (useAppeal && appealMap) {
+          dayTarget = this.getAppealTarget(weekKey, weekContract, weekVehicle, appealMap) || 0;
+        }
+        
+        // Fallback to Monday baseline
+        if (dayTarget === 0) {
+          const weekStartDate = new Date(weekKey);
+          const targetMap = this.getTargetMapForWeek(rawData, weekStartDate);
+          dayTarget = this.getTargetFromMap(targetMap, weekContract, weekVehicle, { 
+            useAppeal: false, 
+            weekStart: null, 
+            appealMap: null 
+          });
+        }
+      } else {
+        // No records for this day's week, use average target
+        dayTarget = avgMonthlyTarget;
+      }
+
+      // Calculate daily metrics
+      const avgDaily = day.activeShifts > 0 ? day.delivered / day.activeShifts : 0;
+      const threshold = dayTarget * 0.75;
+      let dayAchievement = 0;
+
+      if (avgDaily >= dayTarget) {
+        dayAchievement = 100;
+      } else if (avgDaily >= threshold) {
+        const range = dayTarget - threshold;
+        const progress = avgDaily - threshold;
+        dayAchievement = (progress / range) * 100;
+      } else {
+        dayAchievement = 0;
+      }
+
+      return {
+        date: day.date,
+        parsedDate: day.parsedDate,
+        dayName: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][day.parsedDate.getDay()],
+        delivered: day.delivered,
+        activeShifts: day.activeShifts,
+        avgProductivity: parseFloat(avgDaily.toFixed(1)),
+        target: parseFloat(dayTarget.toFixed(1)),
+        threshold: parseFloat(threshold.toFixed(1)),
+        achievement: parseFloat(dayAchievement.toFixed(1)),
+      };
+    });
+
+    // Sort by date ascending
+    dailyData.sort((a, b) => a.parsedDate - b.parsedDate);
+
+    console.log('[processMonthlyMetrics] Daily breakdown:', dailyData.length, 'days');
+
     // Build achievement object (similar to AchievementKPICard format)
     const achievement = {
       label: `MONTHLY ACHIEVEMENT - ${contract} ${vehicle}`,
@@ -1856,7 +1948,8 @@ class GoogleSheetsService {
         avgProductivity: parseFloat(avgProductivity.toFixed(1)) || 0,
         avgTarget: parseFloat(avgMonthlyTarget.toFixed(1)) || 0,
         operatingDays: operatingDays || 0,
-      }
+      },
+      dailyBreakdown: dailyData, // Add daily breakdown table data
     };
   }
 

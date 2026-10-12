@@ -282,6 +282,69 @@ const DashboardMonthly = () => {
               </div>
             </div>
           </div>
+
+          {/* Daily Breakdown Table */}
+          {monthlyMetrics.dailyBreakdown && monthlyMetrics.dailyBreakdown.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Breakdown</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Day</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Delivered</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Shifts</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Avg/Shift</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Target</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Achievement</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {monthlyMetrics.dailyBreakdown.map((day, index) => {
+                      const achievementColor = 
+                        day.achievement >= 100 ? 'text-green-700 bg-green-50' :
+                        day.achievement >= 75 ? 'text-yellow-700 bg-yellow-50' :
+                        day.achievement >= 50 ? 'text-orange-700 bg-orange-50' :
+                        'text-red-700 bg-red-50';
+
+                      const isAboveTarget = day.avgProductivity >= day.target;
+
+                      return (
+                        <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium text-gray-900">{day.date}</td>
+                          <td className="py-3 px-4 text-gray-600">{day.dayName}</td>
+                          <td className="py-3 px-4 text-right font-medium text-gray-900">{day.delivered.toLocaleString()}</td>
+                          <td className="py-3 px-4 text-right text-gray-600">{day.activeShifts}</td>
+                          <td className={`py-3 px-4 text-right font-semibold ${isAboveTarget ? 'text-green-700' : 'text-gray-900'}`}>
+                            {day.avgProductivity.toFixed(1)}
+                          </td>
+                          <td className="py-3 px-4 text-right text-indigo-700 font-medium">{day.target.toFixed(1)}</td>
+                          <td className="py-3 px-4 text-right">
+                            <span className={`px-2 py-1 rounded-md font-semibold ${achievementColor}`}>
+                              {day.achievement.toFixed(1)}%
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot>
+                    <tr className="bg-gray-50 border-t-2 border-gray-300">
+                      <td className="py-3 px-4 font-bold text-gray-900" colSpan="2">TOTAL / AVERAGE</td>
+                      <td className="py-3 px-4 text-right font-bold text-gray-900">{monthlyMetrics.summary.totalDelivered.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-right font-bold text-gray-900">{monthlyMetrics.summary.totalActiveShifts}</td>
+                      <td className="py-3 px-4 text-right font-bold text-indigo-900">{monthlyMetrics.summary.avgProductivity.toFixed(1)}</td>
+                      <td className="py-3 px-4 text-right font-bold text-indigo-700">{monthlyMetrics.summary.avgTarget.toFixed(1)}</td>
+                      <td className="py-3 px-4 text-right font-bold text-indigo-900">
+                        {monthlyMetrics.achievement.achievement.toFixed(1)}%
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          )}
         </>
       )}
 
