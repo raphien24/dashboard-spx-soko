@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Calendar, TrendingUp, Loader, AlertCircle } from 'lucide-react';
+import { Calendar, TrendingUp, Loader, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import useDashboardStore from '../../store/dashboardStore';
 import googleSheetsService from '../../services/googleSheetsService';
 import AchievementKPICard from '../dashboard/AchievementKPICard';
@@ -10,12 +10,14 @@ const DashboardMonthly = () => {
   const [selectedVehicle, setSelectedVehicle] = useState('2WH');
   const [isLoading, setIsLoading] = useState(false);
   const [monthlyMetrics, setMonthlyMetrics] = useState(null);
+  const [isFormulaExpanded, setIsFormulaExpanded] = useState(false); // Default collapsed
   
   const { rawCourierData, fetchDashboardData } = useDashboardStore();
   
   // Appeal targets
   const [appealTargetsMap, setAppealTargetsMap] = useState(null);
   const [useAppealTargets] = useState(true);
+  const [hasAutoLoaded, setHasAutoLoaded] = useState(false);
   
   useEffect(() => {
     // Set default to current month
@@ -46,7 +48,13 @@ const DashboardMonthly = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Remove auto-load on filter change - only load when button clicked
+  // Auto-load data on mount (after appealMap is ready)
+  useEffect(() => {
+    if (!hasAutoLoaded && selectedMonth && rawCourierData && appealTargetsMap) {
+      setHasAutoLoaded(true);
+      handleLoadMonthlyData();
+    }
+  }, [selectedMonth, rawCourierData, appealTargetsMap, hasAutoLoaded]);
 
   const handleLoadMonthlyData = () => {
     if (!selectedMonth || !rawCourierData) return;
@@ -396,11 +404,31 @@ const DashboardMonthly = () => {
                 </div>
               </div>
 
-              {/* Calculation Formula Info */}
-              <div className="mt-6 bg-white/5 backdrop-blur-sm rounded-lg p-5 border border-white/10">
-                <h4 className="text-white font-bold text-base mb-3 flex items-center gap-2">
-                  📊 Detailed Calculation Formula
-                </h4>
+              {/* Calculation Formula Info - Collapsible */}
+              <div className="mt-6 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden">
+                {/* Header with Toggle Button */}
+                <button
+                  onClick={() => setIsFormulaExpanded(!isFormulaExpanded)}
+                  className="w-full p-5 flex items-center justify-between hover:bg-white/5 transition-colors"
+                >
+                  <h4 className="text-white font-bold text-base flex items-center gap-2">
+                    📊 Detailed Calculation Formula
+                  </h4>
+                  <div className="flex items-center gap-2">
+                    <span className="text-indigo-200 text-sm">
+                      {isFormulaExpanded ? 'Click to minimize' : 'Click to expand'}
+                    </span>
+                    {isFormulaExpanded ? (
+                      <ChevronUp className="w-5 h-5 text-white" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-white" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Collapsible Content */}
+                {isFormulaExpanded && (
+                  <div className="p-5 pt-0 border-t border-white/10"
                 
                 {/* Step 1: Productivity Calculation */}
                 <div className="mb-4 pb-4 border-b border-white/10">
@@ -484,6 +512,8 @@ const DashboardMonthly = () => {
                     <p className="ml-2 mt-1">• <span className="text-white font-bold text-base">Final PRODUCTIVITY 2WH = ({monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)} + {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}) ÷ 2 = {monthlyMetrics.productivity2WHKPI.achievement}%</span></p>
                   </div>
                 </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
