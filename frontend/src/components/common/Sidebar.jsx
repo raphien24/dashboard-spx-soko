@@ -164,9 +164,9 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       <div 
         className={`
           fixed lg:relative h-screen relative
-          bg-white dark:bg-slate-900/70 dark:backdrop-blur-xl
+          bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 dark:bg-slate-900/70 dark:backdrop-blur-xl
           transition-all duration-300 ease-in-out flex flex-col z-40
-          border-r border-gray-200 dark:border-slate-700/50 shadow-lg dark:shadow-2xl
+          border-r border-indigo-300/50 dark:border-slate-700/50 shadow-2xl shadow-purple-500/20 dark:shadow-slate-950
           ${isCollapsed ? 'lg:w-20' : 'lg:w-64'}
           ${isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0 w-64'}
         `}
@@ -181,23 +181,33 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
           `,
         }}
       />
+      
+      {/* Fun Pattern Overlay - Light Mode Only */}
+      <div className="absolute inset-0 opacity-10 dark:opacity-0 pointer-events-none"
+        style={{
+          backgroundImage: `
+            radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.8) 0%, transparent 50%)
+          `,
+        }}
+      />
       {/* Logo Section */}
-      <div className="p-6 border-b border-gray-200 dark:border-indigo-700/50 relative z-10">
+      <div className="p-6 border-b border-white/20 dark:border-indigo-700/50 relative z-10">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-indigo-600 dark:bg-white rounded-lg flex items-center justify-center shadow-lg">
-                <LayoutDashboard className="w-6 h-6 text-white dark:text-indigo-600" />
+              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg">
+                <LayoutDashboard className="w-6 h-6 text-indigo-600" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900 dark:text-white">SPX SOKO</h1>
-                <p className="text-xs text-gray-500 dark:text-indigo-300">Dashboard</p>
+                <h1 className="text-lg font-bold text-white">SPX SOKO</h1>
+                <p className="text-xs text-white/80 dark:text-indigo-300">Dashboard</p>
               </div>
             </div>
           )}
           {isCollapsed && (
-            <div className="w-10 h-10 bg-indigo-600 dark:bg-white rounded-lg flex items-center justify-center mx-auto shadow-lg">
-              <LayoutDashboard className="w-6 h-6 text-white dark:text-indigo-600" />
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center mx-auto shadow-lg">
+              <LayoutDashboard className="w-6 h-6 text-indigo-600" />
             </div>
           )}
         </div>
@@ -223,20 +233,20 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                   w-full flex items-center space-x-3 px-4 py-3 rounded-lg
                   transition-all duration-200 group relative
                   ${isActive 
-                    ? 'bg-indigo-50 dark:bg-white text-indigo-600 dark:text-indigo-900 shadow-lg' 
+                    ? 'bg-white/95 text-indigo-700 dark:text-indigo-900 shadow-lg shadow-indigo-200/50 dark:shadow-none' 
                     : isDisabled
-                    ? 'text-gray-400 dark:text-white/50 cursor-not-allowed opacity-50'
-                    : 'text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10'
+                    ? 'text-white/50 dark:text-white/50 cursor-not-allowed opacity-50'
+                    : 'text-white hover:bg-white/20 dark:hover:bg-white/10'
                   }
                   ${isCollapsed ? 'justify-center' : ''}
                 `}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-600' : ''}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-600 dark:text-indigo-600' : 'text-white dark:text-white'}`} />
                 {!isCollapsed && (
                   <>
                     <span className="flex-1 text-left font-medium">{item.label}</span>
                     {isDisabled && (
-                      <span className="text-xs bg-gray-200 dark:bg-white/20 px-2 py-0.5 rounded-full">
+                      <span className="text-xs bg-white/30 dark:bg-white/20 px-2 py-0.5 rounded-full text-white">
                         Soon
                       </span>
                     )}
@@ -281,8 +291,8 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                           w-full flex items-center space-x-3 px-4 py-2 rounded-lg
                           transition-all duration-200 text-sm
                           ${isSubActive
-                            ? 'bg-indigo-100 dark:bg-white/20 text-indigo-700 dark:text-white font-medium'
-                            : 'text-gray-600 dark:text-white/80 hover:bg-gray-50 dark:hover:bg-white/10'
+                            ? 'bg-white/30 dark:bg-white/20 text-white font-bold shadow-md'
+                            : 'text-white/90 dark:text-white/80 hover:bg-white/10 dark:hover:bg-white/10'
                           }
                         `}
                       >
@@ -300,8 +310,8 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
 
       {/* Footer - Version Info */}
       {!isCollapsed && (
-        <div className="p-4 border-t border-gray-200 dark:border-indigo-700/50 relative z-10">
-          <div className="text-xs text-gray-500 dark:text-indigo-300">
+        <div className="p-4 border-t border-white/20 dark:border-indigo-700/50 relative z-10">
+          <div className="text-xs text-white/80 dark:text-indigo-300">
             <p className="font-semibold">Version 1.0.0</p>
             <p className="mt-1">© 2026 SPX SOKO</p>
           </div>

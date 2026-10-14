@@ -100,8 +100,13 @@ function App() {
       <StarfieldBackground />
       
       <div className="flex h-screen bg-transparent overflow-hidden relative">
-        {/* Solid background layer behind content */}
-        <div className="absolute inset-0 bg-gray-50 dark:bg-slate-950 -z-10" />
+        {/* Solid background layer behind content - Fun gradient for light mode */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:bg-slate-950 -z-10" />
+        
+        {/* Animated gradient overlay - Light mode only */}
+        <div className="absolute inset-0 dark:opacity-0 opacity-100 -z-10 bg-gradient-to-tr from-transparent via-indigo-50/30 to-transparent animate-pulse" 
+          style={{ animationDuration: '8s' }} 
+        />
         
         {/* Sidebar */}
         <Sidebar activePage={activePage} onNavigate={handleNavigation} />
@@ -109,7 +114,7 @@ function App() {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
-          <header className="bg-white/95 dark:bg-slate-900/70 backdrop-blur-md shadow-sm border-b border-gray-200 dark:border-slate-700/50 relative">
+          <header className="bg-white/95 dark:bg-slate-900/70 backdrop-blur-md shadow-lg shadow-purple-100/50 dark:shadow-none border-b-2 border-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 dark:border-slate-700/50 relative">
             <div className="px-3 sm:px-6 py-3 sm:py-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
                 <div className="pl-12 lg:pl-0">
@@ -171,7 +176,7 @@ function App() {
           </main>
 
           {/* Footer */}
-          <footer className="bg-white/95 dark:bg-slate-900/70 backdrop-blur-md border-t border-gray-200 dark:border-slate-700/50 px-3 sm:px-6 py-2 sm:py-3 relative">
+          <footer className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:bg-slate-900/70 backdrop-blur-md border-t-2 border-purple-200 dark:border-slate-700/50 px-3 sm:px-6 py-2 sm:py-3 relative">
             <div className="flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm gap-2 sm:gap-0">
               <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
                 <p className="text-gray-600 dark:text-slate-400 text-center">
