@@ -333,8 +333,8 @@ function Dashboard({ autoRefreshEnabled = true }) {
       {/* Achievement KPI Productivity Cards — 2WH dan 4WH side by side */}
       {(achievementKPI || achievement4WH) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {achievementKPI && <AchievementKPICard achievement={achievementKPI} />}
-          {achievement4WH && <AchievementKPICard achievement={achievement4WH} />}
+          {achievementKPI && <AchievementKPICard achievement={achievementKPI} delay={0} />}
+          {achievement4WH && <AchievementKPICard achievement={achievement4WH} delay={0.15} />}
         </div>
       )}
 
