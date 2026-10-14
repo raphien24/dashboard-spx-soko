@@ -6,15 +6,40 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
   padding: 0;
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
   background-color: #f8f9fa;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Mobile viewport fix */
+@supports (-webkit-touch-callout: none) {
+  body {
+    height: -webkit-fill-available;
+  }
+  #root {
+    height: -webkit-fill-available;
+  }
 }
 
 /* Custom animations for FilteringLoader */
