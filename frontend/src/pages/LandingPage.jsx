@@ -412,9 +412,9 @@ const LandingPage = ({ onNavigate }) => {
             </svg>
 
             {/* Sun (Center Logo) with 3D sphere effect */}
-            <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 100 }}>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 100 }}>
               <div 
-                className="relative rounded-full shadow-2xl shadow-orange-500/50 flex items-center justify-center"
+                className="relative rounded-full shadow-2xl shadow-orange-500/50 flex items-center justify-center pointer-events-none"
                 style={{
                   width: '140px',
                   height: '140px',
@@ -424,17 +424,17 @@ const LandingPage = ({ onNavigate }) => {
               >
                 {/* Inner glow */}
                 <div 
-                  className="absolute inset-4 rounded-full"
+                  className="absolute inset-4 rounded-full pointer-events-none"
                   style={{
                     background: 'radial-gradient(circle at 35% 35%, rgba(254, 243, 199, 0.9), transparent)',
                   }}
                 />
-                <span className="text-4xl font-bold text-white drop-shadow-2xl z-10" style={{ textShadow: '0 0 20px rgba(0,0,0,0.5)' }}>
+                <span className="text-4xl font-bold text-white drop-shadow-2xl z-10 pointer-events-none" style={{ textShadow: '0 0 20px rgba(0,0,0,0.5)' }}>
                   SPX
                 </span>
                 
                 {/* Sun corona */}
-                <div className="absolute inset-0 rounded-full animate-ping" style={{ 
+                <div className="absolute inset-0 rounded-full animate-ping pointer-events-none" style={{ 
                   background: 'radial-gradient(circle, rgba(251, 191, 36, 0.4), transparent 70%)',
                   animationDuration: '3s'
                 }} />
@@ -454,65 +454,78 @@ const LandingPage = ({ onNavigate }) => {
                   style={{
                     left: '50%',
                     top: '50%',
-                    width: `${size.width}px`,
-                    height: `${size.height}px`,
+                    // Make hitbox larger for easier clicking
+                    width: `${size.width * 1.5}px`,
+                    height: `${size.height * 1.5}px`,
                     transform: `translate(calc(-50% + ${pos.x}px), calc(-50% + ${pos.y}px)) scale(${pos.scale})`,
                     opacity: pos.opacity,
                     zIndex: Math.round(50 + pos.z),
+                    padding: 0,
+                    margin: 0,
                   }}
                 >
-                  {/* 3D Sphere with realistic shading */}
-                  <div 
-                    className="relative w-full h-full rounded-full transition-all duration-300 group-hover:scale-125"
-                    style={{
-                      background: `radial-gradient(circle at 35% 35%, ${planet.solidColor}dd, ${planet.solidColor}88, ${planet.solidColor}44)`,
-                      boxShadow: `
-                        inset -8px -8px 20px rgba(0, 0, 0, 0.4),
-                        inset 4px 4px 12px rgba(255, 255, 255, 0.3),
-                        0 8px 32px ${planet.solidColor}88,
-                        0 0 60px ${planet.solidColor}44
-                      `,
-                    }}
-                  >
-                    {/* Specular highlight */}
+                  {/* Invisible larger hitbox */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    {/* 3D Sphere with realistic shading - centered in hitbox */}
                     <div 
-                      className="absolute rounded-full"
+                      className="relative rounded-full transition-all duration-300 group-hover:scale-110"
                       style={{
-                        top: '15%',
-                        left: '20%',
-                        width: '30%',
-                        height: '30%',
-                        background: 'radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent)',
-                        filter: 'blur(4px)',
+                        width: `${size.width}px`,
+                        height: `${size.height}px`,
+                        background: `radial-gradient(circle at 35% 35%, ${planet.solidColor}dd, ${planet.solidColor}88, ${planet.solidColor}44)`,
+                        boxShadow: `
+                          inset -8px -8px 20px rgba(0, 0, 0, 0.4),
+                          inset 4px 4px 12px rgba(255, 255, 255, 0.3),
+                          0 8px 32px ${planet.solidColor}88,
+                          0 0 60px ${planet.solidColor}44
+                        `,
                       }}
-                    />
-                    
-                    {/* Planet Emoji */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span 
-                        className="group-hover:scale-110 transition-transform"
-                        style={{ 
-                          fontSize: `${size.width * 0.5}px`,
-                          filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))'
+                    >
+                      {/* Specular highlight */}
+                      <div 
+                        className="absolute rounded-full pointer-events-none"
+                        style={{
+                          top: '15%',
+                          left: '20%',
+                          width: '30%',
+                          height: '30%',
+                          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent)',
+                          filter: 'blur(4px)',
                         }}
-                      >
-                        {planet.planetEmoji}
-                      </span>
-                    </div>
+                      />
+                      
+                      {/* Planet Emoji */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span 
+                          className="group-hover:scale-110 transition-transform"
+                          style={{ 
+                            fontSize: `${size.width * 0.5}px`,
+                            filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))'
+                          }}
+                        >
+                          {planet.planetEmoji}
+                        </span>
+                      </div>
 
-                    {/* Atmosphere glow */}
-                    <div 
-                      className="absolute inset-0 rounded-full group-hover:opacity-100 transition-opacity"
-                      style={{
-                        background: `radial-gradient(circle, transparent 60%, ${planet.solidColor}44 80%, transparent 100%)`,
-                        filter: 'blur(8px)',
-                        opacity: 0.6,
-                      }}
-                    />
+                      {/* Atmosphere glow */}
+                      <div 
+                        className="absolute inset-0 rounded-full group-hover:opacity-100 transition-opacity pointer-events-none"
+                        style={{
+                          background: `radial-gradient(circle, transparent 60%, ${planet.solidColor}44 80%, transparent 100%)`,
+                          filter: 'blur(8px)',
+                          opacity: 0.6,
+                        }}
+                      />
+                    </div>
                   </div>
                   
                   {/* Planet label - ALWAYS VISIBLE */}
-                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap transition-all pointer-events-none">
+                  <div 
+                    className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap transition-all pointer-events-none"
+                    style={{
+                      bottom: `${-size.height * 0.3}px`, // Position based on planet size
+                    }}
+                  >
                     <span className="text-xs font-semibold text-white drop-shadow-lg bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full border border-white/20 group-hover:bg-black/70 group-hover:scale-110">
                       {planet.label}
                     </span>
@@ -520,8 +533,9 @@ const LandingPage = ({ onNavigate }) => {
 
                   {/* Orbit trail indicator - Only on hover */}
                   <div 
-                    className="absolute inset-0 rounded-full border-2 opacity-0 group-hover:opacity-50 transition-opacity"
+                    className="absolute rounded-full border-2 opacity-0 group-hover:opacity-50 transition-opacity pointer-events-none"
                     style={{
+                      inset: '25%', // Centered within the hitbox
                       borderColor: planet.solidColor,
                       transform: 'scale(1.3)',
                     }}
