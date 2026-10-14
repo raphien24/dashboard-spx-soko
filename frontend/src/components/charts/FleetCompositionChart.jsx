@@ -8,11 +8,11 @@ import { Target } from 'lucide-react';
 function FleetCompositionChart({ data }) {
   if (!data) {
     return (
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-4">
           🎯 Quota & Fleet Composition
         </h3>
-        <div className="h-64 bg-gray-100 rounded-lg animate-pulse" />
+        <div className="h-64 bg-gray-100 dark:bg-slate-800 rounded-lg animate-pulse" />
       </div>
     );
   }
@@ -30,9 +30,9 @@ function FleetCompositionChart({ data }) {
       const total = fleetData.reduce((sum, d) => sum + d.value, 0);
       const percentage = total > 0 ? ((item.value / total) * 100).toFixed(0) : 0;
       return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-          <p className="font-semibold text-gray-900 text-sm">{item.name}</p>
-          <p className="text-gray-600 text-xs">
+        <div className="bg-white dark:bg-slate-900 p-3 rounded-lg shadow-lg border border-gray-200 dark:border-slate-800">
+          <p className="font-semibold text-gray-900 dark:text-slate-100 text-sm">{item.name}</p>
+          <p className="text-gray-600 dark:text-slate-400 text-xs">
             {item.value} vehicles ({percentage}%)
           </p>
         </div>
@@ -83,16 +83,16 @@ function FleetCompositionChart({ data }) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
             Quota & Fleet Composition
           </h3>
         </div>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-slate-500">
           Probable assigned adherence & fleet mix
         </p>
       </div>
@@ -119,33 +119,33 @@ function FleetCompositionChart({ data }) {
       </ResponsiveContainer>
 
       {/* Fleet Breakdown */}
-      <div className="mt-4 pt-4 border-t border-gray-100">
+      <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-800">
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="text-center p-3 bg-blue-50 rounded-lg">
             <div className="flex items-center justify-center gap-2 mb-1">
               <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <p className="text-xs font-semibold text-gray-600 uppercase">2WH (4WBS)</p>
+              <p className="text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase">2WH (4WBS)</p>
             </div>
             <p className="text-2xl font-bold text-blue-600">{data.count2WH || 0}</p>
-            <p className="text-xs text-gray-500">Total Vehicles Dispatched</p>
+            <p className="text-xs text-gray-500 dark:text-slate-500">Total Vehicles Dispatched</p>
           </div>
           
           <div className="text-center p-3 bg-orange-50 rounded-lg">
             <div className="flex items-center justify-center gap-2 mb-1">
               <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-              <p className="text-xs font-semibold text-gray-600 uppercase">4WH (PABM)</p>
+              <p className="text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase">4WH (PABM)</p>
             </div>
             <p className="text-2xl font-bold text-orange-600">{data.count4WH || 0}</p>
-            <p className="text-xs text-gray-500">Total Vehicles Dispatched</p>
+            <p className="text-xs text-gray-500 dark:text-slate-500">Total Vehicles Dispatched</p>
           </div>
         </div>
 
         {/* Average Target Info */}
-        <div className="flex items-center justify-center gap-2 p-3 bg-gray-50 rounded-lg">
-          <Target className="w-4 h-4 text-gray-600" />
+        <div className="flex items-center justify-center gap-2 p-3 bg-gray-50 dark:bg-slate-800 rounded-lg">
+          <Target className="w-4 h-4 text-gray-600 dark:text-slate-400" />
           <div className="text-center">
-            <p className="text-xs text-gray-500">Avg Target per courier:</p>
-            <p className="text-lg font-bold text-gray-900">{data.avgTargetPerCourier || 0} packages</p>
+            <p className="text-xs text-gray-500 dark:text-slate-500">Avg Target per courier:</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-slate-100">{data.avgTargetPerCourier || 0} packages</p>
           </div>
         </div>
       </div>

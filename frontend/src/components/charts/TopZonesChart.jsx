@@ -8,7 +8,7 @@ function TopZonesChart({ data }) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-4">
           🌍 Top Zones by Parcel Volume
         </h3>
         <div className="h-64 bg-gray-100 dark:bg-slate-800 rounded-lg animate-pulse" />
@@ -35,7 +35,7 @@ function TopZonesChart({ data }) {
     if (active && payload && payload.length) {
       const item = payload[0].payload;
       return (
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200 dark:border-slate-800">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-slate-800">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700">
               #{item.rank}
@@ -133,7 +133,7 @@ function TopZonesChart({ data }) {
       </ResponsiveContainer>
 
       {/* Zone rankings */}
-      <div className="mt-4 pt-4 border-t border-gray-100">
+      <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-800">
         <div className="grid grid-cols-2 gap-x-6 gap-y-2">
           {rankedData.map((item) => (
             <div key={item?.zone || Math.random()} className="flex items-center justify-between text-sm py-1">
@@ -144,7 +144,7 @@ function TopZonesChart({ data }) {
                 <span className="font-medium text-gray-700 dark:text-slate-300">{item?.zone || 'Unknown'}</span>
               </div>
               <div className="text-right">
-                <span className="text-gray-900 font-semibold text-xs">
+                <span className="text-gray-900 dark:text-slate-100 font-semibold text-xs">
                   {item?.delivered?.toLocaleString() || 0}/{item?.total?.toLocaleString() || 0}
                 </span>
                 <span className="ml-2 text-green-600 font-semibold text-xs">

@@ -173,7 +173,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
         <div className="flex items-center justify-between">
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center">
                 <LayoutDashboard className="w-6 h-6 text-indigo-600" />
               </div>
               <div>
@@ -183,7 +183,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
             </div>
           )}
           {isCollapsed && (
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center mx-auto">
+            <div className="w-10 h-10 bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center mx-auto">
               <LayoutDashboard className="w-6 h-6 text-indigo-600" />
             </div>
           )}
@@ -210,7 +210,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                   w-full flex items-center space-x-3 px-4 py-3 rounded-lg
                   transition-all duration-200 group relative
                   ${isActive 
-                    ? 'bg-white text-indigo-900 shadow-lg' 
+                    ? 'bg-white dark:bg-slate-900 text-indigo-900 shadow-lg' 
                     : isDisabled
                     ? 'text-indigo-400 cursor-not-allowed opacity-50'
                     : 'text-indigo-100 hover:bg-indigo-700/50'
@@ -298,7 +298,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       {/* Collapse Toggle Button (Desktop Only) */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-white rounded-full shadow-lg items-center justify-center text-indigo-600 hover:bg-indigo-50 transition-colors z-10"
+        className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-white dark:bg-slate-900 rounded-full shadow-lg items-center justify-center text-indigo-600 hover:bg-indigo-50 transition-colors z-10"
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (

@@ -106,7 +106,7 @@ const AdjustTargetPage = () => {
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-        <p className="text-sm text-gray-500">Loading Target Appeals...</p>
+        <p className="text-sm text-gray-500 dark:text-slate-500">Loading Target Appeals...</p>
       </div>
     </div>
   );
@@ -131,8 +131,8 @@ const AdjustTargetPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Adjust Weekly Target</h2>
-          <p className="text-sm text-gray-500 mt-1">Submit approved appeal targets to override original Monday targets</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Adjust Weekly Target</h2>
+          <p className="text-sm text-gray-500 dark:text-slate-500 mt-1">Submit approved appeal targets to override original Monday targets</p>
         </div>
         <button onClick={fetchAppeals} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium">
           <RefreshCw className="w-4 h-4" /> Refresh
@@ -140,14 +140,14 @@ const AdjustTargetPage = () => {
       </div>
 
       {/* Submit Form */}
-      <div className="bg-white rounded-xl shadow-sm border border-indigo-200 p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-200 p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
             <Plus className="w-5 h-5 text-indigo-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Submit Appeal Target</h3>
-            <p className="text-xs text-gray-500">Enter approved target after appeal process</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Submit Appeal Target</h3>
+            <p className="text-xs text-gray-500 dark:text-slate-500">Enter approved target after appeal process</p>
           </div>
         </div>
 
@@ -155,9 +155,9 @@ const AdjustTargetPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Week */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Week (Monday)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Week (Monday)</label>
               <select value={weekStart} onChange={e => setWeekStart(e.target.value)} required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
                 <option value="">Select Week...</option>
                 {weekOptions.map(w => <option key={w.value} value={w.value}>{w.label}</option>)}
               </select>
@@ -165,9 +165,9 @@ const AdjustTargetPage = () => {
 
             {/* Contract */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contract</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Contract</label>
               <select value={contract} onChange={e => setContract(e.target.value)} required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
                 <option value="Dedicated">Dedicated</option>
                 <option value="Kurir Plus">Kurir Plus</option>
               </select>
@@ -175,9 +175,9 @@ const AdjustTargetPage = () => {
 
             {/* Vehicle */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Vehicle</label>
               <select value={vehicle} onChange={e => setVehicle(e.target.value)} required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
                 <option value="2WH">2WH</option>
                 <option value="4WH">4WH</option>
               </select>
@@ -185,10 +185,10 @@ const AdjustTargetPage = () => {
 
             {/* Target */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Appeal Target</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Appeal Target</label>
               <input type="number" step="0.01" value={appealTarget} onChange={e => setAppealTarget(e.target.value)} required
                 placeholder="e.g., 85.5"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500" />
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500" />
             </div>
           </div>
 
@@ -213,9 +213,9 @@ const AdjustTargetPage = () => {
       </div>
 
       {/* Appeals Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-200 bg-gray-50">
-          <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100 flex items-center gap-2">
             <TargetIcon className="w-5 h-5 text-indigo-600" />
             Active Target Appeals
             <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full font-semibold">{sortedAppeals.length}</span>
@@ -225,7 +225,7 @@ const AdjustTargetPage = () => {
         {sortedAppeals.length === 0 ? (
           <div className="p-12 text-center">
             <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 text-sm">No target appeals yet. Submit one above to override default targets.</p>
+            <p className="text-gray-500 dark:text-slate-500 text-sm">No target appeals yet. Submit one above to override default targets.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -244,8 +244,8 @@ const AdjustTargetPage = () => {
               <tbody className="divide-y divide-gray-100">
                 {sortedAppeals.map((appeal, i) => (
                   <tr key={i} className="hover:bg-indigo-50/30 transition-colors">
-                    <td className="px-4 py-3 text-gray-800 font-mono text-xs">{appeal.weekStart}</td>
-                    <td className="px-4 py-3 text-gray-700">{appeal.contract}</td>
+                    <td className="px-4 py-3 text-gray-800 dark:text-slate-200 font-mono text-xs">{appeal.weekStart}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-slate-300">{appeal.contract}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
                         appeal.vehicleType === '2WH' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
@@ -254,8 +254,8 @@ const AdjustTargetPage = () => {
                     <td className="px-4 py-3 text-right">
                       <span className="text-lg font-bold text-indigo-700">{appeal.appealTarget}</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">{appeal.lastUpdated}</td>
-                    <td className="px-4 py-3 text-gray-600 text-xs">{appeal.updatedBy}</td>
+                    <td className="px-4 py-3 text-gray-500 dark:text-slate-500 text-xs">{appeal.lastUpdated}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-slate-400 text-xs">{appeal.updatedBy}</td>
                     <td className="px-4 py-3 text-center">
                       <button onClick={() => handleDelete(appeal)}
                         className="inline-flex items-center gap-1 px-2 py-1 text-red-600 hover:bg-red-50 border border-red-200 rounded text-xs">

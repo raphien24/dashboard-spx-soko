@@ -8,11 +8,11 @@ function MetricCard({ title, value, badge, icon: Icon, color = 'gray' }) {
   // Color variations
   const colorClasses = {
     gray: {
-      bg: 'bg-gray-50',
-      border: 'border-gray-200',
-      icon: 'text-gray-600',
-      text: 'text-gray-900',
-      badge: 'bg-gray-200 text-gray-700',
+      bg: 'bg-gray-50 dark:bg-slate-800',
+      border: 'border-gray-200 dark:border-slate-800',
+      icon: 'text-gray-600 dark:text-slate-400',
+      text: 'text-gray-900 dark:text-slate-100',
+      badge: 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300',
     },
     purple: {
       bg: 'bg-purple-50',
@@ -67,7 +67,7 @@ function MetricCard({ title, value, badge, icon: Icon, color = 'gray' }) {
       </div>
       
       <div>
-        <p className="text-sm text-gray-600 mb-1">{title}</p>
+        <p className="text-sm text-gray-600 dark:text-slate-400 mb-1">{title}</p>
         <p className={`text-2xl font-bold ${colors.text}`}>
           {typeof value === 'number' ? formatNumber(value) : value}
         </p>

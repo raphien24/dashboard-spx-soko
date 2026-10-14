@@ -51,10 +51,10 @@ const AchievementKPICard = ({ achievement, title }) => {
             <Trophy className="w-6 h-6 text-amber-600" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+            <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wide">
               {cardTitle}
             </h3>
-            <p className="text-xs text-gray-500 mt-0.5">Threshold: 75% of Target</p>
+            <p className="text-xs text-gray-500 dark:text-slate-500 mt-0.5">Threshold: 75% of Target</p>
           </div>
         </div>
         <div className={`px-2 py-1 text-xs font-semibold rounded ${is4WH ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
@@ -68,12 +68,12 @@ const AchievementKPICard = ({ achievement, title }) => {
           <span className={`text-5xl font-bold ${totalColor.text}`}>
             {safeTotal.toFixed(1)}
           </span>
-          <span className="text-xl text-gray-500 font-medium">%</span>
+          <span className="text-xl text-gray-500 dark:text-slate-500 font-medium">%</span>
           <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-semibold ${totalColor.badge}`}>
             {badgeLabel}
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+        <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
           <div className={`h-3 rounded-full transition-all duration-700 ${totalColor.bar}`}
             style={{ width: `${Math.min(safeTotal, 100)}%` }} />
         </div>
@@ -83,16 +83,16 @@ const AchievementKPICard = ({ achievement, title }) => {
       </div>
 
       {/* Breakdown */}
-      <div className={`grid gap-4 pt-4 border-t border-gray-100 ${!is4WH && hasPlus ? 'grid-cols-2' : 'grid-cols-1'}`}>
+      <div className={`grid gap-4 pt-4 border-t border-gray-100 dark:border-slate-800 ${!is4WH && hasPlus ? 'grid-cols-2' : 'grid-cols-1'}`}>
         {/* Dedicated */}
-        <div className={`rounded-lg p-3 ${hasDedicated ? 'bg-gray-50' : 'bg-gray-50 dark:bg-slate-800 opacity-50'}`}>
+        <div className={`rounded-lg p-3 ${hasDedicated ? 'bg-gray-50 dark:bg-slate-800' : 'bg-gray-50 dark:bg-slate-800 opacity-50'}`}>
           <div className="flex items-center justify-between mb-1">
-            <p className="text-xs text-gray-500 font-medium">Dedicated {is4WH ? '4WH' : '2WH'}</p>
+            <p className="text-xs text-gray-500 dark:text-slate-500 font-medium">Dedicated {is4WH ? '4WH' : '2WH'}</p>
             <span className={`text-sm font-bold ${dedColor.text}`}>
               {hasDedicated ? `${safeDedicated.toFixed(1)}%` : 'N/A'}
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden mb-1">
+          <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden mb-1">
             <div className={`h-1.5 rounded-full ${dedColor.bar}`}
               style={{ width: hasDedicated ? `${Math.min(safeDedicated, 100)}%` : '0%' }} />
           </div>
@@ -104,12 +104,12 @@ const AchievementKPICard = ({ achievement, title }) => {
 
         {/* Kurir Plus — only for 2WH */}
         {!is4WH && hasPlus && plusColor && (
-          <div className="rounded-lg p-3 bg-gray-50">
+          <div className="rounded-lg p-3 bg-gray-50 dark:bg-slate-800">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-xs text-gray-500 font-medium">Kurir Plus 2WH</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500 font-medium">Kurir Plus 2WH</p>
               <span className={`text-sm font-bold ${plusColor.text}`}>{safePlus.toFixed(1)}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden mb-1">
+            <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden mb-1">
               <div className={`h-1.5 rounded-full ${plusColor.bar}`}
                 style={{ width: `${Math.min(safePlus, 100)}%` }} />
             </div>

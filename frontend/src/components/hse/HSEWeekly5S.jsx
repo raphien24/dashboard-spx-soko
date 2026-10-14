@@ -20,7 +20,7 @@ const HSEWeekly5S = () => {
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
-        <p className="text-sm text-gray-500">Loading Weekly 5S...</p>
+        <p className="text-sm text-gray-500 dark:text-slate-500">Loading Weekly 5S...</p>
       </div>
     </div>
   );
@@ -41,9 +41,9 @@ const HSEWeekly5S = () => {
   );
 
   if (rows.length === 0) return (
-    <div className="bg-gray-50 border border-gray-200 rounded-xl p-12 text-center">
+    <div className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded-xl p-12 text-center">
       <AlertTriangle className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-      <p className="text-gray-500">Tidak ada data</p>
+      <p className="text-gray-500 dark:text-slate-500">Tidak ada data</p>
     </div>
   );
 
@@ -68,7 +68,7 @@ const HSEWeekly5S = () => {
     );
     if (isCheck(val)) return <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />;
     if (isCross(val)) return <XCircle className="w-5 h-5 text-red-500 mx-auto" />;
-    return <span className="text-xs text-gray-700 break-words">{val}</span>;
+    return <span className="text-xs text-gray-700 dark:text-slate-300 break-words">{val}</span>;
   };
 
   return (
@@ -76,8 +76,8 @@ const HSEWeekly5S = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">Weekly 5S</h2>
-          <p className="text-sm text-gray-500 mt-0.5">Checklist kebersihan dan keselamatan mingguan</p>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">Weekly 5S</h2>
+          <p className="text-sm text-gray-500 dark:text-slate-500 mt-0.5">Checklist kebersihan dan keselamatan mingguan</p>
         </div>
         <button onClick={fetchData} className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium">
           <RefreshCw className="w-4 h-4" /> Refresh
@@ -85,7 +85,7 @@ const HSEWeekly5S = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

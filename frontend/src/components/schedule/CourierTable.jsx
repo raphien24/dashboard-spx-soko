@@ -20,8 +20,8 @@ function CourierTable({ data }) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm p-12 border border-gray-200 text-center">
-        <p className="text-gray-500">No courier data available</p>
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-12 border border-gray-200 dark:border-slate-800 text-center">
+        <p className="text-gray-500 dark:text-slate-500">No courier data available</p>
       </div>
     );
   }
@@ -68,18 +68,18 @@ function CourierTable({ data }) {
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800">
       {/* Table Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Courier Schedule</h3>
-            <p className="text-sm text-gray-500 mt-1">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Courier Schedule</h3>
+            <p className="text-sm text-gray-500 dark:text-slate-500 mt-1">
               Showing {startIndex + 1}-{Math.min(endIndex, data.length)} of {data.length} couriers
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            <button className="px-3 py-2 text-sm text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100 hover:bg-gray-100 dark:bg-slate-800 rounded-lg transition-colors">
               Export
             </button>
           </div>
@@ -89,52 +89,52 @@ function CourierTable({ data }) {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-slate-300 uppercase tracking-wider">
                 <SortHeader label="Courier" sortKey="name" />
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-slate-300 uppercase tracking-wider">
                 <SortHeader label="Zone" sortKey="zone" />
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-slate-300 uppercase tracking-wider">
                 Contract
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-slate-300 uppercase tracking-wider">
                 Vehicle
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-slate-300 uppercase tracking-wider">
                 <SortHeader label="Productivity" sortKey="productivityActual" />
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-slate-300 uppercase tracking-wider">
                 <SortHeader label="Success %" sortKey="successRate" />
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-slate-300 uppercase tracking-wider">
                 Active Days
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-slate-300 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200">
             {currentData.map((courier, index) => {
               const progressPercent = calculatePercentage(courier.productivityActual, courier.productivityTarget);
               const progressColor = getProgressColor(progressPercent);
               
               return (
-                <tr key={index} className="hover:bg-gray-50 transition-colors">
+                <tr key={index} className="hover:bg-gray-50 dark:bg-slate-800 transition-colors">
                   {/* Courier Name */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{courier.name}</div>
-                      <div className="text-xs text-gray-500">{courier.id}</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-slate-100">{courier.name}</div>
+                      <div className="text-xs text-gray-500 dark:text-slate-500">{courier.id}</div>
                     </div>
                   </td>
 
                   {/* Zone */}
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-900">{courier.zone}</span>
+                    <span className="text-sm text-gray-900 dark:text-slate-100">{courier.zone}</span>
                   </td>
 
                   {/* Contract */}
@@ -146,21 +146,21 @@ function CourierTable({ data }) {
 
                   {/* Vehicle */}
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-900">{courier.vehicle}</span>
+                    <span className="text-sm text-gray-900 dark:text-slate-100">{courier.vehicle}</span>
                   </td>
 
                   {/* Productivity with Progress Bar */}
                   <td className="px-6 py-4">
                     <div className="w-40">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium text-gray-700">
+                        <span className="text-xs font-medium text-gray-700 dark:text-slate-300">
                           {courier.productivityActual.toFixed(1)}%
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-slate-500">
                           {courier.productivityTarget}
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                         <div
                           className={`h-full ${progressColor} transition-all duration-300`}
                           style={{ width: `${Math.min(progressPercent, 100)}%` }}
@@ -192,7 +192,7 @@ function CourierTable({ data }) {
                             className={`w-6 h-6 rounded flex items-center justify-center text-xs font-medium ${
                               isActive
                                 ? 'bg-green-100 text-green-700'
-                                : 'bg-gray-100 text-gray-400'
+                                : 'bg-gray-100 dark:bg-slate-800 text-gray-400'
                             }`}
                             title={`${day}: ${isActive ? 'Active' : 'Off'}`}
                           >
@@ -229,12 +229,12 @@ function CourierTable({ data }) {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="px-6 py-4 border-t border-gray-200">
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-slate-800">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
@@ -247,7 +247,7 @@ function CourierTable({ data }) {
                   className={`px-3 py-1 text-sm font-medium rounded-lg ${
                     currentPage === idx + 1
                       ? 'bg-purple-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:bg-slate-800'
                   }`}
                 >
                   {idx + 1}
@@ -258,7 +258,7 @@ function CourierTable({ data }) {
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>

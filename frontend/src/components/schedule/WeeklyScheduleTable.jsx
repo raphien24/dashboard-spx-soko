@@ -336,9 +336,9 @@ function WeeklyScheduleTable({ data }) {
 
             {/* Dropdown Menu */}
             {showExportMenu && !isExporting && (
-              <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-gray-200 z-50">
+              <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-gray-200 dark:border-slate-800 z-50">
                 <div className="p-2">
-                  <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100">
+                  <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-slate-500 uppercase border-b border-gray-100 dark:border-slate-800">
                     Export Options
                   </div>
                   
@@ -394,9 +394,9 @@ function WeeklyScheduleTable({ data }) {
       </div>
 
       {/* Day Tabs */}
-      <div className="px-6 py-3 border-b border-gray-200 bg-gray-50">
+      <div className="px-6 py-3 border-b border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800">
         <div className="flex items-center gap-2 overflow-x-auto">
-          <span className="text-xs font-semibold text-gray-500 uppercase mr-2">HARI (SEN-MIN):</span>
+          <span className="text-xs font-semibold text-gray-500 dark:text-slate-500 uppercase mr-2">HARI (SEN-MIN):</span>
           {dayTabs.map(tab => (
             <button
               key={tab.id}
@@ -404,12 +404,12 @@ function WeeklyScheduleTable({ data }) {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                 selectedDay === tab.label
                   ? 'bg-indigo-600 text-white shadow-md'
-                  : 'bg-white text-gray-700 hover:bg-gray-100 dark:bg-slate-800 border border-gray-200'
+                  : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-800'
               }`}
             >
               {tab.label}
               <span className={`ml-2 text-xs ${
-                selectedDay === tab.label ? 'text-indigo-200' : 'text-gray-500'
+                selectedDay === tab.label ? 'text-indigo-200' : 'text-gray-500 dark:text-slate-500'
               }`}>
                 {tab.count}
               </span>
@@ -427,7 +427,7 @@ function WeeklyScheduleTable({ data }) {
             placeholder="Search couriers by Name, Driver ID, District, or Zone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
         </div>
 
@@ -448,12 +448,12 @@ function WeeklyScheduleTable({ data }) {
         <table className="w-full">
           <thead className="bg-gray-100 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider">
                 #
               </th>
               <th 
                 onClick={() => handleSort('name')}
-                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[200px] cursor-pointer hover:bg-gray-200 transition-colors"
+                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider min-w-[200px] cursor-pointer hover:bg-gray-200 dark:bg-slate-700 transition-colors"
               >
                 <div className="flex items-center gap-1">
                   Unique Courier
@@ -462,7 +462,7 @@ function WeeklyScheduleTable({ data }) {
               </th>
               <th 
                 onClick={() => handleSort('district')}
-                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:bg-slate-700 transition-colors"
               >
                 <div className="flex items-center gap-1">
                   District
@@ -471,7 +471,7 @@ function WeeklyScheduleTable({ data }) {
               </th>
               <th 
                 onClick={() => handleSort('zone')}
-                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:bg-slate-700 transition-colors"
               >
                 <div className="flex items-center gap-1">
                   Zone
@@ -480,7 +480,7 @@ function WeeklyScheduleTable({ data }) {
               </th>
               <th 
                 onClick={() => handleSort('contract')}
-                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:bg-slate-700 transition-colors"
               >
                 <div className="flex items-center gap-1">
                   Contract
@@ -489,7 +489,7 @@ function WeeklyScheduleTable({ data }) {
               </th>
               <th 
                 onClick={() => handleSort('vehicle')}
-                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:bg-slate-700 transition-colors"
               >
                 <div className="flex items-center gap-1">
                   Vehicle
@@ -498,7 +498,7 @@ function WeeklyScheduleTable({ data }) {
               </th>
               <th 
                 onClick={() => handleSort('productivityPercentage')}
-                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[180px] cursor-pointer hover:bg-gray-200 transition-colors"
+                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider min-w-[180px] cursor-pointer hover:bg-gray-200 dark:bg-slate-700 transition-colors"
               >
                 <div className="flex items-center gap-1">
                   Weekly Productivity vs Target
@@ -507,7 +507,7 @@ function WeeklyScheduleTable({ data }) {
               </th>
               <th 
                 onClick={() => handleSort('avgDaily')}
-                className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+                className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:bg-slate-700 transition-colors"
               >
                 <div className="flex items-center justify-end gap-1">
                   Avg Daily / Target
@@ -516,7 +516,7 @@ function WeeklyScheduleTable({ data }) {
               </th>
               <th 
                 onClick={() => handleSort('totalWeekDeliv')}
-                className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+                className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:bg-slate-700 transition-colors"
               >
                 <div className="flex items-center justify-end gap-1">
                   Total Week Deliv
@@ -525,19 +525,19 @@ function WeeklyScheduleTable({ data }) {
               </th>
               <th 
                 onClick={() => handleSort('successRate')}
-                className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+                className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:bg-slate-700 transition-colors"
               >
                 <div className="flex items-center justify-end gap-1">
                   Success %
                   {getSortIcon('successRate')}
                 </div>
               </th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider">
                 Active Days
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200">
             {paginatedData.length === 0 ? (
               <tr>
                 <td colSpan="11" className="px-4 py-12 text-center">
@@ -547,10 +547,10 @@ function WeeklyScheduleTable({ data }) {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                       </svg>
                     </div>
-                    <p className="text-lg font-semibold text-gray-900 mb-2">
+                    <p className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">
                       {!hasData ? 'Tidak Ada Data untuk Week Ini' : 'Tidak Ada Data yang Sesuai Filter'}
                     </p>
-                    <p className="text-sm text-gray-500 mb-4">
+                    <p className="text-sm text-gray-500 dark:text-slate-500 mb-4">
                       {!hasData 
                         ? 'Tidak ada courier dengan aktivitas pada rentang tanggal yang dipilih. Coba pilih week yang berbeda.'
                         : 'Ubah filter atau pencarian untuk melihat data courier.'
@@ -572,7 +572,7 @@ function WeeklyScheduleTable({ data }) {
                   className="hover:bg-indigo-50 transition-colors cursor-pointer"
                 >
                   {/* Row Number */}
-                  <td className="px-4 py-4 text-sm text-gray-500 font-medium">
+                  <td className="px-4 py-4 text-sm text-gray-500 dark:text-slate-500 font-medium">
                     {rowNumber}
                   </td>
 
@@ -626,7 +626,7 @@ function WeeklyScheduleTable({ data }) {
                           {metTarget ? '✓ Met' : 'vs Target'}
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
                         <div 
                           className={`h-2 rounded-full ${metTarget ? 'bg-green-500' : 'bg-orange-500'}`}
                           style={{ width: `${Math.min(courier.productivityPercentage || 0, 100)}%` }}
@@ -698,7 +698,7 @@ function WeeklyScheduleTable({ data }) {
       </div>
 
       {/* Pagination */}
-      <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+      <div className="px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-600 dark:text-slate-400">
@@ -717,7 +717,7 @@ function WeeklyScheduleTable({ data }) {
                   setItemsPerPage(Number(e.target.value));
                   setCurrentPage(1); // Reset to first page
                 }}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="px-3 py-1.5 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value={10}>10</option>
                 <option value={25}>25</option>
@@ -731,7 +731,7 @@ function WeeklyScheduleTable({ data }) {
             <button
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 dark:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Previous
             </button>
@@ -746,7 +746,7 @@ function WeeklyScheduleTable({ data }) {
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       currentPage === pageNum
                         ? 'bg-indigo-600 text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:bg-slate-800'
                     }`}
                   >
                     {pageNum}
@@ -758,12 +758,12 @@ function WeeklyScheduleTable({ data }) {
             <button
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 dark:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>
 
-            <span className="text-sm text-gray-600 ml-2">
+            <span className="text-sm text-gray-600 dark:text-slate-400 ml-2">
               Page {currentPage} of {totalPages}
             </span>
           </div>

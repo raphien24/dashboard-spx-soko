@@ -34,7 +34,7 @@ const STATUS_COLORS = {
 // Aging color — red if >24, orange if >12, else green
 const agingColor = (val) => {
   const n = parseFloat(val);
-  if (isNaN(n)) return 'text-gray-500';
+  if (isNaN(n)) return 'text-gray-500 dark:text-slate-500';
   if (n > 24) return 'text-red-600 font-semibold';
   if (n > 12) return 'text-orange-500 font-medium';
   return 'text-green-600';
@@ -209,7 +209,7 @@ const ExpeditePage = () => {
     const val = row[col.key];
 
     if (col.key === 'Latest Status') {
-      const colorClass = STATUS_COLORS[val] || 'bg-gray-100 text-gray-700 border-gray-200';
+      const colorClass = STATUS_COLORS[val] || 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-800';
       return val
         ? <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border ${colorClass} whitespace-nowrap`}>{val}</span>
         : '—';
@@ -220,10 +220,10 @@ const ExpeditePage = () => {
     }
 
     if (col.key === 'SPX TN') {
-      return <span className="font-mono text-xs text-gray-800 font-medium">{val || '—'}</span>;
+      return <span className="font-mono text-xs text-gray-800 dark:text-slate-200 font-medium">{val || '—'}</span>;
     }
 
-    return <span className="text-sm text-gray-700 whitespace-nowrap">{val || '—'}</span>;
+    return <span className="text-sm text-gray-700 dark:text-slate-300 whitespace-nowrap">{val || '—'}</span>;
   };
 
   // ── Loading ───────────────────────────────────────────────
@@ -231,7 +231,7 @@ const ExpeditePage = () => {
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-        <p className="text-sm text-gray-500">Loading Expedite data...</p>
+        <p className="text-sm text-gray-500 dark:text-slate-500">Loading Expedite data...</p>
       </div>
     </div>
   );
@@ -260,7 +260,7 @@ const ExpeditePage = () => {
         scraperState === 'running' ? 'bg-blue-50 border-blue-200' :
         scraperState === 'done'    ? 'bg-green-50 border-green-200' :
         scraperState === 'error'   ? 'bg-red-50 border-red-200' :
-        'bg-white border-gray-200'
+        'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'
       } shadow-sm`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -269,13 +269,13 @@ const ExpeditePage = () => {
             {scraperState === 'error'   && <XCircle className="w-5 h-5 text-red-600" />}
             {scraperState === 'idle'    && <Play className="w-5 h-5 text-gray-400" />}
             <div>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                 {scraperState === 'idle'    && 'SPX Expedite Scraper'}
                 {scraperState === 'running' && 'Scraper sedang berjalan...'}
                 {scraperState === 'done'    && 'Scraper selesai!'}
                 {scraperState === 'error'   && 'Scraper gagal'}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-slate-500 mt-0.5">
                 {scraperState === 'idle' && 'Klik "Run Scraper" untuk mengambil data terbaru dari SPX'}
                 {scraperProgress?.message && scraperState !== 'idle' && scraperProgress.message}
               </p>
@@ -299,7 +299,7 @@ const ExpeditePage = () => {
               onClick={() => startScraper('resume')}
               disabled={scraperState === 'running'}
               title="Resume: isi hanya baris yang scenario-nya kosong, tanpa download ulang"
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 rounded-lg text-sm font-medium transition-colors border border-gray-300"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium transition-colors border border-gray-300 dark:border-slate-700"
             >
               <RotateCcw className="w-4 h-4" />
               Resume
@@ -312,7 +312,7 @@ const ExpeditePage = () => {
           <div className="mt-4 space-y-2">
             {/* Progress bar */}
             <div>
-              <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+              <div className="flex items-center justify-between text-xs text-gray-600 dark:text-slate-400 mb-1">
                 <span className={scraperProgress.message?.startsWith('❌') ? 'text-red-600 font-medium' : ''}>
                   {scraperProgress.percent}%
                 </span>
@@ -320,7 +320,7 @@ const ExpeditePage = () => {
                   <span className="text-gray-400">Updated: {scraperProgress.updatedAt}</span>
                 )}
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
                 <div
                   className={`h-2 rounded-full transition-all duration-500 ${
                     scraperProgress.message?.startsWith('❌') ? 'bg-red-500' :
@@ -366,50 +366,50 @@ const ExpeditePage = () => {
 
       {/* ── KPI Summary Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
               <Package className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-xs text-gray-500">Total Paket</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{stats.total}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Total Paket</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-red-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-red-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-red-600">{stats.aging24}</p>
-              <p className="text-xs text-gray-500">Aging &gt; 24 jam</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Aging &gt; 24 jam</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-orange-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-orange-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
               <Clock className="w-5 h-5 text-orange-500" />
             </div>
             <div>
               <p className="text-2xl font-bold text-orange-500">{stats.aging12}</p>
-              <p className="text-xs text-gray-500">Aging 12–24 jam</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Aging 12–24 jam</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <Package className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.zones}</p>
-              <p className="text-xs text-gray-500">Zona Aktif</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{stats.zones}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Zona Aktif</p>
             </div>
           </div>
         </div>
@@ -417,8 +417,8 @@ const ExpeditePage = () => {
 
       {/* ── Scenario Breakdown ── */}
       {stats.scenarioList.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wider">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-4">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3 uppercase tracking-wider">
             Breakdown by Scenario
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -428,15 +428,15 @@ const ExpeditePage = () => {
               return (
                 <div
                   key={name}
-                  className={`rounded-lg border p-3 ${isDash ? 'border-gray-200 bg-gray-50' : 'border-indigo-100 bg-indigo-50'}`}
+                  className={`rounded-lg border p-3 ${isDash ? 'border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800' : 'border-indigo-100 bg-indigo-50'}`}
                 >
-                  <p className={`text-lg font-bold ${isDash ? 'text-gray-500' : 'text-indigo-700'}`}>
+                  <p className={`text-lg font-bold ${isDash ? 'text-gray-500 dark:text-slate-500' : 'text-indigo-700'}`}>
                     {count}
                   </p>
-                  <p className="text-xs font-medium text-gray-700 mt-0.5 leading-tight line-clamp-2" title={name}>
+                  <p className="text-xs font-medium text-gray-700 dark:text-slate-300 mt-0.5 leading-tight line-clamp-2" title={name}>
                     {name}
                   </p>
-                  <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
+                  <div className="mt-2 w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5">
                     <div
                       className={`h-1.5 rounded-full ${isDash ? 'bg-gray-400' : 'bg-indigo-500'}`}
                       style={{ width: `${pct}%` }}
@@ -451,11 +451,11 @@ const ExpeditePage = () => {
       )}
 
       {/* ── Toolbar ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-4">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-gray-500">
-              Menampilkan <strong className="text-gray-800">{filtered.length}</strong> dari <strong className="text-gray-800">{records.length}</strong> paket
+            <p className="text-sm text-gray-500 dark:text-slate-500">
+              Menampilkan <strong className="text-gray-800 dark:text-slate-200">{filtered.length}</strong> dari <strong className="text-gray-800 dark:text-slate-200">{records.length}</strong> paket
               {lastUpdate && <span className="ml-2 text-gray-400">· Last update: {lastUpdate}</span>}
             </p>
           </div>
@@ -469,10 +469,10 @@ const ExpeditePage = () => {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Cari TN, driver..."
-                className="w-full pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
               {search && (
-                <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-slate-400">
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -480,21 +480,21 @@ const ExpeditePage = () => {
 
             {/* Filter Zone */}
             <select value={filterZone} onChange={e => setFilterZone(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white">
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900">
               <option value="all">Semua Zone</option>
               {zoneOptions.map(z => <option key={z} value={z}>{z}</option>)}
             </select>
 
             {/* Filter Status */}
             <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white">
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900">
               <option value="all">Semua Status</option>
               {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
 
             {/* Filter Tag */}
             <select value={filterTag} onChange={e => setFilterTag(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white">
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900">
               <option value="all">Semua Tag</option>
               {tagOptions.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -503,7 +503,7 @@ const ExpeditePage = () => {
             {(search || filterZone !== 'all' || filterStatus !== 'all' || filterTag !== 'all') && (
               <button
                 onClick={() => { setSearch(''); setFilterZone('all'); setFilterStatus('all'); setFilterTag('all'); }}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800"
               >
                 <X className="w-3.5 h-3.5" /> Reset
               </button>
@@ -525,7 +525,7 @@ const ExpeditePage = () => {
       </div>
 
       {/* ── Table ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -549,7 +549,7 @@ const ExpeditePage = () => {
                   <td colSpan={COLUMNS.length} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <Package className="w-12 h-12 text-gray-200" />
-                      <p className="text-gray-500 font-medium">Tidak ada data</p>
+                      <p className="text-gray-500 dark:text-slate-500 font-medium">Tidak ada data</p>
                       <p className="text-xs text-gray-400">Coba ubah filter atau kata kunci pencarian</p>
                     </div>
                   </td>
@@ -570,8 +570,8 @@ const ExpeditePage = () => {
         </div>
 
         {filtered.length > 0 && (
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500">
-            <strong className="text-gray-700">{filtered.length}</strong> paket ditampilkan
+          <div className="px-4 py-3 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-800 text-xs text-gray-500 dark:text-slate-500">
+            <strong className="text-gray-700 dark:text-slate-300">{filtered.length}</strong> paket ditampilkan
             {stats.aging24 > 0 && (
               <span className="ml-3 text-red-600 font-medium">⚠ {stats.aging24} paket aging &gt;24 jam perlu segera ditangani</span>
             )}

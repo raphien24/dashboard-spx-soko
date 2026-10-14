@@ -129,7 +129,7 @@ const SPRecord = () => {
     }
 
     if (col.key === 'Jenis SP') {
-      const colorClass = SP_COLORS[val] || 'bg-gray-100 text-gray-700 border-gray-200';
+      const colorClass = SP_COLORS[val] || 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-800';
       return val ? (
         <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold border ${colorClass}`}>
           {val}
@@ -138,18 +138,18 @@ const SPRecord = () => {
     }
 
     if (col.key === 'Tanggal' || col.key === 'Berakhir sampai') {
-      return <span className="text-gray-600">{formatDate(val)}</span>;
+      return <span className="text-gray-600 dark:text-slate-400">{formatDate(val)}</span>;
     }
 
     if (col.key === 'Deskripsi pelanggaran') {
       return (
-        <span className="block max-w-xs text-gray-600 leading-relaxed" title={val}>
+        <span className="block max-w-xs text-gray-600 dark:text-slate-400 leading-relaxed" title={val}>
           {val || '—'}
         </span>
       );
     }
 
-    return <span className="text-gray-700">{val || '—'}</span>;
+    return <span className="text-gray-700 dark:text-slate-300">{val || '—'}</span>;
   };
 
   // ── Loading ──────────────────────────────────────────────
@@ -157,7 +157,7 @@ const SPRecord = () => {
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-        <p className="text-sm text-gray-500">Loading SP Records...</p>
+        <p className="text-sm text-gray-500 dark:text-slate-500">Loading SP Records...</p>
       </div>
     </div>
   );
@@ -183,13 +183,13 @@ const SPRecord = () => {
     <div className="space-y-4">
 
       {/* ── Toolbar ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-4">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
 
           {/* Title */}
           <div>
-            <h2 className="text-lg font-bold text-gray-900">SP Record Database</h2>
-            <p className="text-sm text-gray-500">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">SP Record Database</h2>
+            <p className="text-sm text-gray-500 dark:text-slate-500">
               {filtered.length} dari {records.length} record
             </p>
           </div>
@@ -205,10 +205,10 @@ const SPRecord = () => {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Cari nama, no surat..."
-                className="w-full pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
               {search && (
-                <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-slate-400">
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -218,7 +218,7 @@ const SPRecord = () => {
             <select
               value={filterSP}
               onChange={e => setFilterSP(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-900"
             >
               <option value="all">Semua Jenis SP</option>
               {spOptions.map(sp => (
@@ -230,7 +230,7 @@ const SPRecord = () => {
             <select
               value={filterJenis}
               onChange={e => setFilterJenis(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-900"
             >
               <option value="all">Semua Pelanggaran</option>
               {jenisOptions.map(j => (
@@ -242,7 +242,7 @@ const SPRecord = () => {
             {(search || filterSP !== 'all' || filterJenis !== 'all') && (
               <button
                 onClick={() => { setSearch(''); setFilterSP('all'); setFilterJenis('all'); }}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800"
               >
                 <X className="w-3.5 h-3.5" /> Reset
               </button>
@@ -269,7 +269,7 @@ const SPRecord = () => {
       </div>
 
       {/* ── Table ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
 
@@ -303,7 +303,7 @@ const SPRecord = () => {
                   <td colSpan={COLUMNS.length} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <FileText className="w-12 h-12 text-gray-200" />
-                      <p className="text-gray-500 font-medium">Tidak ada data</p>
+                      <p className="text-gray-500 dark:text-slate-500 font-medium">Tidak ada data</p>
                       <p className="text-xs text-gray-400">Coba ubah filter atau kata kunci pencarian</p>
                     </div>
                   </td>
@@ -325,8 +325,8 @@ const SPRecord = () => {
 
         {/* Table footer */}
         {filtered.length > 0 && (
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
-            <span>Total <strong className="text-gray-700">{filtered.length}</strong> record ditampilkan</span>
+          <div className="px-4 py-3 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-800 flex items-center justify-between text-xs text-gray-500 dark:text-slate-500">
+            <span>Total <strong className="text-gray-700 dark:text-slate-300">{filtered.length}</strong> record ditampilkan</span>
             <a
               href="https://docs.google.com/spreadsheets/d/1sTSltnZ68zxkvqV6_IldXaW9XhddyribC6ne5jKMJFE"
               target="_blank"

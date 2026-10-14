@@ -113,7 +113,7 @@ const DashboardMonthly = () => {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <Loader className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
-        <p className="text-gray-600 text-lg font-medium">Loading data...</p>
+        <p className="text-gray-600 dark:text-slate-400 text-lg font-medium">Loading data...</p>
       </div>
     );
   }
@@ -124,16 +124,16 @@ const DashboardMonthly = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Monthly Productivity Dashboard</h2>
-          <p className="text-sm text-gray-500 mt-1">Monthly aggregated productivity metrics and trends</p>
+          <p className="text-sm text-gray-500 dark:text-slate-500 mt-1">Monthly aggregated productivity metrics and trends</p>
         </div>
       </div>
 
       {/* Month and Filters Selector */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Month Selector */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
               <Calendar className="w-4 h-4 inline mr-1" />
               Month
             </label>
@@ -141,17 +141,17 @@ const DashboardMonthly = () => {
               type="month" 
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
           </div>
 
           {/* Contract Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Contract Type</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Contract Type</label>
             <select
               value={selectedContract}
               onChange={(e) => setSelectedContract(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               {availableContracts.map(contract => (
                 <option key={contract} value={contract}>{contract}</option>
@@ -161,11 +161,11 @@ const DashboardMonthly = () => {
 
           {/* Vehicle Filter */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Type</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Vehicle Type</label>
             <select
               value={selectedVehicle}
               onChange={(e) => setSelectedVehicle(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               {availableVehicles.map(vehicle => (
                 <option key={vehicle} value={vehicle}>{vehicle}</option>
@@ -251,14 +251,14 @@ const DashboardMonthly = () => {
                 {/* Sub-metrics Grid */}
                 <div className="grid grid-cols-2 gap-3">
                   {/* Dedicated 2WH */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                  <div className="bg-white dark:bg-slate-900/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-white text-xs font-semibold">Dedicated</span>
                       <span className="text-white text-lg font-bold">
                         {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="w-full bg-white/20 rounded-full h-2 mb-2">
+                    <div className="w-full bg-white dark:bg-slate-900/20 rounded-full h-2 mb-2">
                       <div 
                         className={`h-2 rounded-full ${
                           monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement >= 100 ? 'bg-green-400' :
@@ -285,14 +285,14 @@ const DashboardMonthly = () => {
                   </div>
 
                   {/* Kurir Plus 2WH */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                  <div className="bg-white dark:bg-slate-900/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-white text-xs font-semibold">Kurir Plus</span>
                       <span className="text-white text-lg font-bold">
                         {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="w-full bg-white/20 rounded-full h-2 mb-2">
+                    <div className="w-full bg-white dark:bg-slate-900/20 rounded-full h-2 mb-2">
                       <div 
                         className={`h-2 rounded-full ${
                           monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement >= 100 ? 'bg-green-400' :
@@ -322,7 +322,7 @@ const DashboardMonthly = () => {
                 {/* Formula Toggle */}
                 <button
                   onClick={() => setIsFormulaExpanded(!isFormulaExpanded)}
-                  className="w-full mt-3 px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-indigo-100 text-xs font-medium flex items-center justify-between"
+                  className="w-full mt-3 px-3 py-2 bg-white dark:bg-slate-900/10 hover:bg-white dark:bg-slate-900/20 rounded-lg transition-colors text-indigo-100 text-xs font-medium flex items-center justify-between"
                 >
                   <span>📊 View Calculation Formula</span>
                   {isFormulaExpanded ? (
@@ -365,7 +365,7 @@ const DashboardMonthly = () => {
                 </div>
 
                 {/* Metrics Card */}
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                <div className="bg-white dark:bg-slate-900/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
                   {/* Progress Bar */}
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-white text-sm font-semibold">Dedicated 4WH</span>
@@ -373,7 +373,7 @@ const DashboardMonthly = () => {
                       {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement.toFixed(1)}%
                     </span>
                   </div>
-                  <div className="w-full bg-white/20 rounded-full h-2.5 mb-4">
+                  <div className="w-full bg-white dark:bg-slate-900/20 rounded-full h-2.5 mb-4">
                     <div 
                       className={`h-2.5 rounded-full ${
                         monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement >= 100 ? 'bg-green-400' :
@@ -386,25 +386,25 @@ const DashboardMonthly = () => {
 
                   {/* Metrics Grid */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-white/5 rounded p-2">
+                    <div className="bg-white dark:bg-slate-900/5 rounded p-2">
                       <p className="text-purple-200 text-[10px] mb-1">Avg Productivity</p>
                       <p className="text-white text-lg font-bold">
                         {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.avg}
                       </p>
                     </div>
-                    <div className="bg-white/5 rounded p-2">
+                    <div className="bg-white dark:bg-slate-900/5 rounded p-2">
                       <p className="text-purple-200 text-[10px] mb-1">Target</p>
                       <p className="text-white text-lg font-bold">
                         {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.target}
                       </p>
                     </div>
-                    <div className="bg-white/5 rounded p-2">
+                    <div className="bg-white dark:bg-slate-900/5 rounded p-2">
                       <p className="text-purple-200 text-[10px] mb-1">Threshold 75%</p>
                       <p className="text-yellow-300 text-lg font-bold">
                         {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.threshold}
                       </p>
                     </div>
-                    <div className="bg-white/5 rounded p-2">
+                    <div className="bg-white dark:bg-slate-900/5 rounded p-2">
                       <p className="text-purple-200 text-[10px] mb-1">Total Shifts</p>
                       <p className="text-white text-lg font-bold">
                         {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.shifts.toLocaleString()}
@@ -418,9 +418,9 @@ const DashboardMonthly = () => {
 
           {/* Detailed Calculation Formula - Collapsible */}
           {monthlyMetrics.productivity2WHKPI && isFormulaExpanded && (
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
               <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 border-b border-gray-200 dark:border-slate-800">
-                <h4 className="text-gray-900 font-bold text-sm flex items-center gap-2">
+                <h4 className="text-gray-900 dark:text-slate-100 font-bold text-sm flex items-center gap-2">
                   📊 Detailed Calculation Formula - Productivity 2WH KPI
                 </h4>
               </div>
@@ -428,19 +428,19 @@ const DashboardMonthly = () => {
                 {/* Step 1 */}
                 <div className="pb-4 border-b border-gray-200 dark:border-slate-800">
                   <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 1: Calculate Average Productivity</h5>
-                  <div className="text-gray-700 text-xs space-y-1 ml-3">
+                  <div className="text-gray-700 dark:text-slate-300 text-xs space-y-1 ml-3">
                     <p className="font-mono bg-gray-50 dark:bg-slate-800 p-2 rounded border border-gray-200 dark:border-slate-800">Avg Productivity = Total Delivered ÷ Total Active Shifts</p>
                     <p className="mt-2">Example for Dedicated 2WH:</p>
                     <p className="ml-2">• Total Delivered: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.delivered.toLocaleString()}</p>
                     <p className="ml-2">• Total Shifts: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.shifts.toLocaleString()}</p>
-                    <p className="ml-2">• <span className="text-gray-900 font-semibold">Result: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</span> per shift</p>
+                    <p className="ml-2">• <span className="text-gray-900 dark:text-slate-100 font-semibold">Result: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</span> per shift</p>
                   </div>
                 </div>
 
                 {/* Step 2 */}
                 <div className="pb-4 border-b border-gray-200 dark:border-slate-800">
                   <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 2: Get Target (Appeal → Original)</h5>
-                  <div className="text-gray-700 text-xs space-y-1 ml-3">
+                  <div className="text-gray-700 dark:text-slate-300 text-xs space-y-1 ml-3">
                     <p>Priority: <span className="font-semibold">Appeal Target</span> (Supabase) → <span className="font-semibold">Monday Original</span> (Raw data)</p>
                     <p className="ml-2">• Dedicated 2WH Target: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</p>
                   </div>
@@ -449,7 +449,7 @@ const DashboardMonthly = () => {
                 {/* Step 3 */}
                 <div className="pb-4 border-b border-gray-200 dark:border-slate-800">
                   <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 3: Calculate Threshold (75%)</h5>
-                  <div className="text-gray-700 text-xs space-y-1 ml-3">
+                  <div className="text-gray-700 dark:text-slate-300 text-xs space-y-1 ml-3">
                     <p className="font-mono bg-gray-50 dark:bg-slate-800 p-2 rounded border border-gray-200 dark:border-slate-800">Threshold = Target × 0.75</p>
                     <p className="ml-2">• Dedicated 2WH: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold} = {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target} × 0.75</p>
                   </div>
@@ -458,21 +458,21 @@ const DashboardMonthly = () => {
                 {/* Step 4 */}
                 <div className="pb-4 border-b border-gray-200 dark:border-slate-800">
                   <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 4: Apply Threshold Formula</h5>
-                  <div className="text-gray-700 text-xs space-y-1 ml-3">
+                  <div className="text-gray-700 dark:text-slate-300 text-xs space-y-1 ml-3">
                     <p className="font-mono bg-gray-50 dark:bg-slate-800 p-2 rounded border border-gray-200 dark:border-slate-800">Achievement = (Result − Threshold) ÷ (Target − Threshold) × 100%</p>
                     <p className="mt-2">Then cap between 0-100%</p>
                     <p className="ml-2 mt-2">Example for Dedicated 2WH:</p>
                     <p className="ml-2">• Result: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</p>
                     <p className="ml-2">• Threshold: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}</p>
                     <p className="ml-2">• Target: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</p>
-                    <p className="ml-2">• Achievement: <span className="text-gray-900 font-bold">{monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%</span></p>
+                    <p className="ml-2">• Achievement: <span className="text-gray-900 dark:text-slate-100 font-bold">{monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%</span></p>
                   </div>
                 </div>
 
                 {/* Step 5 */}
                 <div>
                   <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 5: Average Both Contract Types</h5>
-                  <div className="text-gray-700 text-xs space-y-1 ml-3">
+                  <div className="text-gray-700 dark:text-slate-300 text-xs space-y-1 ml-3">
                     <p className="font-mono bg-gray-50 dark:bg-slate-800 p-2 rounded border border-gray-200 dark:border-slate-800">Final KPI = (Dedicated Achievement + Kurir Plus Achievement) ÷ 2</p>
                     <p className="mt-2">Current calculation:</p>
                     <p className="ml-2">• Dedicated: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%</p>
@@ -487,23 +487,23 @@ const DashboardMonthly = () => {
           {/* Summary Stats Grid */}
           {monthlyMetrics.summary && (
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-medium text-gray-600 dark:text-slate-400">Total Delivered</h3>
                 </div>
                 <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">{monthlyMetrics.summary.totalDelivered.toLocaleString()}</p>
-                <p className="text-sm text-gray-500 mt-1">Parcels delivered this month</p>
+                <p className="text-sm text-gray-500 dark:text-slate-500 mt-1">Parcels delivered this month</p>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-medium text-gray-600 dark:text-slate-400">Active Shifts</h3>
                 </div>
                 <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">{monthlyMetrics.summary.totalActiveShifts.toLocaleString()}</p>
-                <p className="text-sm text-gray-500 mt-1">Total active courier shifts</p>
+                <p className="text-sm text-gray-500 dark:text-slate-500 mt-1">Total active courier shifts</p>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-medium text-gray-600 dark:text-slate-400">Avg Daily Productivity</h3>
                 </div>
@@ -512,7 +512,7 @@ const DashboardMonthly = () => {
                     ? monthlyMetrics.summary.avgProductivity.toFixed(1) 
                     : '0.0'}
                 </p>
-                <p className="text-sm text-gray-500 mt-1">Delivered per shift</p>
+                <p className="text-sm text-gray-500 dark:text-slate-500 mt-1">Delivered per shift</p>
               </div>
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-200 p-6 bg-indigo-50">
@@ -527,12 +527,12 @@ const DashboardMonthly = () => {
                 <p className="text-sm text-indigo-600 mt-1">Target per shift (avg)</p>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-medium text-gray-600 dark:text-slate-400">Operating Days</h3>
                 </div>
                 <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">{monthlyMetrics.summary.operatingDays}</p>
-                <p className="text-sm text-gray-500 mt-1">Days with activity</p>
+                <p className="text-sm text-gray-500 dark:text-slate-500 mt-1">Days with activity</p>
               </div>
             </div>
           )}
@@ -556,8 +556,8 @@ const DashboardMonthly = () => {
 
           {/* Daily Breakdown Table */}
           {monthlyMetrics.dailyBreakdown && monthlyMetrics.dailyBreakdown.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Breakdown</h3>
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-4">Daily Breakdown</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -582,12 +582,12 @@ const DashboardMonthly = () => {
                       const isAboveTarget = day.avgProductivity >= day.target;
 
                       return (
-                        <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                        <tr key={index} className="border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:bg-slate-800">
                           <td className="py-3 px-4 font-medium text-gray-900 dark:text-slate-100">{day.date}</td>
                           <td className="py-3 px-4 text-gray-600 dark:text-slate-400">{day.dayName}</td>
                           <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-slate-100">{day.delivered.toLocaleString()}</td>
                           <td className="py-3 px-4 text-right text-gray-600 dark:text-slate-400">{day.activeShifts}</td>
-                          <td className={`py-3 px-4 text-right font-semibold ${isAboveTarget ? 'text-green-700' : 'text-gray-900'}`}>
+                          <td className={`py-3 px-4 text-right font-semibold ${isAboveTarget ? 'text-green-700' : 'text-gray-900 dark:text-slate-100'}`}>
                             {day.avgProductivity.toFixed(1)}
                           </td>
                           <td className="py-3 px-4 text-right text-indigo-700 font-medium">{day.target.toFixed(1)}</td>
@@ -601,7 +601,7 @@ const DashboardMonthly = () => {
                     })}
                   </tbody>
                   <tfoot>
-                    <tr className="bg-gray-50 dark:bg-slate-800 border-t-2 border-gray-300">
+                    <tr className="bg-gray-50 dark:bg-slate-800 border-t-2 border-gray-300 dark:border-slate-700">
                       <td className="py-3 px-4 font-bold text-gray-900 dark:text-slate-100" colSpan="2">TOTAL / AVERAGE</td>
                       <td className="py-3 px-4 text-right font-bold text-gray-900 dark:text-slate-100">{monthlyMetrics.summary.totalDelivered.toLocaleString()}</td>
                       <td className="py-3 px-4 text-right font-bold text-gray-900 dark:text-slate-100">{monthlyMetrics.summary.totalActiveShifts}</td>
@@ -625,7 +625,7 @@ const DashboardMonthly = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-full mb-4">
               <Calendar className="w-8 h-8 text-indigo-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Select Month and Load Data</h3>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-2">Select Month and Load Data</h3>
             <p className="text-gray-600 dark:text-slate-400">
               Choose a month and click "Load Data" to view monthly productivity metrics
             </p>

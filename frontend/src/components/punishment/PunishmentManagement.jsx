@@ -13,19 +13,19 @@ const PunishmentManagement = ({ activeSubPage }) => {
   return (
     <div className="flex flex-col h-full gap-4">
       {/* Page Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 p-5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
             <FileText className="w-5 h-5 text-red-600" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Punishment Management</h1>
-            <p className="text-sm text-gray-500">Kelola Surat Peringatan (SP) Kurir</p>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Punishment Management</h1>
+            <p className="text-sm text-gray-500 dark:text-slate-500">Kelola Surat Peringatan (SP) Kurir</p>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-1 mt-5 bg-gray-100 p-1 rounded-lg w-fit">
+        <div className="flex gap-1 mt-5 bg-gray-100 dark:bg-slate-800 p-1 rounded-lg w-fit">
           {tabs.map(tab => {
             const Icon = tab.icon;
             const isActive = activePage === tab.id;
@@ -37,8 +37,8 @@ const PunishmentManagement = ({ activeSubPage }) => {
                   flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium
                   transition-all duration-200
                   ${isActive
-                    ? 'bg-white text-indigo-700 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white dark:bg-slate-900 text-indigo-700 shadow-sm'
+                    : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100'
                   }
                 `}
               >

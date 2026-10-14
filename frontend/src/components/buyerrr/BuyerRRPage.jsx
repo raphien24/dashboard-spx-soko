@@ -42,7 +42,7 @@ const attemptsColor = (n) => {
   if (n >= 5) return 'text-red-600 font-bold';
   if (n >= 3) return 'text-orange-500 font-semibold';
   if (n >= 2) return 'text-yellow-600 font-medium';
-  return 'text-gray-700';
+  return 'text-gray-700 dark:text-slate-300';
 };
 
 // ── Reusable sortable table ───────────────────────────────────
@@ -100,10 +100,10 @@ const SortableTable = ({ cols, rows, emptyText, rowClass }) => {
                 {cols.map(col => (
                   <td key={col.key} className="px-4 py-3 align-middle">
                     {col.key === 'SPX Tracking Number'
-                      ? <span className="font-mono text-xs font-medium text-gray-800">{row[col.key] || '—'}</span>
+                      ? <span className="font-mono text-xs font-medium text-gray-800 dark:text-slate-200">{row[col.key] || '—'}</span>
                       : col.key === 'Pickup Attempts'
                       ? <span className={`text-sm ${attemptsColor(parseInt(row[col.key]))}`}>{row[col.key] || '—'}</span>
-                      : <span className="text-sm text-gray-700 whitespace-nowrap">{row[col.key] || '—'}</span>
+                      : <span className="text-sm text-gray-700 dark:text-slate-300 whitespace-nowrap">{row[col.key] || '—'}</span>
                     }
                   </td>
                 ))}
@@ -390,7 +390,7 @@ const BuyerRRPage = () => {
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-        <p className="text-sm text-gray-500">Loading Buyer RR data...</p>
+        <p className="text-sm text-gray-500 dark:text-slate-500">Loading Buyer RR data...</p>
       </div>
     </div>
   );
@@ -419,7 +419,7 @@ const BuyerRRPage = () => {
         scraperState === 'running' ? 'bg-blue-50 border-blue-200' :
         scraperState === 'done'    ? 'bg-green-50 border-green-200' :
         scraperState === 'error'   ? 'bg-red-50 border-red-200' :
-        'bg-white border-gray-200'}`}>
+        'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'}`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             {scraperState === 'running' && <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />}
@@ -427,13 +427,13 @@ const BuyerRRPage = () => {
             {scraperState === 'error'   && <XCircle className="w-5 h-5 text-red-600" />}
             {scraperState === 'idle'    && <Truck className="w-5 h-5 text-gray-400" />}
             <div>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                 {scraperState === 'idle'    && 'Buyer RR Scraper'}
                 {scraperState === 'running' && 'Scraper sedang berjalan...'}
                 {scraperState === 'done'    && 'Scraper selesai!'}
                 {scraperState === 'error'   && 'Scraper gagal'}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-slate-500 mt-0.5">
                 {scraperState === 'idle' && 'Klik "Run Scraper" untuk update data dari SPX'}
                 {scraperProgress?.message && scraperState !== 'idle' && scraperProgress.message}
               </p>
@@ -446,7 +446,7 @@ const BuyerRRPage = () => {
               Run Scraper
             </button>
             <button onClick={() => startScraper('resume')} disabled={scraperState === 'running'}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 rounded-lg text-sm font-medium border border-gray-300">
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:bg-slate-700 disabled:opacity-50 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
               <RotateCcw className="w-4 h-4" /> Resume
             </button>
           </div>
@@ -454,11 +454,11 @@ const BuyerRRPage = () => {
         {scraperProgress && scraperState !== 'idle' && (
           <div className="mt-4 space-y-2">
             <div>
-              <div className="flex justify-between text-xs text-gray-600 mb-1">
+              <div className="flex justify-between text-xs text-gray-600 dark:text-slate-400 mb-1">
                 <span>{scraperProgress.percent}%</span>
                 {scraperProgress.updatedAt && <span className="text-gray-400">Updated: {scraperProgress.updatedAt}</span>}
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
                 <div className={`h-2 rounded-full transition-all duration-500 ${
                   scraperProgress.message?.startsWith('❌') ? 'bg-red-500' :
                   scraperState === 'done' ? 'bg-green-500' :
@@ -479,55 +479,55 @@ const BuyerRRPage = () => {
 
       {/* ── Summary Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl shadow-sm border border-indigo-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
               <ClipboardList className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-indigo-700">{stats.totalCreated}</p>
-              <p className="text-xs text-gray-500">Status Created</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Status Created</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-green-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-green-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <ListChecks className="w-5 h-5 text-green-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-green-600">{stats.totalAssigned}</p>
-              <p className="text-xs text-gray-500">Status Assigned</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Status Assigned</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-red-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-red-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-red-600">{stats.overdue48}</p>
-              <p className="text-xs text-gray-500">ETA Overdue &gt;48 jam</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">ETA Overdue &gt;48 jam</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-orange-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-orange-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
               <Clock className="w-5 h-5 text-orange-500" />
             </div>
             <div>
               <p className="text-2xl font-bold text-orange-500">{stats.overdue24}</p>
-              <p className="text-xs text-gray-500">ETA Overdue 24–48 jam</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">ETA Overdue 24–48 jam</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* ── Pickup Attempts Recap ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-5">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-4">
           Recap Pickup Attempts (Status Created)
         </h3>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
@@ -539,8 +539,8 @@ const BuyerRRPage = () => {
             return (
               <div key={n} className={`rounded-lg border p-3 ${color}`}>
                 <p className={`text-2xl font-bold ${textColor}`}>{count}</p>
-                <p className="text-xs font-medium text-gray-700 mt-0.5">{n === 6 ? '6x+' : n + 'x'} Attempts</p>
-                <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
+                <p className="text-xs font-medium text-gray-700 dark:text-slate-300 mt-0.5">{n === 6 ? '6x+' : n + 'x'} Attempts</p>
+                <div className="mt-2 w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5">
                   <div className={`h-1.5 rounded-full ${n >= 5 ? 'bg-red-500' : n >= 3 ? 'bg-orange-400' : n >= 2 ? 'bg-yellow-400' : 'bg-indigo-500'}`}
                     style={{ width: `${pct}%` }} />
                 </div>
@@ -552,11 +552,11 @@ const BuyerRRPage = () => {
       </div>
 
       {/* ── Tabel Created ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-200">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+        <div className="p-4 border-b border-gray-200 dark:border-slate-800">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+              <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
                 <ClipboardList className="w-4 h-4 text-indigo-600" />
                 Status Created
                 <span className="ml-1 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full font-medium">
@@ -572,22 +572,22 @@ const BuyerRRPage = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 <input type="text" value={searchCreated} onChange={e => setSearchCreated(e.target.value)}
                   placeholder="Cari TN, pickup point..."
-                  className="pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm w-52 focus:ring-2 focus:ring-indigo-500" />
+                  className="pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm w-52 focus:ring-2 focus:ring-indigo-500" />
                 {searchCreated && <button onClick={() => setSearchCreated('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"><X className="w-4 h-4" /></button>}
               </div>
               <select value={filterPickup} onChange={e => setFilterPickup(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Pickup Point</option>
                 {stats.pickupOptions.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
               <select value={filterAttempts} onChange={e => setFilterAttempts(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Attempts</option>
                 {[1,2,3,4,5,6].map(n => <option key={n} value={String(n)}>{n}x</option>)}
               </select>
               {(searchCreated || filterPickup !== 'all' || filterAttempts !== 'all') && (
                 <button onClick={() => { setSearchCreated(''); setFilterPickup('all'); setFilterAttempts('all'); }}
-                  className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                  className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 dark:text-slate-400 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800">
                   <X className="w-3.5 h-3.5" /> Reset
                 </button>
               )}
@@ -615,19 +615,19 @@ const BuyerRRPage = () => {
           rowClass={row => agingColor(row['ETA'])}
         />
         {filteredCreated.length > 0 && (
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500 flex items-center justify-between">
-            <span><strong className="text-gray-700">{filteredCreated.length}</strong> order ditampilkan</span>
+          <div className="px-4 py-3 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-800 text-xs text-gray-500 dark:text-slate-500 flex items-center justify-between">
+            <span><strong className="text-gray-700 dark:text-slate-300">{filteredCreated.length}</strong> order ditampilkan</span>
             {stats.overdue48 > 0 && <span className="text-red-600 font-medium">⚠ {stats.overdue48} order ETA overdue &gt;48 jam</span>}
           </div>
         )}
       </div>
 
       {/* ── Tabel Assigned ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-200">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+        <div className="p-4 border-b border-gray-200 dark:border-slate-800">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+              <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
                 <ListChecks className="w-4 h-4 text-green-600" />
                 Status Assigned
                 <span className="ml-1 px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full font-medium">
@@ -640,17 +640,17 @@ const BuyerRRPage = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 <input type="text" value={searchAssigned} onChange={e => setSearchAssigned(e.target.value)}
                   placeholder="Cari task ID, driver..."
-                  className="pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm w-52 focus:ring-2 focus:ring-indigo-500" />
+                  className="pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm w-52 focus:ring-2 focus:ring-indigo-500" />
                 {searchAssigned && <button onClick={() => setSearchAssigned('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"><X className="w-4 h-4" /></button>}
               </div>
               <select value={filterDriver} onChange={e => setFilterDriver(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Driver</option>
                 {stats.driverOptions.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
               {(searchAssigned || filterDriver !== 'all') && (
                 <button onClick={() => { setSearchAssigned(''); setFilterDriver('all'); }}
-                  className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                  className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 dark:text-slate-400 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800">
                   <X className="w-3.5 h-3.5" /> Reset
                 </button>
               )}
@@ -673,8 +673,8 @@ const BuyerRRPage = () => {
           emptyText="Tidak ada data Assigned"
         />
         {filteredAssigned.length > 0 && (
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500">
-            <strong className="text-gray-700">{filteredAssigned.length}</strong> task ditampilkan
+          <div className="px-4 py-3 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-800 text-xs text-gray-500 dark:text-slate-500">
+            <strong className="text-gray-700 dark:text-slate-300">{filteredAssigned.length}</strong> task ditampilkan
           </div>
         )}
       </div>

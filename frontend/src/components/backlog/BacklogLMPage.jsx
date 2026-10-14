@@ -219,8 +219,8 @@ const BacklogLMPage = () => {
       const n = parseFloat(val) || 0;
       return <span className={`text-sm font-bold ${n > 7 ? 'text-red-600' : n > 5 ? 'text-orange-500' : 'text-yellow-600'}`}>{val || '—'}</span>;
     }
-    if (col.key === 'Shipment ID') return <span className="font-mono text-xs font-medium text-gray-800">{val || '—'}</span>;
-    return <span className="text-sm text-gray-700 whitespace-nowrap">{val || '—'}</span>;
+    if (col.key === 'Shipment ID') return <span className="font-mono text-xs font-medium text-gray-800 dark:text-slate-200">{val || '—'}</span>;
+    return <span className="text-sm text-gray-700 dark:text-slate-300 whitespace-nowrap">{val || '—'}</span>;
   };
 
   // ── Loading / Error ────────────────────────────────────────
@@ -228,7 +228,7 @@ const BacklogLMPage = () => {
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-        <p className="text-sm text-gray-500">Loading Backlog LM...</p>
+        <p className="text-sm text-gray-500 dark:text-slate-500">Loading Backlog LM...</p>
       </div>
     </div>
   );
@@ -256,7 +256,7 @@ const BacklogLMPage = () => {
         scraperState === 'running' ? 'bg-blue-50 border-blue-200' :
         scraperState === 'done'    ? 'bg-green-50 border-green-200' :
         scraperState === 'error'   ? 'bg-red-50 border-red-200' :
-        'bg-white border-gray-200'}`}>
+        'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'}`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             {scraperState === 'running' && <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />}
@@ -264,13 +264,13 @@ const BacklogLMPage = () => {
             {scraperState === 'error'   && <XCircle className="w-5 h-5 text-red-600" />}
             {scraperState === 'idle'    && <BarChart2 className="w-5 h-5 text-gray-400" />}
             <div>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                 {scraperState === 'idle'    && 'Backlog LM Scraper'}
                 {scraperState === 'running' && 'Scraper sedang berjalan...'}
                 {scraperState === 'done'    && '✅ Scraper selesai!'}
                 {scraperState === 'error'   && '❌ Scraper gagal'}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-slate-500 mt-0.5">
                 {scraperState === 'idle'  && 'Klik "Run" untuk mengambil data terbaru dari SPX'}
                 {scraperState === 'done'  && 'Data sudah diperbarui. Klik "Run" lagi untuk update berikutnya.'}
                 {scraperState === 'error' && 'Cek detail error di bawah, atau klik "Run" untuk coba lagi.'}
@@ -286,11 +286,11 @@ const BacklogLMPage = () => {
             </button>
             <button onClick={() => startScraper('resume')} disabled={scraperState === 'running'}
               title="Resume: isi ulang hanya baris SLS yang kosong/Error"
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 rounded-lg text-sm font-medium border border-gray-300">
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:bg-slate-700 disabled:opacity-50 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
               <RotateCcw className="w-4 h-4" /> Resume
             </button>
             <button onClick={fetchData} disabled={scraperState === 'running'}
-              className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 rounded-lg text-sm font-medium border border-gray-300">
+              className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:bg-slate-700 disabled:opacity-50 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
               <RefreshCw className="w-4 h-4" /> Refresh
             </button>
           </div>
@@ -300,13 +300,13 @@ const BacklogLMPage = () => {
         {scraperState !== 'idle' && (
           <div className="mt-4 space-y-2">
             <div>
-              <div className="flex justify-between text-xs text-gray-600 mb-1">
+              <div className="flex justify-between text-xs text-gray-600 dark:text-slate-400 mb-1">
                 <span className="font-medium">
                   {scraperProgress?.percent > 0 ? `${scraperProgress.percent}%` : scraperState === 'running' ? 'Berjalan...' : '100%'}
                 </span>
                 {scraperProgress?.updatedAt && <span className="text-gray-400">{scraperProgress.updatedAt}</span>}
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+              <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
                 {scraperProgress?.percent > 0 ? (
                   <div className={`h-2.5 rounded-full transition-all duration-500 ${
                     scraperState === 'error' ? 'bg-red-500' :
@@ -322,7 +322,7 @@ const BacklogLMPage = () => {
               </div>
             </div>
             {scraperProgress?.message && scraperProgress.message !== 'Mengirim perintah ke GAS...' && (
-              <p className="text-xs text-gray-600 font-mono bg-gray-50 px-3 py-2 rounded-lg border truncate">
+              <p className="text-xs text-gray-600 dark:text-slate-400 font-mono bg-gray-50 dark:bg-slate-800 px-3 py-2 rounded-lg border truncate">
                 {scraperProgress.message}
               </p>
             )}
@@ -339,73 +339,73 @@ const BacklogLMPage = () => {
 
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white rounded-xl shadow-sm border border-indigo-200 p-4 col-span-1">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-200 p-4 col-span-1">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
               <Package className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-xs text-gray-500">Total Backlog</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{stats.total}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Total Backlog</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-red-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-red-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
               <ShieldCheck className="w-5 h-5 text-red-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-red-600">{stats.sudah}</p>
-              <p className="text-xs text-gray-500">SLS Sudah</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">SLS Sudah</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-yellow-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-yellow-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
               <ShieldX className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-yellow-600">{stats.belum}</p>
-              <p className="text-xs text-gray-500">SLS Belum</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">SLS Belum</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-gray-500" />
+            <div className="w-10 h-10 bg-gray-100 dark:bg-slate-800 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-gray-500 dark:text-slate-500" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-600">{stats.unknown}</p>
-              <p className="text-xs text-gray-500">Belum Dicek</p>
+              <p className="text-2xl font-bold text-gray-600 dark:text-slate-400">{stats.unknown}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Belum Dicek</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-orange-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-orange-200 p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
               <Clock className="w-5 h-5 text-orange-500" />
             </div>
             <div>
               <p className="text-2xl font-bold text-orange-600">{stats.avgDays}</p>
-              <p className="text-xs text-gray-500">Avg Days</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Avg Days</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* ── Toolbar + Table ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-200">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+        <div className="p-4 border-b border-gray-200 dark:border-slate-800">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+              <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-indigo-600" />
                 Backlog LM Detail
                 <span className="px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full">{filtered.length}</span>
@@ -418,32 +418,32 @@ const BacklogLMPage = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                   placeholder="Cari shipment ID..."
-                  className="pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm w-48 focus:ring-2 focus:ring-indigo-500" />
+                  className="pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm w-48 focus:ring-2 focus:ring-indigo-500" />
                 {search && <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"><X className="w-4 h-4" /></button>}
               </div>
               {/* Filter SLS */}
               <select value={filterSLS} onChange={e => setFilterSLS(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua SLS</option>
                 <option value="Sudah">SLS Sudah</option>
                 <option value="Belum">SLS Belum</option>
               </select>
               {/* Filter Zone */}
               <select value={filterZone} onChange={e => setFilterZone(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Zone</option>
                 {stats.zoneOptions.map(z => <option key={z} value={z}>{z}</option>)}
               </select>
               {/* Filter Account */}
               <select value={filterAccount} onChange={e => setFilterAccount(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Account</option>
                 {stats.accountOptions.map(a => <option key={a} value={a}>{a}</option>)}
               </select>
               {/* Reset */}
               {(search || filterZone !== 'all' || filterSLS !== 'all' || filterAccount !== 'all') && (
                 <button onClick={() => { setSearch(''); setFilterZone('all'); setFilterSLS('all'); setFilterAccount('all'); }}
-                  className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                  className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 dark:text-slate-400 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800">
                   <X className="w-3.5 h-3.5" /> Reset
                 </button>
               )}
@@ -454,7 +454,7 @@ const BacklogLMPage = () => {
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   copiedAll
                     ? 'bg-green-100 text-green-700 border border-green-300'
-                    : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200'
+                    : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 disabled:bg-gray-100 dark:bg-slate-800 disabled:text-gray-400 disabled:border-gray-200 dark:border-slate-800'
                 }`}
                 title={`Copy ${filtered.length} Shipment ID ke clipboard`}
               >
@@ -496,7 +496,7 @@ const BacklogLMPage = () => {
                   <td colSpan={COLUMNS.length} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <Package className="w-12 h-12 text-gray-200" />
-                      <p className="text-gray-500 font-medium">Tidak ada data</p>
+                      <p className="text-gray-500 dark:text-slate-500 font-medium">Tidak ada data</p>
                     </div>
                   </td>
                 </tr>
@@ -516,8 +516,8 @@ const BacklogLMPage = () => {
         </div>
 
         {filtered.length > 0 && (
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500 flex items-center justify-between">
-            <span><strong className="text-gray-700">{filtered.length}</strong> shipment</span>
+          <div className="px-4 py-3 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-800 text-xs text-gray-500 dark:text-slate-500 flex items-center justify-between">
+            <span><strong className="text-gray-700 dark:text-slate-300">{filtered.length}</strong> shipment</span>
             <div className="flex items-center gap-4">
               <span className="text-red-600 font-medium">🔴 SLS Sudah: {filtered.filter(r => r[SLS_COL] === 'Sudah').length}</span>
               <span className="text-yellow-600 font-medium">🟡 SLS Belum: {filtered.filter(r => r[SLS_COL] === 'Belum').length}</span>

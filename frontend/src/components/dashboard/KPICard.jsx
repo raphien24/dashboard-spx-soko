@@ -53,11 +53,11 @@ function KPICard({
         <div>
           <div className="flex items-center gap-2 mb-1">
             {Icon && <Icon className={`w-5 h-5 ${colors.icon}`} />}
-            <h3 className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+            <h3 className="text-sm font-medium text-gray-600 dark:text-slate-400 uppercase tracking-wide">
               {title}
             </h3>
           </div>
-          <p className="text-xs text-gray-500">{unit}</p>
+          <p className="text-xs text-gray-500 dark:text-slate-500">{unit}</p>
         </div>
         
         {/* Trend Indicator */}
@@ -94,12 +94,12 @@ function KPICard({
       {/* Progress Bar */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-500">Progress</span>
+          <span className="text-xs text-gray-500 dark:text-slate-500">Progress</span>
           <span className={`text-xs font-semibold ${colors.text}`}>
             {formatPercentage(progressPercentage, 1)}
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+        <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
           <div
             className={`h-full ${progressColor} transition-all duration-500 ease-out rounded-full`}
             style={{ width: `${Math.min(progressPercentage, 100)}%` }}
@@ -109,13 +109,13 @@ function KPICard({
 
       {/* Sub Metrics */}
       {subMetrics && (
-        <div className="space-y-2 pt-3 border-t border-gray-200">
+        <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-slate-800">
           {Object.entries(subMetrics).map(([key, value]) => (
             <div key={key} className="flex items-center justify-between">
-              <span className="text-xs text-gray-600 capitalize">
+              <span className="text-xs text-gray-600 dark:text-slate-400 capitalize">
                 {key.replace(/([A-Z])/g, ' $1').trim()}
               </span>
-              <span className="text-xs font-medium text-gray-900">
+              <span className="text-xs font-medium text-gray-900 dark:text-slate-100">
                 {value}
               </span>
             </div>

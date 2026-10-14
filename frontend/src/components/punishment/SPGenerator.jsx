@@ -10,11 +10,11 @@ const SPGenerator = () => {
   return (
     <div className="space-y-6">
       {/* Main Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
         {/* Top Banner */}
         <div className="bg-gradient-to-r from-red-600 to-red-700 px-6 py-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-white dark:bg-slate-900/20 rounded-lg flex items-center justify-center">
               <FileText className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -32,12 +32,12 @@ const SPGenerator = () => {
               <FileText className="w-10 h-10 text-red-500" />
             </div>
 
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2">
               Buka SP Generator
             </h3>
-            <p className="text-gray-500 text-sm mb-8 leading-relaxed">
+            <p className="text-gray-500 dark:text-slate-500 text-sm mb-8 leading-relaxed">
               SP Generator berjalan di Google Apps Script dan membutuhkan login akun{' '}
-              <span className="font-medium text-gray-700">@spxexpress.com</span>.
+              <span className="font-medium text-gray-700 dark:text-slate-300">@spxexpress.com</span>.
               Klik tombol di bawah untuk membuka di tab baru.
             </p>
 
@@ -74,8 +74,8 @@ const SPGenerator = () => {
       </div>
 
       {/* Steps Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h4 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-4 uppercase tracking-wider">
           Cara Penggunaan
         </h4>
         <div className="space-y-4">
@@ -90,8 +90,8 @@ const SPGenerator = () => {
                 {step}
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-800">{title}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
+                <p className="text-sm font-medium text-gray-800 dark:text-slate-200">{title}</p>
+                <p className="text-xs text-gray-500 dark:text-slate-500 mt-0.5">{desc}</p>
               </div>
             </div>
           ))}

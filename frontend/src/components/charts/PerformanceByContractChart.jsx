@@ -8,7 +8,7 @@ function PerformanceByContractChart({ data }) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-4">
           📊 Performance by Contract Type
         </h3>
         <div className="h-64 bg-gray-100 dark:bg-slate-800 rounded-lg animate-pulse" />
@@ -28,8 +28,8 @@ function PerformanceByContractChart({ data }) {
     if (active && payload && payload.length) {
       const item = payload[0].payload;
       return (
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200 dark:border-slate-800">
-          <p className="font-semibold text-gray-900 mb-2">{item.contractType}</p>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-lg border border-gray-200 dark:border-slate-800">
+          <p className="font-semibold text-gray-900 dark:text-slate-100 mb-2">{item.contractType}</p>
           <div className="space-y-1 text-sm">
             <p className="text-gray-600 dark:text-slate-400">
               <span className="font-medium">{item.couriers} couriers</span>
@@ -37,7 +37,7 @@ function PerformanceByContractChart({ data }) {
             <p className="text-green-600 font-semibold">
               {item.successRate}% success
             </p>
-            <p className="text-gray-500 text-xs">
+            <p className="text-gray-500 dark:text-slate-500 text-xs">
               Delivered {item.delivered?.toLocaleString()} / {item.total?.toLocaleString()}
             </p>
             <p className="text-red-500 text-xs">
@@ -102,7 +102,7 @@ function PerformanceByContractChart({ data }) {
       </ResponsiveContainer>
 
       {/* Legend with details */}
-      <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
+      <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-800 space-y-2">
         {data.map((item, index) => (
           <div key={index} className="flex items-center justify-between text-sm py-1.5">
             <div className="flex items-center gap-2">

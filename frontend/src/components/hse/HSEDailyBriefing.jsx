@@ -20,7 +20,7 @@ const HSEDailyBriefing = () => {
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
-        <p className="text-sm text-gray-500">Loading Daily Briefing...</p>
+        <p className="text-sm text-gray-500 dark:text-slate-500">Loading Daily Briefing...</p>
       </div>
     </div>
   );
@@ -41,9 +41,9 @@ const HSEDailyBriefing = () => {
   );
 
   if (rows.length === 0) return (
-    <div className="bg-gray-50 border border-gray-200 rounded-xl p-12 text-center">
+    <div className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded-xl p-12 text-center">
       <AlertTriangle className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-      <p className="text-gray-500">Tidak ada data</p>
+      <p className="text-gray-500 dark:text-slate-500">Tidak ada data</p>
     </div>
   );
 
@@ -74,8 +74,8 @@ const HSEDailyBriefing = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">Daily Briefing</h2>
-          <p className="text-sm text-gray-500 mt-0.5">Status submission briefing harian per fasilitas</p>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">Daily Briefing</h2>
+          <p className="text-sm text-gray-500 dark:text-slate-500 mt-0.5">Status submission briefing harian per fasilitas</p>
         </div>
         <button onClick={fetchData} className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium">
           <RefreshCw className="w-4 h-4" /> Refresh
@@ -90,11 +90,11 @@ const HSEDailyBriefing = () => {
           const dayLinks     = row.slice(2); // one per date column
 
           return (
-            <div key={ri} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div key={ri} className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
               {/* Facility header */}
               <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-green-600 to-emerald-600">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+                  <div className="w-9 h-9 bg-white dark:bg-slate-900/20 rounded-lg flex items-center justify-center">
                     <Calendar className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -105,7 +105,7 @@ const HSEDailyBriefing = () => {
                 {/* Weekly submission % */}
                 <div className="text-right">
                   <p className="text-xs text-green-100 mb-1">Weekly Submission</p>
-                  <span className={`inline-flex px-3 py-1 rounded-full text-sm font-bold ${pctColor(weeklyPct)} bg-white/90`}>
+                  <span className={`inline-flex px-3 py-1 rounded-full text-sm font-bold ${pctColor(weeklyPct)} bg-white dark:bg-slate-900/90`}>
                     {row[1] || '0,00%'}
                   </span>
                 </div>
@@ -122,10 +122,10 @@ const HSEDailyBriefing = () => {
                     return (
                       <div key={di} className={`rounded-lg border p-3 text-center ${
                         hasLink  ? 'bg-green-50 border-green-200' :
-                        isEmpty  ? 'bg-gray-50 border-gray-200' :
+                        isEmpty  ? 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-800' :
                         'bg-yellow-50 border-yellow-200'
                       }`}>
-                        <p className="text-xs font-semibold text-gray-600 mb-2">{date}</p>
+                        <p className="text-xs font-semibold text-gray-600 dark:text-slate-400 mb-2">{date}</p>
                         {hasLink ? (
                           <a
                             href={cellVal}

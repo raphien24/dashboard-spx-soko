@@ -188,7 +188,7 @@ const ControlStuckFMPage = () => {
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-        <p className="text-sm text-gray-500">Loading Control Stuck FM...</p>
+        <p className="text-sm text-gray-500 dark:text-slate-500">Loading Control Stuck FM...</p>
       </div>
     </div>
   );
@@ -216,7 +216,7 @@ const ControlStuckFMPage = () => {
         scraperState === 'running' ? 'bg-blue-50 border-blue-200' :
         scraperState === 'done'    ? 'bg-green-50 border-green-200' :
         scraperState === 'error'   ? 'bg-red-50 border-red-200' :
-        'bg-white border-gray-200'}`}>
+        'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'}`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             {scraperState === 'running' && <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />}
@@ -224,13 +224,13 @@ const ControlStuckFMPage = () => {
             {scraperState === 'error'   && <XCircle className="w-5 h-5 text-red-600" />}
             {scraperState === 'idle'    && <BarChart2 className="w-5 h-5 text-gray-400" />}
             <div>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                 {scraperState === 'idle'    && 'Control Stuck FM Scraper'}
                 {scraperState === 'running' && 'Update sedang berjalan...'}
                 {scraperState === 'done'    && '✅ Update berhasil!'}
                 {scraperState === 'error'   && '❌ Update gagal'}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-slate-500 mt-0.5">
                 {scraperState === 'idle' && 'Klik "Update" untuk mengambil data terbaru dari SPX'}
                 {scraperState === 'done' && 'Data sudah diperbarui. Klik "Update" lagi untuk update berikutnya.'}
                 {scraperState === 'error' && 'Terjadi error. Cek detail di bawah atau klik "Update" untuk coba lagi.'}
@@ -246,11 +246,11 @@ const ControlStuckFMPage = () => {
             </button>
             <button onClick={() => startScraper('resume')} disabled={scraperState === 'running'}
               title="Resume: lanjutkan tanpa fetch ulang dari awal"
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 rounded-lg text-sm font-medium border border-gray-300">
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
               <RotateCcw className="w-4 h-4" /> Resume
             </button>
             <button onClick={fetchData} disabled={scraperState === 'running'}
-              className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 rounded-lg text-sm font-medium border border-gray-300">
+              className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:bg-slate-700 disabled:opacity-50 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
               <RefreshCw className="w-4 h-4" /> Refresh
             </button>
           </div>
@@ -260,13 +260,13 @@ const ControlStuckFMPage = () => {
         {scraperState !== 'idle' && (
           <div className="mt-4 space-y-2">
             <div>
-              <div className="flex justify-between text-xs text-gray-600 mb-1">
+              <div className="flex justify-between text-xs text-gray-600 dark:text-slate-400 mb-1">
                 <span className="font-medium">
                   {scraperProgress?.percent > 0 ? `${scraperProgress.percent}%` : 'Menunggu progress...'}
                 </span>
                 {scraperProgress?.updatedAt && <span className="text-gray-400">Updated: {scraperProgress.updatedAt}</span>}
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+              <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
                 {scraperProgress?.percent > 0 ? (
                   <div className={`h-2.5 rounded-full transition-all duration-500 ${
                     scraperProgress.message?.startsWith('❌') ? 'bg-red-500' :
@@ -281,7 +281,7 @@ const ControlStuckFMPage = () => {
               </div>
             </div>
             {scraperProgress?.message && scraperProgress.message !== 'Mengirim perintah ke GAS...' && scraperProgress.message !== 'Memulai...' && (
-              <p className="text-xs text-gray-600 font-mono bg-gray-50 px-3 py-2 rounded-lg border">
+              <p className="text-xs text-gray-600 dark:text-slate-400 font-mono bg-gray-50 dark:bg-slate-800 px-3 py-2 rounded-lg border">
                 {scraperProgress.message}
               </p>
             )}
@@ -297,11 +297,11 @@ const ControlStuckFMPage = () => {
       </div>
 
       {/* ── Hub Info + Last Update ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1">Hub</p>
-            <p className="text-xl font-bold text-gray-900">{hubName}</p>
+            <p className="text-xs text-gray-500 dark:text-slate-500 uppercase tracking-wider font-medium mb-1">Hub</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-slate-100">{hubName}</p>
           </div>
           <div className="flex items-center gap-3">
             {update1 && (
@@ -314,11 +314,11 @@ const ControlStuckFMPage = () => {
               </div>
             )}
             {update2 && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-800">
                 <Clock className="w-4 h-4 text-gray-400" />
                 <div>
-                  <p className="text-xs text-gray-500">Update 2 (max 01.00)</p>
-                  <p className="text-sm font-bold text-gray-800">{update2}</p>
+                  <p className="text-xs text-gray-500 dark:text-slate-500">Update 2 (max 01.00)</p>
+                  <p className="text-sm font-bold text-gray-800 dark:text-slate-200">{update2}</p>
                 </div>
               </div>
             )}
@@ -333,15 +333,15 @@ const ControlStuckFMPage = () => {
       </div>
 
       {/* ── Forward Section ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-indigo-600">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200 dark:border-slate-800 bg-gradient-to-r from-blue-600 to-indigo-600">
           <ArrowRight className="w-5 h-5 text-white" />
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">Forward</h3>
           <span className="text-blue-200 text-xs">Paket masuk ke FM Hub</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-y divide-gray-100">
           {FORWARD.map(({ idx, label }) => {
-            const c = COLORS[idx] || { bg: 'bg-gray-50', text: 'text-gray-600', dot: 'bg-gray-300', val: 'text-gray-900' };
+            const c = COLORS[idx] || { bg: 'bg-gray-50 dark:bg-slate-800', text: 'text-gray-600 dark:text-slate-400', dot: 'bg-gray-300', val: 'text-gray-900 dark:text-slate-100' };
             const v = val(idx);
             return (
               <div key={idx} className={`p-5 ${c.bg}`}>
@@ -355,15 +355,15 @@ const ControlStuckFMPage = () => {
       </div>
 
       {/* ── Reverse Section ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200 bg-gradient-to-r from-orange-500 to-red-500">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200 dark:border-slate-800 bg-gradient-to-r from-orange-500 to-red-500">
           <ArrowLeft className="w-5 h-5 text-white" />
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">Reverse</h3>
           <span className="text-orange-100 text-xs">Paket return di FM Hub</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-y divide-gray-100">
           {REVERSE.map(({ idx, label }) => {
-            const c = COLORS[idx] || { bg: 'bg-gray-50', text: 'text-gray-600', dot: 'bg-gray-300', val: 'text-gray-900' };
+            const c = COLORS[idx] || { bg: 'bg-gray-50 dark:bg-slate-800', text: 'text-gray-600 dark:text-slate-400', dot: 'bg-gray-300', val: 'text-gray-900 dark:text-slate-100' };
             const v = val(idx);
             return (
               <div key={idx} className={`p-5 ${c.bg}`}>
@@ -387,7 +387,7 @@ const ControlStuckFMPage = () => {
         </div>
         <div className="text-right text-sm text-gray-400 space-y-1">
           <p>Forward + Reverse</p>
-          <p className="text-gray-500 text-xs">Combined count</p>
+          <p className="text-gray-500 dark:text-slate-500 text-xs">Combined count</p>
         </div>
       </div>
 

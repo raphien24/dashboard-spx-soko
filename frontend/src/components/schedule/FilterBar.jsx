@@ -7,15 +7,15 @@ import { FILTER_OPTIONS } from '../../utils/constants';
  */
 function FilterBar({ filters, onFilterChange, onReset }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 mb-6">
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800 mb-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Filter className="w-5 h-5 text-purple-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Filters</h3>
         </div>
         <button
           onClick={onReset}
-          className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+          className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
         >
           Reset All
         </button>
@@ -24,7 +24,7 @@ function FilterBar({ filters, onFilterChange, onReset }) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Date Range */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
             <Calendar className="w-4 h-4 inline mr-1" />
             Date Range
           </label>
@@ -35,7 +35,7 @@ function FilterBar({ filters, onFilterChange, onReset }) {
               onChange={(e) => onFilterChange({
                 dateRange: { ...filters.dateRange, start: e.target.value }
               })}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
             <input
               type="date"
@@ -43,20 +43,20 @@ function FilterBar({ filters, onFilterChange, onReset }) {
               onChange={(e) => onFilterChange({
                 dateRange: { ...filters.dateRange, end: e.target.value }
               })}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
         </div>
 
         {/* Zone Filter */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
             Zone
           </label>
           <select
             value={filters.zone || 'all'}
             onChange={(e) => onFilterChange({ zone: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             {FILTER_OPTIONS.zones.map((option) => (
               <option key={option.value} value={option.value}>
@@ -68,13 +68,13 @@ function FilterBar({ filters, onFilterChange, onReset }) {
 
         {/* Contract Filter */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
             Contract Type
           </label>
           <select
             value={filters.contract || 'all'}
             onChange={(e) => onFilterChange({ contract: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             {FILTER_OPTIONS.contracts.map((option) => (
               <option key={option.value} value={option.value}>
@@ -86,13 +86,13 @@ function FilterBar({ filters, onFilterChange, onReset }) {
 
         {/* Vehicle Filter */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
             Vehicle
           </label>
           <select
             value={filters.vehicle || 'all'}
             onChange={(e) => onFilterChange({ vehicle: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             {FILTER_OPTIONS.vehicles.map((option) => (
               <option key={option.value} value={option.value}>
@@ -105,9 +105,9 @@ function FilterBar({ filters, onFilterChange, onReset }) {
 
       {/* Active Filters Display */}
       {(filters.zone !== 'all' || filters.contract !== 'all' || filters.vehicle !== 'all') && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-800">
           <div className="flex flex-wrap gap-2">
-            <span className="text-sm text-gray-600">Active filters:</span>
+            <span className="text-sm text-gray-600 dark:text-slate-400">Active filters:</span>
             {filters.zone !== 'all' && (
               <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
                 Zone: {FILTER_OPTIONS.zones.find(z => z.value === filters.zone)?.label}

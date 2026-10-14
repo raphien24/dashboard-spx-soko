@@ -57,7 +57,7 @@ const ProductivityDrilldownModal = ({
       >
         {/* Modal */}
         <div
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
+          className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}
@@ -71,12 +71,12 @@ const ProductivityDrilldownModal = ({
               {(filters.contract || filters.vehicle) && (
                 <div className="flex gap-2 mt-2">
                   {filters.contract && filters.contract !== 'all' && (
-                    <span className="px-2 py-0.5 bg-white/20 text-white text-xs rounded-full">
+                    <span className="px-2 py-0.5 bg-white dark:bg-slate-900/20 text-white text-xs rounded-full">
                       {filters.contract}
                     </span>
                   )}
                   {filters.vehicle && filters.vehicle !== 'all' && (
-                    <span className="px-2 py-0.5 bg-white/20 text-white text-xs rounded-full">
+                    <span className="px-2 py-0.5 bg-white dark:bg-slate-900/20 text-white text-xs rounded-full">
                       {filters.vehicle}
                     </span>
                   )}
@@ -92,26 +92,26 @@ const ProductivityDrilldownModal = ({
           </div>
 
           {/* Summary Strip */}
-          <div className="grid grid-cols-3 divide-x divide-gray-100 border-b border-gray-200 bg-gray-50">
+          <div className="grid grid-cols-3 divide-x divide-gray-100 border-b border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800">
             <div className="px-5 py-3 text-center">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Avg Productivity</p>
-              <p className="text-xl font-bold text-gray-900 mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-slate-500 uppercase tracking-wider">Avg Productivity</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-slate-100 mt-0.5">
                 {weekAvgProductivity.toFixed(1)}
-                <span className="text-sm font-normal text-gray-500 ml-1">pkgs</span>
+                <span className="text-sm font-normal text-gray-500 dark:text-slate-500 ml-1">pkgs</span>
               </p>
             </div>
             <div className="px-5 py-3 text-center">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Target</p>
-              <p className="text-xl font-bold text-gray-900 mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-slate-500 uppercase tracking-wider">Target</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-slate-100 mt-0.5">
                 {weeklyTarget.toFixed(1)}
-                <span className="text-sm font-normal text-gray-500 ml-1">pkgs</span>
+                <span className="text-sm font-normal text-gray-500 dark:text-slate-500 ml-1">pkgs</span>
               </p>
             </div>
             <div className="px-5 py-3 text-center">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Avg Daily Active</p>
-              <p className="text-xl font-bold text-gray-900 mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-slate-500 uppercase tracking-wider">Avg Daily Active</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-slate-100 mt-0.5">
                 {weekAvgActive.toFixed(1)}
-                <span className="text-sm font-normal text-gray-500 ml-1">%</span>
+                <span className="text-sm font-normal text-gray-500 dark:text-slate-500 ml-1">%</span>
               </p>
             </div>
           </div>
@@ -132,11 +132,11 @@ const ProductivityDrilldownModal = ({
                   const isAboveTarget = weeklyTarget > 0 && day.avgProductivity >= weeklyTarget;
 
                   return (
-                    <div key={i} className="bg-gray-50 rounded-xl p-4 border border-gray-100 hover:border-indigo-200 transition-colors">
+                    <div key={i} className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 border border-gray-100 dark:border-slate-800 hover:border-indigo-200 transition-colors">
                       {/* Row header */}
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-gray-800">
+                          <span className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                             {day.dayLabel}
                           </span>
                           {isAboveTarget && (
@@ -151,7 +151,7 @@ const ProductivityDrilldownModal = ({
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-gray-500">
+                        <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-slate-500">
                           <span>{day.activeShifts} shifts</span>
                           <span className="text-gray-300">|</span>
                           <span>{day.totalDelivered.toLocaleString()} pkgs</span>
@@ -161,14 +161,14 @@ const ProductivityDrilldownModal = ({
                       {/* Productivity bar */}
                       <div className="mb-2">
                         <div className="flex items-center justify-between text-xs mb-1">
-                          <span className="text-gray-500 flex items-center gap-1">
+                          <span className="text-gray-500 dark:text-slate-500 flex items-center gap-1">
                             <TrendingUp className="w-3 h-3" /> Avg Productivity
                           </span>
                           <span className={`font-bold ${productivityTextColor(day.avgProductivity)}`}>
                             {day.avgProductivity.toFixed(1)} pkgs/shift
                           </span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                        <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
                           <div
                             className={`h-2.5 rounded-full transition-all ${productivityColor(day.avgProductivity)}`}
                             style={{ width: `${pct}%` }}
@@ -188,7 +188,7 @@ const ProductivityDrilldownModal = ({
                       {/* Daily Active bar */}
                       <div className="mt-3">
                         <div className="flex items-center justify-between text-xs mb-1">
-                          <span className="text-gray-500 flex items-center gap-1">
+                          <span className="text-gray-500 dark:text-slate-500 flex items-center gap-1">
                             <Activity className="w-3 h-3" /> Daily Active (2WH D+Plus)
                           </span>
                           <span className={`font-semibold ${
@@ -198,7 +198,7 @@ const ProductivityDrilldownModal = ({
                             {day.dailyActiveRate.toFixed(1)}%
                           </span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                        <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
                           <div
                             className={`h-1.5 rounded-full transition-all ${
                               day.dailyActiveRate >= 80 ? 'bg-green-500' :
@@ -216,7 +216,7 @@ const ProductivityDrilldownModal = ({
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-3 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
+          <div className="px-6 py-3 border-t border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800 rounded-b-2xl">
             <p className="text-xs text-gray-400 text-center">
               Productivity = Total Delivered ÷ Active Shifts &nbsp;·&nbsp;
               Daily Active = 2WH Dedicated+Plus kurir aktif ÷ total unik kurir

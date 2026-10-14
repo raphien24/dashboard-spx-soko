@@ -40,10 +40,10 @@ function ScheduleTable({ autoRefreshEnabled = true }) {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="bg-white rounded-xl shadow-sm p-12 border border-gray-200">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-12 border border-gray-200 dark:border-slate-800">
           <div className="flex flex-col items-center justify-center">
             <Loader className="w-8 h-8 text-purple-600 animate-spin mb-4" />
-            <p className="text-gray-600">Loading courier schedule...</p>
+            <p className="text-gray-600 dark:text-slate-400">Loading courier schedule...</p>
           </div>
         </div>
       )}

@@ -14,7 +14,7 @@ function LoadingSpinner({ message = 'Loading...', size = 'md' }) {
   return (
     <div className="flex flex-col items-center justify-center py-8">
       <Loader className={`${sizeClasses[size]} text-purple-600 animate-spin mb-3`} />
-      <p className="text-gray-600">{message}</p>
+      <p className="text-gray-600 dark:text-slate-400">{message}</p>
     </div>
   );
 }

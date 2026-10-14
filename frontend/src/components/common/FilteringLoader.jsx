@@ -6,7 +6,7 @@ import { Loader2, Filter, TrendingUp, BarChart3, Users } from 'lucide-react';
  */
 function FilteringLoader() {
   return (
-    <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-white dark:bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center">
       <div className="text-center">
         {/* Animated Icons */}
         <div className="relative w-32 h-32 mx-auto mb-6">
@@ -32,7 +32,7 @@ function FilteringLoader() {
 
         {/* Loading Text */}
         <div className="space-y-2">
-          <h3 className="text-xl font-bold text-gray-900">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100">
             Applying Filters
           </h3>
           <div className="flex items-center justify-center gap-1">
@@ -40,14 +40,14 @@ function FilteringLoader() {
             <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
             <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
           </div>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-slate-400">
             Crunching numbers and filtering data...
           </p>
         </div>
 
         {/* Progress Bar */}
         <div className="mt-6 w-64 mx-auto">
-          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full animate-progress"></div>
           </div>
         </div>

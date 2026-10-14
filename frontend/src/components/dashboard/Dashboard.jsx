@@ -199,8 +199,8 @@ function Dashboard({ autoRefreshEnabled = true }) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <Loader className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
-        <p className="text-gray-600 text-lg font-medium">Loading dashboard data...</p>
-        <p className="text-gray-500 text-sm mt-2">Fetching real-time data from Google Sheets</p>
+        <p className="text-gray-600 dark:text-slate-400 text-lg font-medium">Loading dashboard data...</p>
+        <p className="text-gray-500 dark:text-slate-500 text-sm mt-2">Fetching real-time data from Google Sheets</p>
       </div>
     );
   }
@@ -231,8 +231,8 @@ function Dashboard({ autoRefreshEnabled = true }) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <AlertCircle className="w-12 h-12 text-yellow-600 mb-4" />
-        <p className="text-gray-600 text-lg font-medium">No data available</p>
-        <p className="text-gray-500 text-sm mt-2">Please check your data source</p>
+        <p className="text-gray-600 dark:text-slate-400 text-lg font-medium">No data available</p>
+        <p className="text-gray-500 dark:text-slate-500 text-sm mt-2">Please check your data source</p>
         <button
           onClick={() => fetchDashboardData()}
           className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
@@ -271,7 +271,7 @@ function Dashboard({ autoRefreshEnabled = true }) {
         <div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
-            <h2 className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">
+            <h2 className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wide">
               KEY STRATEGIC PERFORMANCE DRIVERS
             </h2>
           </div>
@@ -280,7 +280,7 @@ function Dashboard({ autoRefreshEnabled = true }) {
             {lastUpdated && (
               <>
                 <span className="text-xs text-gray-400">•</span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 dark:text-slate-500">
                   Updated: {formatTimeAgo(lastUpdated)}
                 </span>
               </>

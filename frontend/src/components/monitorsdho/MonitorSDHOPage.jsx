@@ -21,12 +21,12 @@ const DETAIL_COLS = [
 
 // Warna card summary berdasarkan status
 const summaryCardStyle = (status) => {
-  if (!status) return { border: 'border-gray-200', bg: 'bg-gray-50', icon: 'text-gray-500', iconBg: 'bg-gray-100', text: 'text-gray-700' };
+  if (!status) return { border: 'border-gray-200 dark:border-slate-800', bg: 'bg-gray-50 dark:bg-slate-800', icon: 'text-gray-500 dark:text-slate-500', iconBg: 'bg-gray-100 dark:bg-slate-800', text: 'text-gray-700 dark:text-slate-300' };
   const s = String(status).toLowerCase();
   if (s.includes('total'))    return { border: 'border-indigo-200', bg: 'bg-indigo-50', icon: 'text-indigo-600', iconBg: 'bg-indigo-100', text: 'text-indigo-700' };
   if (s.includes('assigned')) return { border: 'border-green-200',  bg: 'bg-green-50',  icon: 'text-green-600',  iconBg: 'bg-green-100',  text: 'text-green-700'  };
   if (s.includes('created'))  return { border: 'border-blue-200',   bg: 'bg-blue-50',   icon: 'text-blue-600',   iconBg: 'bg-blue-100',   text: 'text-blue-700'   };
-  return { border: 'border-gray-200', bg: 'bg-gray-50', icon: 'text-gray-500', iconBg: 'bg-gray-100', text: 'text-gray-700' };
+  return { border: 'border-gray-200 dark:border-slate-800', bg: 'bg-gray-50 dark:bg-slate-800', icon: 'text-gray-500 dark:text-slate-500', iconBg: 'bg-gray-100 dark:bg-slate-800', text: 'text-gray-700 dark:text-slate-300' };
 };
 
 const summaryIcon = (status) => {
@@ -227,7 +227,7 @@ const MonitorSDHOPage = () => {
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-3">
         <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-        <p className="text-sm text-gray-500">Loading Monitor SDHO...</p>
+        <p className="text-sm text-gray-500 dark:text-slate-500">Loading Monitor SDHO...</p>
       </div>
     </div>
   );
@@ -255,7 +255,7 @@ const MonitorSDHOPage = () => {
         scraperState === 'running' ? 'bg-blue-50 border-blue-200' :
         scraperState === 'done'    ? 'bg-green-50 border-green-200' :
         scraperState === 'error'   ? 'bg-red-50 border-red-200' :
-        'bg-white border-gray-200'}`}>
+        'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'}`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             {scraperState === 'running' && <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />}
@@ -263,13 +263,13 @@ const MonitorSDHOPage = () => {
             {scraperState === 'error'   && <XCircle className="w-5 h-5 text-red-600" />}
             {scraperState === 'idle'    && <Activity className="w-5 h-5 text-gray-400" />}
             <div>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                 {scraperState === 'idle'    && 'Monitor SDHO Scraper'}
                 {scraperState === 'running' && 'Scraper sedang berjalan...'}
                 {scraperState === 'done'    && 'Scraper selesai!'}
                 {scraperState === 'error'   && 'Scraper gagal'}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-slate-500 mt-0.5">
                 {scraperState === 'idle' && 'Klik "Run Scraper" untuk update data dari SPX'}
                 {scraperProgress?.message && scraperState !== 'idle' && scraperProgress.message}
               </p>
@@ -282,7 +282,7 @@ const MonitorSDHOPage = () => {
               Run Scraper
             </button>
             <button onClick={() => startScraper('resume')} disabled={scraperState === 'running'}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 rounded-lg text-sm font-medium border border-gray-300">
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:bg-slate-700 disabled:opacity-50 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
               <RotateCcw className="w-4 h-4" /> Resume
             </button>
           </div>
@@ -290,11 +290,11 @@ const MonitorSDHOPage = () => {
         {scraperProgress && scraperState !== 'idle' && (
           <div className="mt-4 space-y-2">
             <div>
-              <div className="flex justify-between text-xs text-gray-600 mb-1">
+              <div className="flex justify-between text-xs text-gray-600 dark:text-slate-400 mb-1">
                 <span>{scraperProgress.percent}%</span>
                 {scraperProgress.updatedAt && <span className="text-gray-400">Updated: {scraperProgress.updatedAt}</span>}
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
                 <div className={`h-2 rounded-full transition-all duration-500 ${
                   scraperProgress.message?.startsWith('❌') ? 'bg-red-500' :
                   scraperState === 'done' ? 'bg-green-500' :
@@ -320,17 +320,17 @@ const MonitorSDHOPage = () => {
             const style = summaryCardStyle(row['Status']);
             const Icon  = summaryIcon(row['Status']);
             return (
-              <div key={i} className={`bg-white rounded-xl shadow-sm border ${style.border} p-5`}>
+              <div key={i} className={`bg-white dark:bg-slate-900 rounded-xl shadow-sm border ${style.border} p-5`}>
                 <div className="flex items-center gap-3 mb-3">
                   <div className={`w-10 h-10 ${style.iconBg} rounded-lg flex items-center justify-center`}>
                     <Icon className={`w-5 h-5 ${style.icon}`} />
                   </div>
                   <div>
                     <p className={`text-2xl font-bold ${style.text}`}>{row['Total Count'] || '0'}</p>
-                    <p className="text-xs text-gray-500">{row['Status']}</p>
+                    <p className="text-xs text-gray-500 dark:text-slate-500">{row['Status']}</p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between text-xs text-gray-400 border-t border-gray-100 pt-2">
+                <div className="flex items-center justify-between text-xs text-gray-400 border-t border-gray-100 dark:border-slate-800 pt-2">
                   <span>{row['Mode'] || ''}</span>
                   <span>{row['Last Update'] || ''}</span>
                 </div>
@@ -341,12 +341,12 @@ const MonitorSDHOPage = () => {
       )}
 
       {/* ── Tabel Detail (kolom A:G) ── */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 overflow-hidden">
         {/* Toolbar */}
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 border-b border-gray-200 dark:border-slate-800">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+              <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
                 <Activity className="w-4 h-4 text-indigo-600" />
                 Data Detail
                 <span className="ml-1 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full font-medium">
@@ -363,20 +363,20 @@ const MonitorSDHOPage = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                   placeholder="Cari TN, pickup point..."
-                  className="pl-9 pr-8 py-2 border border-gray-300 rounded-lg text-sm w-52 focus:ring-2 focus:ring-indigo-500" />
+                  className="pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm w-52 focus:ring-2 focus:ring-indigo-500" />
                 {search && <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"><X className="w-4 h-4" /></button>}
               </div>
 
               {/* Filter Pickup Point */}
               <select value={filterPickup} onChange={e => setFilterPickup(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Pickup Point</option>
                 {pickupOptions.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
 
               {/* Filter Status */}
               <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Status</option>
                 {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
@@ -384,7 +384,7 @@ const MonitorSDHOPage = () => {
               {/* Reset */}
               {(search || filterPickup !== 'all' || filterStatus !== 'all') && (
                 <button onClick={() => { setSearch(''); setFilterPickup('all'); setFilterStatus('all'); }}
-                  className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                  className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 dark:text-slate-400 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800">
                   <X className="w-3.5 h-3.5" /> Reset
                 </button>
               )}
@@ -434,7 +434,7 @@ const MonitorSDHOPage = () => {
                   <td colSpan={DETAIL_COLS.length} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <Package className="w-12 h-12 text-gray-200" />
-                      <p className="text-gray-500 font-medium">
+                      <p className="text-gray-500 dark:text-slate-500 font-medium">
                         {detail.length === 0 ? 'Belum ada data detail — jalankan scraper untuk mengisi data' : 'Tidak ada data sesuai filter'}
                       </p>
                     </div>
@@ -446,8 +446,8 @@ const MonitorSDHOPage = () => {
                     {DETAIL_COLS.map(col => (
                       <td key={col.key} className="px-4 py-3 align-middle">
                         {col.key === 'SPX Tracking Number'
-                          ? <span className="font-mono text-xs font-medium text-gray-800">{row[col.key] || '—'}</span>
-                          : <span className="text-sm text-gray-700 whitespace-nowrap">{row[col.key] || '—'}</span>
+                          ? <span className="font-mono text-xs font-medium text-gray-800 dark:text-slate-200">{row[col.key] || '—'}</span>
+                          : <span className="text-sm text-gray-700 dark:text-slate-300 whitespace-nowrap">{row[col.key] || '—'}</span>
                         }
                       </td>
                     ))}
@@ -459,8 +459,8 @@ const MonitorSDHOPage = () => {
         </div>
 
         {filtered.length > 0 && (
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500">
-            <strong className="text-gray-700">{filtered.length}</strong> record ditampilkan
+          <div className="px-4 py-3 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-800 text-xs text-gray-500 dark:text-slate-500">
+            <strong className="text-gray-700 dark:text-slate-300">{filtered.length}</strong> record ditampilkan
           </div>
         )}
       </div>

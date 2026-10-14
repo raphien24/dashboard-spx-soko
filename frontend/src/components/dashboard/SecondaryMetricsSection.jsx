@@ -80,7 +80,7 @@ const SecondaryMetricsSection = ({ summaryData }) => {
         return (
           <div
             key={metric.id}
-            className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow"
+            className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 p-4 hover:shadow-md transition-shadow"
           >
             {/* Icon & Label */}
             <div className="flex items-center justify-between mb-3">
@@ -91,7 +91,7 @@ const SecondaryMetricsSection = ({ summaryData }) => {
 
             {/* Label */}
             <div className="mb-2">
-              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <h4 className="text-xs font-semibold text-gray-500 dark:text-slate-500 uppercase tracking-wide">
                 {metric.label}
               </h4>
             </div>
@@ -100,7 +100,7 @@ const SecondaryMetricsSection = ({ summaryData }) => {
             <div className="mb-2">
               <div className="flex items-baseline gap-2">
                 <span className={`text-3xl font-bold ${
-                  isException ? 'text-red-600' : 'text-gray-900'
+                  isException ? 'text-red-600' : 'text-gray-900 dark:text-slate-100'
                 }`}>
                   {typeof metric.value === 'number' 
                     ? metric.value.toLocaleString() 
@@ -136,7 +136,7 @@ const SecondaryMetricsSection = ({ summaryData }) => {
 
             {/* Status Indicator */}
             {metric.id === 'quota' && (
-              <div className="mt-3 pt-3 border-t border-gray-100">
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-slate-800">
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
                   <span className="text-xs text-yellow-700 font-medium">
@@ -147,7 +147,7 @@ const SecondaryMetricsSection = ({ summaryData }) => {
             )}
 
             {metric.id === 'exceptions' && (
-              <div className="mt-3 pt-3 border-t border-gray-100">
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-slate-800">
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
                   <span className="text-xs text-red-700 font-medium">

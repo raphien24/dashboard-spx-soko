@@ -10,7 +10,7 @@ function MetricsCardsSection({ summaryMetrics }) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="bg-gray-100 rounded-lg h-32 animate-pulse" />
+          <div key={i} className="bg-gray-100 dark:bg-slate-800 rounded-lg h-32 animate-pulse" />
         ))}
       </div>
     );
