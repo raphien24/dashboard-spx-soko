@@ -200,7 +200,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                 <LayoutDashboard className="w-6 h-6 text-indigo-600" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white">SPX SOKO</h1>
+                <h1 className="text-lg font-bold text-white dark:text-white">SPX SOKO</h1>
                 <p className="text-xs text-white/80 dark:text-indigo-300">Dashboard</p>
               </div>
             </div>
@@ -233,15 +233,15 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                   w-full flex items-center space-x-3 px-4 py-3 rounded-lg
                   transition-all duration-200 group relative
                   ${isActive 
-                    ? 'bg-white/95 text-indigo-700 dark:text-indigo-900 shadow-lg shadow-indigo-200/50 dark:shadow-none' 
+                    ? 'bg-white/95 text-indigo-700 shadow-lg shadow-indigo-200/50 dark:bg-white dark:text-indigo-900 dark:shadow-lg' 
                     : isDisabled
-                    ? 'text-white/50 dark:text-white/50 cursor-not-allowed opacity-50'
+                    ? 'text-white/50 cursor-not-allowed opacity-50'
                     : 'text-white hover:bg-white/20 dark:hover:bg-white/10'
                   }
                   ${isCollapsed ? 'justify-center' : ''}
                 `}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-600 dark:text-indigo-600' : 'text-white dark:text-white'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-600' : 'text-white'}`} />
                 {!isCollapsed && (
                   <>
                     <span className="flex-1 text-left font-medium">{item.label}</span>
@@ -291,8 +291,8 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                           w-full flex items-center space-x-3 px-4 py-2 rounded-lg
                           transition-all duration-200 text-sm
                           ${isSubActive
-                            ? 'bg-white/30 dark:bg-white/20 text-white font-bold shadow-md'
-                            : 'text-white/90 dark:text-white/80 hover:bg-white/10 dark:hover:bg-white/10'
+                            ? 'bg-white/30 text-white font-bold shadow-md dark:bg-white/20 dark:text-white'
+                            : 'text-white/90 hover:bg-white/10 dark:text-white/80 dark:hover:bg-white/10'
                           }
                         `}
                       >

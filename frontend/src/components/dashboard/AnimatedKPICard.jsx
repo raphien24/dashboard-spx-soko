@@ -86,8 +86,8 @@ const AnimatedKPICard = ({
   };
 
   const cardClasses = onClick 
-    ? `bg-white/95 dark:bg-slate-900/70 dark:backdrop-blur-xl rounded-xl shadow-sm border ${borderColors[borderColor] || borderColors.indigo} p-6 hover:shadow-lg transition-all cursor-pointer group ring-0 hover:ring-2 relative`
-    : `bg-white/95 dark:bg-slate-900/70 dark:backdrop-blur-xl rounded-xl shadow-sm border ${borderColors[borderColor] || borderColors.indigo} p-6 hover:shadow-md transition-shadow`;
+    ? `bg-white/95 dark:bg-slate-900/70 dark:backdrop-blur-xl rounded-xl shadow-lg shadow-indigo-100/50 dark:shadow-sm border ${borderColors[borderColor] || borderColors.indigo} p-6 hover:shadow-2xl hover:shadow-purple-200/60 dark:hover:shadow-lg transition-all cursor-pointer group ring-0 hover:ring-2 relative`
+    : `bg-white/95 dark:bg-slate-900/70 dark:backdrop-blur-xl rounded-xl shadow-lg shadow-indigo-100/50 dark:shadow-sm border ${borderColors[borderColor] || borderColors.indigo} p-6 hover:shadow-xl hover:shadow-purple-200/40 dark:hover:shadow-md transition-shadow`;
 
   return (
     <motion.div
