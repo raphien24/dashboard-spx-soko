@@ -186,7 +186,6 @@ function KPICard({
             className={`h-full ${progressColor} rounded-full`}
           />
         </div>
-        </div>
       </div>
 
       {/* Sub Metrics */}
