@@ -77,7 +77,7 @@ const AchievementKPICard = ({ achievement, title }) => {
           <div className={`h-3 rounded-full transition-all duration-700 ${totalColor.bar}`}
             style={{ width: `${Math.min(safeTotal, 100)}%` }} />
         </div>
-        <p className="text-xs text-gray-400 mt-1 text-right">
+        <p className="text-xs text-gray-400 dark:text-slate-500 mt-1 text-right">
           {is4WH ? '% Achievement Dedicated 4WH' : '% Achievement Total'}
         </p>
       </div>
@@ -96,7 +96,7 @@ const AchievementKPICard = ({ achievement, title }) => {
             <div className={`h-1.5 rounded-full ${dedColor.bar}`}
               style={{ width: hasDedicated ? `${Math.min(safeDedicated, 100)}%` : '0%' }} />
           </div>
-          <div className="flex items-center justify-between text-xs text-gray-400">
+          <div className="flex items-center justify-between text-xs text-gray-400 dark:text-slate-500">
             <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{safeDedicatedResult.toFixed(1)}</span>
             <span className="flex items-center gap-1"><Target className="w-3 h-3" />{safeDedicatedTarget.toFixed(1)}</span>
           </div>
@@ -113,7 +113,7 @@ const AchievementKPICard = ({ achievement, title }) => {
               <div className={`h-1.5 rounded-full ${plusColor.bar}`}
                 style={{ width: `${Math.min(safePlus, 100)}%` }} />
             </div>
-            <div className="flex items-center justify-between text-xs text-gray-400">
+            <div className="flex items-center justify-between text-xs text-gray-400 dark:text-slate-500">
               <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{safePlusResult.toFixed(1)}</span>
               <span className="flex items-center gap-1"><Target className="w-3 h-3" />{safePlusTarget.toFixed(1)}</span>
             </div>
@@ -122,7 +122,7 @@ const AchievementKPICard = ({ achievement, title }) => {
       </div>
 
       {/* Formula hint */}
-      <p className="text-xs text-gray-400 italic mt-3">
+      <p className="text-xs text-gray-400 dark:text-slate-500 italic mt-3">
         Formula: (Result − Target×{safeThreshold}%) ÷ (Target − Target×{safeThreshold}%)
       </p>
     </div>

@@ -71,12 +71,12 @@ const ProductivityDrilldownModal = ({
               {(filters.contract || filters.vehicle) && (
                 <div className="flex gap-2 mt-2">
                   {filters.contract && filters.contract !== 'all' && (
-                    <span className="px-2 py-0.5 bg-white dark:bg-slate-900/20 text-white text-xs rounded-full">
+                    <span className="px-2 py-0.5 bg-white/20 dark:bg-slate-800/50 text-white text-xs rounded-full">
                       {filters.contract}
                     </span>
                   )}
                   {filters.vehicle && filters.vehicle !== 'all' && (
-                    <span className="px-2 py-0.5 bg-white dark:bg-slate-900/20 text-white text-xs rounded-full">
+                    <span className="px-2 py-0.5 bg-white/20 dark:bg-slate-800/50 text-white text-xs rounded-full">
                       {filters.vehicle}
                     </span>
                   )}
@@ -92,7 +92,7 @@ const ProductivityDrilldownModal = ({
           </div>
 
           {/* Summary Strip */}
-          <div className="grid grid-cols-3 divide-x divide-gray-100 border-b border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800">
+          <div className="grid grid-cols-3 divide-x divide-gray-100 dark:divide-slate-800 border-b border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800">
             <div className="px-5 py-3 text-center">
               <p className="text-xs text-gray-500 dark:text-slate-500 uppercase tracking-wider">Avg Productivity</p>
               <p className="text-xl font-bold text-gray-900 dark:text-slate-100 mt-0.5">
@@ -119,7 +119,7 @@ const ProductivityDrilldownModal = ({
           {/* Body — scrollable */}
           <div className="overflow-y-auto flex-1 p-5">
             {dailyData.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+              <div className="flex flex-col items-center justify-center py-12 text-gray-400 dark:text-slate-500">
                 <BarChart2 className="w-12 h-12 mb-3 opacity-30" />
                 <p className="text-sm">Tidak ada data untuk periode ini</p>
               </div>
@@ -217,7 +217,7 @@ const ProductivityDrilldownModal = ({
 
           {/* Footer */}
           <div className="px-6 py-3 border-t border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800 rounded-b-2xl">
-            <p className="text-xs text-gray-400 text-center">
+            <p className="text-xs text-gray-400 dark:text-slate-500 text-center">
               Productivity = Total Delivered ÷ Active Shifts &nbsp;·&nbsp;
               Daily Active = 2WH Dedicated+Plus kurir aktif ÷ total unik kurir
             </p>

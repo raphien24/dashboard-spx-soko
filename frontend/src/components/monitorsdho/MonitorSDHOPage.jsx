@@ -23,9 +23,9 @@ const DETAIL_COLS = [
 const summaryCardStyle = (status) => {
   if (!status) return { border: 'border-gray-200 dark:border-slate-800', bg: 'bg-gray-50 dark:bg-slate-800', icon: 'text-gray-500 dark:text-slate-500', iconBg: 'bg-gray-100 dark:bg-slate-800', text: 'text-gray-700 dark:text-slate-300' };
   const s = String(status).toLowerCase();
-  if (s.includes('total'))    return { border: 'border-indigo-200', bg: 'bg-indigo-50', icon: 'text-indigo-600', iconBg: 'bg-indigo-100', text: 'text-indigo-700' };
+  if (s.includes('total'))    return { border: 'border-indigo-200', bg: 'bg-indigo-50', icon: 'text-indigo-600', iconBg: 'bg-indigo-100 dark:bg-indigo-950', text: 'text-indigo-700' };
   if (s.includes('assigned')) return { border: 'border-green-200',  bg: 'bg-green-50',  icon: 'text-green-600',  iconBg: 'bg-green-100',  text: 'text-green-700'  };
-  if (s.includes('created'))  return { border: 'border-blue-200',   bg: 'bg-blue-50',   icon: 'text-blue-600',   iconBg: 'bg-blue-100',   text: 'text-blue-700'   };
+  if (s.includes('created'))  return { border: 'border-blue-200',   bg: 'bg-blue-50',   icon: 'text-blue-600',   iconBg: 'bg-blue-100 dark:bg-blue-950',   text: 'text-blue-700'   };
   return { border: 'border-gray-200 dark:border-slate-800', bg: 'bg-gray-50 dark:bg-slate-800', icon: 'text-gray-500 dark:text-slate-500', iconBg: 'bg-gray-100 dark:bg-slate-800', text: 'text-gray-700 dark:text-slate-300' };
 };
 
@@ -261,7 +261,7 @@ const MonitorSDHOPage = () => {
             {scraperState === 'running' && <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />}
             {scraperState === 'done'    && <CheckCircle className="w-5 h-5 text-green-600" />}
             {scraperState === 'error'   && <XCircle className="w-5 h-5 text-red-600" />}
-            {scraperState === 'idle'    && <Activity className="w-5 h-5 text-gray-400" />}
+            {scraperState === 'idle'    && <Activity className="w-5 h-5 text-gray-400 dark:text-slate-500" />}
             <div>
               <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                 {scraperState === 'idle'    && 'Monitor SDHO Scraper'}
@@ -292,7 +292,7 @@ const MonitorSDHOPage = () => {
             <div>
               <div className="flex justify-between text-xs text-gray-600 dark:text-slate-400 mb-1">
                 <span>{scraperProgress.percent}%</span>
-                {scraperProgress.updatedAt && <span className="text-gray-400">Updated: {scraperProgress.updatedAt}</span>}
+                {scraperProgress.updatedAt && <span className="text-gray-400 dark:text-slate-500">Updated: {scraperProgress.updatedAt}</span>}
               </div>
               <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
                 <div className={`h-2 rounded-full transition-all duration-500 ${
@@ -330,7 +330,7 @@ const MonitorSDHOPage = () => {
                     <p className="text-xs text-gray-500 dark:text-slate-500">{row['Status']}</p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between text-xs text-gray-400 border-t border-gray-100 dark:border-slate-800 pt-2">
+                <div className="flex items-center justify-between text-xs text-gray-400 dark:text-slate-500 border-t border-gray-100 dark:border-slate-800 pt-2">
                   <span>{row['Mode'] || ''}</span>
                   <span>{row['Last Update'] || ''}</span>
                 </div>
@@ -349,34 +349,34 @@ const MonitorSDHOPage = () => {
               <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
                 <Activity className="w-4 h-4 text-indigo-600" />
                 Data Detail
-                <span className="ml-1 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full font-medium">
+                <span className="ml-1 px-2 py-0.5 text-xs bg-indigo-100 dark:bg-indigo-950 text-indigo-700 rounded-full font-medium">
                   {filtered.length}
                 </span>
               </h3>
               {lastUpdate && (
-                <p className="text-xs text-gray-400 mt-0.5">Last update: {lastUpdate}</p>
+                <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">Last update: {lastUpdate}</p>
               )}
             </div>
             <div className="flex flex-wrap gap-2">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 pointer-events-none" />
                 <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                   placeholder="Cari TN, pickup point..."
                   className="pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm w-52 focus:ring-2 focus:ring-indigo-500" />
-                {search && <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"><X className="w-4 h-4" /></button>}
+                {search && <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"><X className="w-4 h-4" /></button>}
               </div>
 
               {/* Filter Pickup Point */}
               <select value={filterPickup} onChange={e => setFilterPickup(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Pickup Point</option>
                 {pickupOptions.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
 
               {/* Filter Status */}
               <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Status</option>
                 {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
@@ -428,7 +428,7 @@ const MonitorSDHOPage = () => {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={DETAIL_COLS.length} className="px-4 py-16 text-center">
@@ -442,7 +442,7 @@ const MonitorSDHOPage = () => {
                 </tr>
               ) : (
                 filtered.map((row, i) => (
-                  <tr key={i} className="hover:bg-indigo-50/30 transition-colors">
+                  <tr key={i} className="hover:bg-indigo-50 dark:hover:bg-slate-800/30 transition-colors">
                     {DETAIL_COLS.map(col => (
                       <td key={col.key} className="px-4 py-3 align-middle">
                         {col.key === 'SPX Tracking Number'

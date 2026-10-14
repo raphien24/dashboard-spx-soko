@@ -49,7 +49,7 @@ function WeeklyScheduleTable({ data }) {
   const getSortIcon = (columnKey) => {
     if (sortConfig.key !== columnKey) {
       return (
-        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
         </svg>
       );
@@ -307,7 +307,7 @@ function WeeklyScheduleTable({ data }) {
       <div className="p-6 border-b border-gray-200 dark:border-slate-800">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-950 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
@@ -316,7 +316,7 @@ function WeeklyScheduleTable({ data }) {
               <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">Weekly Courier Schedule</h3>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-sm text-indigo-600 font-medium">Productivity Overview</span>
-                <span className="text-sm text-gray-400">•</span>
+                <span className="text-sm text-gray-400 dark:text-slate-500">•</span>
                 <span className="text-sm text-green-600 font-medium">{filteredData.length} couriers</span>
               </div>
             </div>
@@ -336,7 +336,7 @@ function WeeklyScheduleTable({ data }) {
 
             {/* Dropdown Menu */}
             {showExportMenu && !isExporting && (
-              <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-gray-200 dark:border-slate-800 z-50">
+              <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-lg shadow-xl border border-gray-200 dark:border-slate-800 z-50">
                 <div className="p-2">
                   <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-slate-500 uppercase border-b border-gray-100 dark:border-slate-800">
                     Export Options
@@ -344,7 +344,7 @@ function WeeklyScheduleTable({ data }) {
                   
                   <button
                     onClick={() => exportToImage('achieved')}
-                    className="w-full flex items-start gap-3 px-3 py-3 hover:bg-green-50 rounded-lg transition-colors text-left"
+                    className="w-full flex items-start gap-3 px-3 py-3 hover:bg-green-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors text-left"
                   >
                     <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <CheckCircle className="w-5 h-5 text-green-600" />
@@ -359,7 +359,7 @@ function WeeklyScheduleTable({ data }) {
 
                   <button
                     onClick={() => exportToImage('not-achieved')}
-                    className="w-full flex items-start gap-3 px-3 py-3 hover:bg-orange-50 rounded-lg transition-colors text-left"
+                    className="w-full flex items-start gap-3 px-3 py-3 hover:bg-orange-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors text-left"
                   >
                     <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <XCircle className="w-5 h-5 text-orange-600" />
@@ -374,9 +374,9 @@ function WeeklyScheduleTable({ data }) {
 
                   <button
                     onClick={() => exportToImage('all')}
-                    className="w-full flex items-start gap-3 px-3 py-3 hover:bg-indigo-50 rounded-lg transition-colors text-left"
+                    className="w-full flex items-start gap-3 px-3 py-3 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-lg transition-colors text-left"
                   >
-                    <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-950 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Filter className="w-5 h-5 text-indigo-600" />
                     </div>
                     <div>
@@ -421,7 +421,7 @@ function WeeklyScheduleTable({ data }) {
       {/* Search Bar */}
       <div className="p-6 bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800">
         <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Search couriers by Name, Driver ID, District, or Zone..."
@@ -438,7 +438,7 @@ function WeeklyScheduleTable({ data }) {
             <CheckCircle className="w-3 h-3 text-green-600" />
             <span className="text-green-600 font-medium">Zero Duplicate Names</span>
           </div>
-          <span className="text-gray-400">•</span>
+          <span className="text-gray-400 dark:text-slate-500">•</span>
           <span className="text-indigo-600 font-medium">Aggregated Weekly View</span>
         </div>
       </div>
@@ -537,13 +537,13 @@ function WeeklyScheduleTable({ data }) {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
             {paginatedData.length === 0 ? (
               <tr>
                 <td colSpan="11" className="px-4 py-12 text-center">
                   <div className="flex flex-col items-center justify-center">
                     <div className="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
-                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-8 h-8 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                       </svg>
                     </div>
@@ -569,7 +569,7 @@ function WeeklyScheduleTable({ data }) {
                 <tr 
                   key={courier.id} 
                   onClick={() => setSelectedCourier(courier)}
-                  className="hover:bg-indigo-50 transition-colors cursor-pointer"
+                  className="hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 >
                   {/* Row Number */}
                   <td className="px-4 py-4 text-sm text-gray-500 dark:text-slate-500 font-medium">
@@ -592,7 +592,7 @@ function WeeklyScheduleTable({ data }) {
 
                   {/* Zone */}
                   <td className="px-4 py-4">
-                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-700">
+                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 dark:bg-blue-950 text-blue-700">
                       {courier.zone || 'N/A'}
                     </span>
                   </td>
@@ -603,7 +603,7 @@ function WeeklyScheduleTable({ data }) {
                       (courier.contract || '').includes('Dedicated')
                         ? 'bg-purple-100 text-purple-700'
                         : (courier.contract || '').includes('Plus')
-                        ? 'bg-blue-100 text-blue-700'
+                        ? 'bg-blue-100 dark:bg-blue-950 text-blue-700'
                         : 'bg-green-100 text-green-700'
                     }`}>
                       {courier.contract || 'N/A'}
@@ -679,7 +679,7 @@ function WeeklyScheduleTable({ data }) {
                             className={`w-6 h-6 rounded flex items-center justify-center text-xs font-medium ${
                               isActive 
                                 ? 'bg-green-100 text-green-700' 
-                                : 'bg-gray-100 dark:bg-slate-800 text-gray-400'
+                                : 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500'
                             }`}
                             title={`${day.key.charAt(0).toUpperCase() + day.key.slice(1)}: ${isActive ? 'Aktif' : 'Tidak Aktif'}`}
                           >

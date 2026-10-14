@@ -199,7 +199,7 @@ const SPRecord = () => {
 
             {/* Search */}
             <div className="relative flex-1 lg:flex-none lg:w-56">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 pointer-events-none" />
               <input
                 type="text"
                 value={search}
@@ -208,7 +208,7 @@ const SPRecord = () => {
                 className="w-full pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
               {search && (
-                <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-slate-400">
+                <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:text-slate-400">
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -218,7 +218,7 @@ const SPRecord = () => {
             <select
               value={filterSP}
               onChange={e => setFilterSP(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-900"
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-900 dark:bg-slate-900"
             >
               <option value="all">Semua Jenis SP</option>
               {spOptions.map(sp => (
@@ -230,7 +230,7 @@ const SPRecord = () => {
             <select
               value={filterJenis}
               onChange={e => setFilterJenis(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-900"
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white dark:bg-slate-900 dark:bg-slate-900"
             >
               <option value="all">Semua Pelanggaran</option>
               {jenisOptions.map(j => (
@@ -297,20 +297,20 @@ const SPRecord = () => {
             </thead>
 
             {/* Body */}
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={COLUMNS.length} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <FileText className="w-12 h-12 text-gray-200" />
                       <p className="text-gray-500 dark:text-slate-500 font-medium">Tidak ada data</p>
-                      <p className="text-xs text-gray-400">Coba ubah filter atau kata kunci pencarian</p>
+                      <p className="text-xs text-gray-400 dark:text-slate-500">Coba ubah filter atau kata kunci pencarian</p>
                     </div>
                   </td>
                 </tr>
               ) : (
                 filtered.map((row, i) => (
-                  <tr key={i} className="hover:bg-indigo-50/40 transition-colors">
+                  <tr key={i} className="hover:bg-indigo-50 dark:hover:bg-slate-800/40 transition-colors">
                     {COLUMNS.map(col => (
                       <td key={col.key} className="px-4 py-3 align-top">
                         {renderCell(row, col)}

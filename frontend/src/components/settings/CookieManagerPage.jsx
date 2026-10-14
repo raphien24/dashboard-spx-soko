@@ -82,7 +82,7 @@ const CookieManagerPage = () => {
         <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-white dark:bg-slate-900/20 rounded-lg flex items-center justify-center">
+              <div className="w-9 h-9 bg-white dark:bg-slate-900 dark:bg-slate-900/20 rounded-lg flex items-center justify-center">
                 <Cookie className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -91,7 +91,7 @@ const CookieManagerPage = () => {
               </div>
             </div>
             <button onClick={fetchData}
-              className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900/20 hover:bg-white dark:bg-slate-900/30 text-white rounded-lg text-sm font-medium transition-colors">
+              className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-900 dark:bg-slate-900/20 hover:bg-white dark:bg-slate-900/30 text-white rounded-lg text-sm font-medium transition-colors">
               <RefreshCw className="w-3.5 h-3.5" /> Refresh
             </button>
           </div>
@@ -124,13 +124,13 @@ const CookieManagerPage = () => {
 
           {/* Last Update (H2) */}
           <div className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800">
-            <Clock className="w-8 h-8 text-gray-400 flex-shrink-0" />
+            <Clock className="w-8 h-8 text-gray-400 dark:text-slate-500 flex-shrink-0" />
             <div>
               <p className="text-xs text-gray-500 dark:text-slate-500 font-medium uppercase tracking-wider">Terakhir Diperbarui</p>
               <p className="text-sm font-semibold text-gray-800 dark:text-slate-200 mt-0.5">
                 {lastUpdate || '—'}
               </p>
-              <p className="text-xs text-gray-400 mt-0.5">via bookmarklet</p>
+              <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">via bookmarklet</p>
             </div>
           </div>
         </div>
@@ -151,9 +151,9 @@ const CookieManagerPage = () => {
           <div>
             <h3 className="text-sm font-semibold text-gray-800 dark:text-slate-200 flex items-center gap-2">
               Cookie Keys
-              <span className="px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full">{cookies.length}</span>
+              <span className="px-2 py-0.5 text-xs bg-indigo-100 dark:bg-indigo-950 text-indigo-700 rounded-full">{cookies.length}</span>
             </h3>
-            <p className="text-xs text-gray-400 mt-0.5">Kolom A–C dari sheet Config</p>
+            <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">Kolom A–C dari sheet Config</p>
           </div>
           <button
             onClick={() => setShowValues(v => !v)}
@@ -187,14 +187,14 @@ const CookieManagerPage = () => {
                   <div className="w-44 flex-shrink-0">
                     <p className="text-sm font-mono font-semibold text-gray-800 dark:text-slate-200">{cookie.nama}</p>
                     {cookie.keterangan && (
-                      <p className="text-xs text-gray-400 mt-0.5">{cookie.keterangan}</p>
+                      <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{cookie.keterangan}</p>
                     )}
                   </div>
 
                   {/* Value */}
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-mono truncate ${
-                      showValues ? 'text-gray-700 dark:text-slate-300' : 'text-gray-400 select-none'
+                      showValues ? 'text-gray-700 dark:text-slate-300' : 'text-gray-400 dark:text-slate-500 select-none'
                     }`}>
                       {showValues ? cookie.value : maskValue(cookie.value)}
                     </p>
@@ -216,7 +216,7 @@ const CookieManagerPage = () => {
           )}
         </div>
 
-        <div className="px-5 py-3 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-800 text-xs text-gray-400 flex items-center justify-between">
+        <div className="px-5 py-3 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-800 text-xs text-gray-400 dark:text-slate-500 flex items-center justify-between">
           <span>{cookies.length} cookie keys terdaftar</span>
           <a
             href="https://docs.google.com/spreadsheets/d/1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0/edit"

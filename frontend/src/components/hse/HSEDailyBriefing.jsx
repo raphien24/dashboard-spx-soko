@@ -94,7 +94,7 @@ const HSEDailyBriefing = () => {
               {/* Facility header */}
               <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-green-600 to-emerald-600">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-white dark:bg-slate-900/20 rounded-lg flex items-center justify-center">
+                  <div className="w-9 h-9 bg-white dark:bg-slate-900 dark:bg-slate-900/20 rounded-lg flex items-center justify-center">
                     <Calendar className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -139,7 +139,7 @@ const HSEDailyBriefing = () => {
                             </span>
                           </a>
                         ) : isEmpty ? (
-                          <div className="flex flex-col items-center gap-1 text-gray-400">
+                          <div className="flex flex-col items-center gap-1 text-gray-400 dark:text-slate-500">
                             <XCircle className="w-6 h-6" />
                             <span className="text-xs">Belum</span>
                           </div>

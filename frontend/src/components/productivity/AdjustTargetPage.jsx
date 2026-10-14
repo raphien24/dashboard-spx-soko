@@ -142,7 +142,7 @@ const AdjustTargetPage = () => {
       {/* Submit Form */}
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-200 p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-950 rounded-lg flex items-center justify-center">
             <Plus className="w-5 h-5 text-indigo-600" />
           </div>
           <div>
@@ -218,7 +218,7 @@ const AdjustTargetPage = () => {
           <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100 flex items-center gap-2">
             <TargetIcon className="w-5 h-5 text-indigo-600" />
             Active Target Appeals
-            <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full font-semibold">{sortedAppeals.length}</span>
+            <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-950 text-indigo-700 text-xs rounded-full font-semibold">{sortedAppeals.length}</span>
           </h3>
         </div>
 
@@ -241,14 +241,14 @@ const AdjustTargetPage = () => {
                   <th className="px-4 py-3 text-center text-xs font-semibold uppercase">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                 {sortedAppeals.map((appeal, i) => (
-                  <tr key={i} className="hover:bg-indigo-50/30 transition-colors">
+                  <tr key={i} className="hover:bg-indigo-50 dark:hover:bg-slate-800/30 transition-colors">
                     <td className="px-4 py-3 text-gray-800 dark:text-slate-200 font-mono text-xs">{appeal.weekStart}</td>
                     <td className="px-4 py-3 text-gray-700 dark:text-slate-300">{appeal.contract}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                        appeal.vehicleType === '2WH' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
+                        appeal.vehicleType === '2WH' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 dark:bg-blue-950 text-blue-700'
                       }`}>{appeal.vehicleType}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -258,7 +258,7 @@ const AdjustTargetPage = () => {
                     <td className="px-4 py-3 text-gray-600 dark:text-slate-400 text-xs">{appeal.updatedBy}</td>
                     <td className="px-4 py-3 text-center">
                       <button onClick={() => handleDelete(appeal)}
-                        className="inline-flex items-center gap-1 px-2 py-1 text-red-600 hover:bg-red-50 border border-red-200 rounded text-xs">
+                        className="inline-flex items-center gap-1 px-2 py-1 text-red-600 hover:bg-red-50 dark:hover:bg-slate-800/50 border border-red-200 rounded text-xs">
                         <Trash2 className="w-3 h-3" /> Delete
                       </button>
                     </td>

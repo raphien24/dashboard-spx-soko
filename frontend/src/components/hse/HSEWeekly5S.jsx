@@ -98,13 +98,13 @@ const HSEWeekly5S = () => {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
               {dataRows.length === 0 ? (
                 <tr>
                   <td colSpan={headers.length} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <AlertTriangle className="w-10 h-10 text-gray-200" />
-                      <p className="text-gray-400 text-sm">Belum ada data 5S untuk minggu ini</p>
+                      <p className="text-gray-400 dark:text-slate-500 text-sm">Belum ada data 5S untuk minggu ini</p>
                     </div>
                   </td>
                 </tr>

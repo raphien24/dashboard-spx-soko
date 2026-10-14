@@ -152,7 +152,7 @@ function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
             id="contract-filter"
             value={tempFilters.contract}
             onChange={(e) => handleFilterChange('contract', e.target.value)}
-            className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="all">All Contracts</option>
             <option value="Dedicated">Dedicated</option>
@@ -170,7 +170,7 @@ function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
             id="vehicle-filter"
             value={tempFilters.vehicle}
             onChange={(e) => handleFilterChange('vehicle', e.target.value)}
-            className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="all">All Vehicles</option>
             <option value="2WH">2WH (Two Wheeler)</option>
@@ -187,7 +187,7 @@ function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
           className={`flex-1 sm:flex-none px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
             hasChanges
               ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg'
-              : 'bg-gray-100 dark:bg-slate-800 text-gray-400 cursor-not-allowed'
+              : 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500 cursor-not-allowed'
           }`}
         >
           <Filter className="w-4 h-4 inline mr-2" />

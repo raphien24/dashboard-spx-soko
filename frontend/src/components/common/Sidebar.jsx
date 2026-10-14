@@ -173,7 +173,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
         <div className="flex items-center justify-between">
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-lg flex items-center justify-center">
                 <LayoutDashboard className="w-6 h-6 text-indigo-600" />
               </div>
               <div>
@@ -183,7 +183,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
             </div>
           )}
           {isCollapsed && (
-            <div className="w-10 h-10 bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center mx-auto">
+            <div className="w-10 h-10 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-lg flex items-center justify-center mx-auto">
               <LayoutDashboard className="w-6 h-6 text-indigo-600" />
             </div>
           )}
@@ -244,8 +244,8 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                 {isCollapsed && (
                   <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
                     {item.label}
-                    {isDisabled && <span className="ml-2 text-gray-400">(Soon)</span>}
-                    {isExternal && <span className="ml-2 text-gray-400">(External)</span>}
+                    {isDisabled && <span className="ml-2 text-gray-400 dark:text-slate-500">(Soon)</span>}
+                    {isExternal && <span className="ml-2 text-gray-400 dark:text-slate-500">(External)</span>}
                   </div>
                 )}
               </button>
@@ -298,7 +298,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       {/* Collapse Toggle Button (Desktop Only) */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-white dark:bg-slate-900 rounded-full shadow-lg items-center justify-center text-indigo-600 hover:bg-indigo-50 transition-colors z-10"
+        className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-full shadow-lg items-center justify-center text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors z-10"
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (

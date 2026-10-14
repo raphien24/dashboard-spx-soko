@@ -6,7 +6,7 @@ import { Loader2, Filter, TrendingUp, BarChart3, Users } from 'lucide-react';
  */
 function FilteringLoader() {
   return (
-    <div className="fixed inset-0 bg-white dark:bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-white dark:bg-slate-900 dark:bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center">
       <div className="text-center">
         {/* Animated Icons */}
         <div className="relative w-32 h-32 mx-auto mb-6">

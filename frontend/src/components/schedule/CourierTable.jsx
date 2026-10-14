@@ -117,7 +117,7 @@ function CourierTable({ data }) {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
             {currentData.map((courier, index) => {
               const progressPercent = calculatePercentage(courier.productivityActual, courier.productivityTarget);
               const progressColor = getProgressColor(progressPercent);
@@ -192,7 +192,7 @@ function CourierTable({ data }) {
                             className={`w-6 h-6 rounded flex items-center justify-center text-xs font-medium ${
                               isActive
                                 ? 'bg-green-100 text-green-700'
-                                : 'bg-gray-100 dark:bg-slate-800 text-gray-400'
+                                : 'bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500'
                             }`}
                             title={`${day}: ${isActive ? 'Active' : 'Off'}`}
                           >
@@ -207,13 +207,13 @@ function CourierTable({ data }) {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex gap-2">
                       <button
-                        className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                        className="p-1 text-gray-400 dark:text-slate-500 hover:text-blue-600 transition-colors"
                         title="Edit"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                        className="p-1 text-gray-400 dark:text-slate-500 hover:text-red-600 transition-colors"
                         title="Delete"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -234,7 +234,7 @@ function CourierTable({ data }) {
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
@@ -258,7 +258,7 @@ function CourierTable({ data }) {
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-900 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>

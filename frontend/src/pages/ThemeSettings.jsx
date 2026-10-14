@@ -49,7 +49,7 @@ const ThemeSettings = () => {
       {/* Current Theme Info */}
       <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 rounded-xl border border-indigo-200 dark:border-slate-700 p-6">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-indigo-100 dark:border-slate-700">
+          <div className="p-3 bg-white dark:bg-slate-900 dark:bg-slate-800 rounded-lg shadow-sm border border-indigo-100 dark:border-slate-700">
             {effectiveTheme === 'dark' ? (
               <Moon className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             ) : (

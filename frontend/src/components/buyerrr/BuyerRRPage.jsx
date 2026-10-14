@@ -84,19 +84,19 @@ const SortableTable = ({ cols, rows, emptyText, rowClass }) => {
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
           {sorted.length === 0 ? (
             <tr>
               <td colSpan={cols.length} className="px-4 py-12 text-center">
                 <div className="flex flex-col items-center gap-2">
                   <Package className="w-10 h-10 text-gray-200" />
-                  <p className="text-gray-400 text-sm">{emptyText || 'Tidak ada data'}</p>
+                  <p className="text-gray-400 dark:text-slate-500 text-sm">{emptyText || 'Tidak ada data'}</p>
                 </div>
               </td>
             </tr>
           ) : (
             sorted.map((row, i) => (
-              <tr key={i} className={`hover:bg-indigo-50/40 transition-colors ${rowClass ? rowClass(row) : ''}`}>
+              <tr key={i} className={`hover:bg-indigo-50 dark:hover:bg-slate-800/40 transition-colors ${rowClass ? rowClass(row) : ''}`}>
                 {cols.map(col => (
                   <td key={col.key} className="px-4 py-3 align-middle">
                     {col.key === 'SPX Tracking Number'
@@ -425,7 +425,7 @@ const BuyerRRPage = () => {
             {scraperState === 'running' && <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />}
             {scraperState === 'done'    && <CheckCircle className="w-5 h-5 text-green-600" />}
             {scraperState === 'error'   && <XCircle className="w-5 h-5 text-red-600" />}
-            {scraperState === 'idle'    && <Truck className="w-5 h-5 text-gray-400" />}
+            {scraperState === 'idle'    && <Truck className="w-5 h-5 text-gray-400 dark:text-slate-500" />}
             <div>
               <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                 {scraperState === 'idle'    && 'Buyer RR Scraper'}
@@ -456,7 +456,7 @@ const BuyerRRPage = () => {
             <div>
               <div className="flex justify-between text-xs text-gray-600 dark:text-slate-400 mb-1">
                 <span>{scraperProgress.percent}%</span>
-                {scraperProgress.updatedAt && <span className="text-gray-400">Updated: {scraperProgress.updatedAt}</span>}
+                {scraperProgress.updatedAt && <span className="text-gray-400 dark:text-slate-500">Updated: {scraperProgress.updatedAt}</span>}
               </div>
               <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
                 <div className={`h-2 rounded-full transition-all duration-500 ${
@@ -481,7 +481,7 @@ const BuyerRRPage = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-200 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-950 rounded-lg flex items-center justify-center">
               <ClipboardList className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
@@ -544,7 +544,7 @@ const BuyerRRPage = () => {
                   <div className={`h-1.5 rounded-full ${n >= 5 ? 'bg-red-500' : n >= 3 ? 'bg-orange-400' : n >= 2 ? 'bg-yellow-400' : 'bg-indigo-500'}`}
                     style={{ width: `${pct}%` }} />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">{pct}%</p>
+                <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">{pct}%</p>
               </div>
             );
           })}
@@ -559,29 +559,29 @@ const BuyerRRPage = () => {
               <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
                 <ClipboardList className="w-4 h-4 text-indigo-600" />
                 Status Created
-                <span className="ml-1 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full font-medium">
+                <span className="ml-1 px-2 py-0.5 text-xs bg-indigo-100 dark:bg-indigo-950 text-indigo-700 rounded-full font-medium">
                   {filteredCreated.length}
                 </span>
               </h3>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">
                 {lastUpdate && `Last update: ${lastUpdate}`}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 pointer-events-none" />
                 <input type="text" value={searchCreated} onChange={e => setSearchCreated(e.target.value)}
                   placeholder="Cari TN, pickup point..."
                   className="pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm w-52 focus:ring-2 focus:ring-indigo-500" />
-                {searchCreated && <button onClick={() => setSearchCreated('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"><X className="w-4 h-4" /></button>}
+                {searchCreated && <button onClick={() => setSearchCreated('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"><X className="w-4 h-4" /></button>}
               </div>
               <select value={filterPickup} onChange={e => setFilterPickup(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Pickup Point</option>
                 {stats.pickupOptions.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
               <select value={filterAttempts} onChange={e => setFilterAttempts(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Attempts</option>
                 {[1,2,3,4,5,6].map(n => <option key={n} value={String(n)}>{n}x</option>)}
               </select>
@@ -637,14 +637,14 @@ const BuyerRRPage = () => {
             </div>
             <div className="flex flex-wrap gap-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 pointer-events-none" />
                 <input type="text" value={searchAssigned} onChange={e => setSearchAssigned(e.target.value)}
                   placeholder="Cari task ID, driver..."
                   className="pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm w-52 focus:ring-2 focus:ring-indigo-500" />
-                {searchAssigned && <button onClick={() => setSearchAssigned('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"><X className="w-4 h-4" /></button>}
+                {searchAssigned && <button onClick={() => setSearchAssigned('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"><X className="w-4 h-4" /></button>}
               </div>
               <select value={filterDriver} onChange={e => setFilterDriver(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Driver</option>
                 {stats.driverOptions.map(d => <option key={d} value={d}>{d}</option>)}
               </select>

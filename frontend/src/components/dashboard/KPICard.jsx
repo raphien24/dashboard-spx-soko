@@ -84,7 +84,7 @@ function KPICard({
             {typeof value === 'number' && value % 1 !== 0 ? value.toFixed(1) : value}
           </span>
           {target && (
-            <span className="text-lg text-gray-400">
+            <span className="text-lg text-gray-400 dark:text-slate-500">
               / {formatNumber(target)}
             </span>
           )}

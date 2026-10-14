@@ -258,7 +258,7 @@ const DashboardMonthly = () => {
                         {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="w-full bg-white dark:bg-slate-900/20 rounded-full h-2 mb-2">
+                    <div className="w-full bg-white dark:bg-slate-900 dark:bg-slate-900/20 rounded-full h-2 mb-2">
                       <div 
                         className={`h-2 rounded-full ${
                           monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement >= 100 ? 'bg-green-400' :
@@ -292,7 +292,7 @@ const DashboardMonthly = () => {
                         {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="w-full bg-white dark:bg-slate-900/20 rounded-full h-2 mb-2">
+                    <div className="w-full bg-white dark:bg-slate-900 dark:bg-slate-900/20 rounded-full h-2 mb-2">
                       <div 
                         className={`h-2 rounded-full ${
                           monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement >= 100 ? 'bg-green-400' :
@@ -322,7 +322,7 @@ const DashboardMonthly = () => {
                 {/* Formula Toggle */}
                 <button
                   onClick={() => setIsFormulaExpanded(!isFormulaExpanded)}
-                  className="w-full mt-3 px-3 py-2 bg-white dark:bg-slate-900/10 hover:bg-white dark:bg-slate-900/20 rounded-lg transition-colors text-indigo-100 text-xs font-medium flex items-center justify-between"
+                  className="w-full mt-3 px-3 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900/10 hover:bg-white dark:bg-slate-900/20 rounded-lg transition-colors text-indigo-100 text-xs font-medium flex items-center justify-between"
                 >
                   <span>📊 View Calculation Formula</span>
                   {isFormulaExpanded ? (
@@ -373,7 +373,7 @@ const DashboardMonthly = () => {
                       {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement.toFixed(1)}%
                     </span>
                   </div>
-                  <div className="w-full bg-white dark:bg-slate-900/20 rounded-full h-2.5 mb-4">
+                  <div className="w-full bg-white dark:bg-slate-900 dark:bg-slate-900/20 rounded-full h-2.5 mb-4">
                     <div 
                       className={`h-2.5 rounded-full ${
                         monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement >= 100 ? 'bg-green-400' :

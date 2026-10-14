@@ -44,17 +44,17 @@ function CourierDetailModal({ courier, onClose }) {
                   <span className="text-sm">{courier.zone}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="px-2 py-1 bg-white dark:bg-slate-900/20 rounded text-xs font-medium">
+                  <span className="px-2 py-1 bg-white/20 dark:bg-slate-800/50 rounded text-xs font-medium">
                     {courier.contract}
                   </span>
-                  <span className="px-2 py-1 bg-white dark:bg-slate-900/20 rounded text-xs font-medium">
+                  <span className="px-2 py-1 bg-white/20 dark:bg-slate-800/50 rounded text-xs font-medium">
                     {courier.vehicle}
                   </span>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="text-white hover:bg-white dark:bg-slate-900/20 rounded-lg p-2 transition-colors"
+                className="text-white hover:bg-white/20 dark:hover:bg-slate-800/50 rounded-lg p-2 transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -132,7 +132,7 @@ function CourierDetailModal({ courier, onClose }) {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
                   {sortedShifts.map((shift, index) => {
                     const date = shift.parsedDate || new Date(shift.date);
                     const dayName = getDayName(date);
@@ -143,7 +143,7 @@ function CourierDetailModal({ courier, onClose }) {
                     const metTarget = shift.delivered >= (courier.target || 0);
 
                     return (
-                      <tr key={index} className="hover:bg-gray-50 dark:bg-slate-800 transition-colors">
+                      <tr key={index} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                         <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-slate-100">
                           {shift.date}
                         </td>

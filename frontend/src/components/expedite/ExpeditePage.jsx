@@ -24,7 +24,7 @@ const COLUMNS = [
 
 // Status badge colors
 const STATUS_COLORS = {
-  'Delivering':           'bg-blue-100   text-blue-800   border-blue-200',
+  'Delivering':           'bg-blue-100 dark:bg-blue-950   text-blue-800   border-blue-200',
   'Failed Delivery':      'bg-red-100    text-red-800    border-red-200',
   'Stuck at Delivering':  'bg-orange-100 text-orange-800 border-orange-200',
   'On Hold':              'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -267,7 +267,7 @@ const ExpeditePage = () => {
             {scraperState === 'running' && <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />}
             {scraperState === 'done'    && <CheckCircle className="w-5 h-5 text-green-600" />}
             {scraperState === 'error'   && <XCircle className="w-5 h-5 text-red-600" />}
-            {scraperState === 'idle'    && <Play className="w-5 h-5 text-gray-400" />}
+            {scraperState === 'idle'    && <Play className="w-5 h-5 text-gray-400 dark:text-slate-500" />}
             <div>
               <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                 {scraperState === 'idle'    && 'SPX Expedite Scraper'}
@@ -317,7 +317,7 @@ const ExpeditePage = () => {
                   {scraperProgress.percent}%
                 </span>
                 {scraperProgress.updatedAt && (
-                  <span className="text-gray-400">Updated: {scraperProgress.updatedAt}</span>
+                  <span className="text-gray-400 dark:text-slate-500">Updated: {scraperProgress.updatedAt}</span>
                 )}
               </div>
               <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
@@ -368,7 +368,7 @@ const ExpeditePage = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-950 rounded-lg flex items-center justify-center">
               <Package className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
@@ -442,7 +442,7 @@ const ExpeditePage = () => {
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">{pct}%</p>
+                  <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">{pct}%</p>
                 </div>
               );
             })}
@@ -456,14 +456,14 @@ const ExpeditePage = () => {
           <div>
             <p className="text-sm text-gray-500 dark:text-slate-500">
               Menampilkan <strong className="text-gray-800 dark:text-slate-200">{filtered.length}</strong> dari <strong className="text-gray-800 dark:text-slate-200">{records.length}</strong> paket
-              {lastUpdate && <span className="ml-2 text-gray-400">· Last update: {lastUpdate}</span>}
+              {lastUpdate && <span className="ml-2 text-gray-400 dark:text-slate-500">· Last update: {lastUpdate}</span>}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
             {/* Search */}
             <div className="relative flex-1 lg:flex-none lg:w-52">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 pointer-events-none" />
               <input
                 type="text"
                 value={search}
@@ -472,7 +472,7 @@ const ExpeditePage = () => {
                 className="w-full pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
               {search && (
-                <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-slate-400">
+                <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:text-slate-400">
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -480,21 +480,21 @@ const ExpeditePage = () => {
 
             {/* Filter Zone */}
             <select value={filterZone} onChange={e => setFilterZone(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900">
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900 dark:bg-slate-900">
               <option value="all">Semua Zone</option>
               {zoneOptions.map(z => <option key={z} value={z}>{z}</option>)}
             </select>
 
             {/* Filter Status */}
             <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900">
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900 dark:bg-slate-900">
               <option value="all">Semua Status</option>
               {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
 
             {/* Filter Tag */}
             <select value={filterTag} onChange={e => setFilterTag(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900">
+              className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900 dark:bg-slate-900">
               <option value="all">Semua Tag</option>
               {tagOptions.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -543,20 +543,20 @@ const ExpeditePage = () => {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={COLUMNS.length} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <Package className="w-12 h-12 text-gray-200" />
                       <p className="text-gray-500 dark:text-slate-500 font-medium">Tidak ada data</p>
-                      <p className="text-xs text-gray-400">Coba ubah filter atau kata kunci pencarian</p>
+                      <p className="text-xs text-gray-400 dark:text-slate-500">Coba ubah filter atau kata kunci pencarian</p>
                     </div>
                   </td>
                 </tr>
               ) : (
                 filtered.map((row, i) => (
-                  <tr key={i} className={`hover:bg-indigo-50/40 transition-colors ${parseFloat(row['Expedite Aging Time']) > 24 ? 'bg-red-50/30' : ''}`}>
+                  <tr key={i} className={`hover:bg-indigo-50 dark:hover:bg-slate-800/40 transition-colors ${parseFloat(row['Expedite Aging Time']) > 24 ? 'bg-red-50/30' : ''}`}>
                     {COLUMNS.map(col => (
                       <td key={col.key} className="px-4 py-3 align-middle">
                         {renderCell(row, col)}

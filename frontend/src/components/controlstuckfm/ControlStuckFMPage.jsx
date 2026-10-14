@@ -222,7 +222,7 @@ const ControlStuckFMPage = () => {
             {scraperState === 'running' && <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />}
             {scraperState === 'done'    && <CheckCircle className="w-5 h-5 text-green-600" />}
             {scraperState === 'error'   && <XCircle className="w-5 h-5 text-red-600" />}
-            {scraperState === 'idle'    && <BarChart2 className="w-5 h-5 text-gray-400" />}
+            {scraperState === 'idle'    && <BarChart2 className="w-5 h-5 text-gray-400 dark:text-slate-500" />}
             <div>
               <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                 {scraperState === 'idle'    && 'Control Stuck FM Scraper'}
@@ -264,7 +264,7 @@ const ControlStuckFMPage = () => {
                 <span className="font-medium">
                   {scraperProgress?.percent > 0 ? `${scraperProgress.percent}%` : 'Menunggu progress...'}
                 </span>
-                {scraperProgress?.updatedAt && <span className="text-gray-400">Updated: {scraperProgress.updatedAt}</span>}
+                {scraperProgress?.updatedAt && <span className="text-gray-400 dark:text-slate-500">Updated: {scraperProgress.updatedAt}</span>}
               </div>
               <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
                 {scraperProgress?.percent > 0 ? (
@@ -315,7 +315,7 @@ const ControlStuckFMPage = () => {
             )}
             {update2 && (
               <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-800">
-                <Clock className="w-4 h-4 text-gray-400" />
+                <Clock className="w-4 h-4 text-gray-400 dark:text-slate-500" />
                 <div>
                   <p className="text-xs text-gray-500 dark:text-slate-500">Update 2 (max 01.00)</p>
                   <p className="text-sm font-bold text-gray-800 dark:text-slate-200">{update2}</p>
@@ -381,11 +381,11 @@ const ControlStuckFMPage = () => {
         <div className="flex items-center gap-4">
           <BarChart2 className="w-7 h-7 text-gray-300" />
           <div>
-            <p className="text-xs text-gray-400 uppercase tracking-wider">Total Stuck</p>
+            <p className="text-xs text-gray-400 dark:text-slate-500 uppercase tracking-wider">Total Stuck</p>
             <p className="text-5xl font-bold text-white mt-0.5">{total}</p>
           </div>
         </div>
-        <div className="text-right text-sm text-gray-400 space-y-1">
+        <div className="text-right text-sm text-gray-400 dark:text-slate-500 space-y-1">
           <p>Forward + Reverse</p>
           <p className="text-gray-500 dark:text-slate-500 text-xs">Combined count</p>
         </div>

@@ -213,7 +213,7 @@ const BacklogLMPage = () => {
           <ShieldX className="w-3 h-3" /> Belum
         </span>
       );
-      return <span className="text-gray-400 text-xs">—</span>;
+      return <span className="text-gray-400 dark:text-slate-500 text-xs">—</span>;
     }
     if (col.key === 'LM Hub Days') {
       const n = parseFloat(val) || 0;
@@ -262,7 +262,7 @@ const BacklogLMPage = () => {
             {scraperState === 'running' && <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />}
             {scraperState === 'done'    && <CheckCircle className="w-5 h-5 text-green-600" />}
             {scraperState === 'error'   && <XCircle className="w-5 h-5 text-red-600" />}
-            {scraperState === 'idle'    && <BarChart2 className="w-5 h-5 text-gray-400" />}
+            {scraperState === 'idle'    && <BarChart2 className="w-5 h-5 text-gray-400 dark:text-slate-500" />}
             <div>
               <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">
                 {scraperState === 'idle'    && 'Backlog LM Scraper'}
@@ -304,7 +304,7 @@ const BacklogLMPage = () => {
                 <span className="font-medium">
                   {scraperProgress?.percent > 0 ? `${scraperProgress.percent}%` : scraperState === 'running' ? 'Berjalan...' : '100%'}
                 </span>
-                {scraperProgress?.updatedAt && <span className="text-gray-400">{scraperProgress.updatedAt}</span>}
+                {scraperProgress?.updatedAt && <span className="text-gray-400 dark:text-slate-500">{scraperProgress.updatedAt}</span>}
               </div>
               <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
                 {scraperProgress?.percent > 0 ? (
@@ -341,7 +341,7 @@ const BacklogLMPage = () => {
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-200 p-4 col-span-1">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-950 rounded-lg flex items-center justify-center">
               <Package className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
@@ -408,35 +408,35 @@ const BacklogLMPage = () => {
               <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-indigo-600" />
                 Backlog LM Detail
-                <span className="px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded-full">{filtered.length}</span>
+                <span className="px-2 py-0.5 text-xs bg-indigo-100 dark:bg-indigo-950 text-indigo-700 rounded-full">{filtered.length}</span>
               </h3>
-              {lastUpdate && <p className="text-xs text-gray-400 mt-0.5">Last update: {lastUpdate}</p>}
+              {lastUpdate && <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">Last update: {lastUpdate}</p>}
             </div>
             <div className="flex flex-wrap gap-2">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 pointer-events-none" />
                 <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                   placeholder="Cari shipment ID..."
                   className="pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm w-48 focus:ring-2 focus:ring-indigo-500" />
-                {search && <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"><X className="w-4 h-4" /></button>}
+                {search && <button onClick={() => setSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"><X className="w-4 h-4" /></button>}
               </div>
               {/* Filter SLS */}
               <select value={filterSLS} onChange={e => setFilterSLS(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua SLS</option>
                 <option value="Sudah">SLS Sudah</option>
                 <option value="Belum">SLS Belum</option>
               </select>
               {/* Filter Zone */}
               <select value={filterZone} onChange={e => setFilterZone(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Zone</option>
                 {stats.zoneOptions.map(z => <option key={z} value={z}>{z}</option>)}
               </select>
               {/* Filter Account */}
               <select value={filterAccount} onChange={e => setFilterAccount(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Account</option>
                 {stats.accountOptions.map(a => <option key={a} value={a}>{a}</option>)}
               </select>
@@ -454,7 +454,7 @@ const BacklogLMPage = () => {
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   copiedAll
                     ? 'bg-green-100 text-green-700 border border-green-300'
-                    : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 disabled:bg-gray-100 dark:bg-slate-800 disabled:text-gray-400 disabled:border-gray-200 dark:border-slate-800'
+                    : 'bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 text-indigo-700 border border-indigo-200 disabled:bg-gray-100 dark:bg-slate-800 disabled:text-gray-400 dark:text-slate-500 disabled:border-gray-200 dark:border-slate-800'
                 }`}
                 title={`Copy ${filtered.length} Shipment ID ke clipboard`}
               >
@@ -490,7 +490,7 @@ const BacklogLMPage = () => {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={COLUMNS.length} className="px-4 py-16 text-center">
@@ -502,7 +502,7 @@ const BacklogLMPage = () => {
                 </tr>
               ) : (
                 filtered.map((row, i) => (
-                  <tr key={i} className={`hover:bg-indigo-50/40 transition-colors ${
+                  <tr key={i} className={`hover:bg-indigo-50 dark:hover:bg-slate-800/40 transition-colors ${
                     parseFloat(row['LM Hub Days']) > 7 ? 'bg-red-50/20' : ''
                   }`}>
                     {COLUMNS.map(col => (
