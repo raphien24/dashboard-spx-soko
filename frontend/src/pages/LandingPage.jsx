@@ -191,7 +191,7 @@ const LandingPage = ({ onNavigate }) => {
     return () => clearInterval(interval);
   }, [rotationSpeed]);
 
-  // Animated starfield background
+  // Animated nebula and cosmic effects (no falling stars)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -200,41 +200,38 @@ const LandingPage = ({ onNavigate }) => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
+    // Static stars (not falling)
     class Star {
       constructor() {
-        this.reset();
-      }
-
-      reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2;
-        this.speed = Math.random() * 0.3 + 0.05;
-        this.opacity = Math.random();
+        this.size = Math.random() * 1.5;
+        this.brightness = Math.random();
+        this.twinkleSpeed = Math.random() * 0.02 + 0.01;
       }
 
       update() {
-        this.y += this.speed;
-        if (this.y > canvas.height) {
-          this.y = 0;
-          this.x = Math.random() * canvas.width;
+        // Twinkle effect only
+        this.brightness += this.twinkleSpeed;
+        if (this.brightness > 1 || this.brightness < 0) {
+          this.twinkleSpeed = -this.twinkleSpeed;
         }
-        this.opacity = Math.sin(Date.now() * 0.001 + this.x) * 0.5 + 0.5;
       }
 
       draw() {
-        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.brightness})`;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
       }
     }
 
-    const stars = Array.from({ length: 200 }, () => new Star());
+    const stars = Array.from({ length: 300 }, () => new Star());
 
     let animationFrameId;
     const animate = () => {
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.1)';
+      // Don't clear canvas completely - create nebula trail effect
+      ctx.fillStyle = 'rgba(10, 10, 30, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       stars.forEach((star) => {
@@ -297,32 +294,67 @@ const LandingPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-slate-950 relative">
-      {/* Animated Space Background */}
+    <div className="min-h-screen overflow-hidden relative">
+      {/* Real Space Background Image */}
+      <div 
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: 'url(https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=2013&auto=format&fit=crop)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        {/* Dark overlay for better contrast */}
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
+
+      {/* Animated Canvas Layer (stars twinkling only) */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 z-0"
-        style={{ background: 'linear-gradient(to bottom, #0f172a, #1e1b4b, #312e81)' }}
+        style={{ 
+          mixBlendMode: 'screen',
+          opacity: 0.6
+        }}
       />
 
-      {/* Floating nebula effects */}
+      {/* Animated nebula clouds */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {/* Purple nebula */}
         <div
-          className="absolute w-[800px] h-[800px] bg-purple-500/10 rounded-full blur-3xl"
+          className="absolute w-[1000px] h-[1000px] rounded-full blur-3xl opacity-20"
           style={{
-            top: '20%',
-            left: '10%',
-            transform: `translate(${mousePosition.x * 0.02}px, ${mousePosition.y * 0.02}px)`,
-            transition: 'transform 0.5s ease-out',
+            background: 'radial-gradient(circle, rgba(147, 51, 234, 0.4), transparent 70%)',
+            top: '10%',
+            left: '5%',
+            transform: `translate(${mousePosition.x * 0.03}px, ${mousePosition.y * 0.03}px)`,
+            transition: 'transform 0.8s ease-out',
+            animation: 'nebulaPulse 15s ease-in-out infinite',
           }}
         />
+        {/* Blue nebula */}
         <div
-          className="absolute w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-3xl"
+          className="absolute w-[800px] h-[800px] rounded-full blur-3xl opacity-20"
           style={{
-            bottom: '20%',
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.4), transparent 70%)',
+            bottom: '10%',
             right: '10%',
-            transform: `translate(${mousePosition.x * -0.015}px, ${mousePosition.y * -0.015}px)`,
-            transition: 'transform 0.5s ease-out',
+            transform: `translate(${mousePosition.x * -0.02}px, ${mousePosition.y * -0.02}px)`,
+            transition: 'transform 0.8s ease-out',
+            animation: 'nebulaPulse 18s ease-in-out infinite 5s',
+          }}
+        />
+        {/* Pink nebula */}
+        <div
+          className="absolute w-[600px] h-[600px] rounded-full blur-3xl opacity-15"
+          style={{
+            background: 'radial-gradient(circle, rgba(236, 72, 153, 0.4), transparent 70%)',
+            top: '40%',
+            right: '20%',
+            transform: `translate(${mousePosition.x * 0.015}px, ${mousePosition.y * 0.015}px)`,
+            transition: 'transform 0.8s ease-out',
+            animation: 'nebulaPulse 20s ease-in-out infinite 10s',
           }}
         />
       </div>
@@ -594,6 +626,16 @@ const LandingPage = ({ onNavigate }) => {
           50% { 
             transform: scale(1.05);
             filter: brightness(1.1);
+          }
+        }
+        @keyframes nebulaPulse {
+          0%, 100% {
+            opacity: 0.15;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.25;
+            transform: scale(1.1);
           }
         }
         .animate-fadeIn {
