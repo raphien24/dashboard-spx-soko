@@ -8,3 +8,4 @@ export { default as FloatingElement } from './FloatingElement';
 export { default as SkeletonLoader } from './SkeletonLoader';
 export { default as AnimatedCounter } from './AnimatedCounter';
 export { default as AnimatedButton } from './AnimatedButton';
+export { default as CourierLoadingAnimation } from './CourierLoadingAnimation';

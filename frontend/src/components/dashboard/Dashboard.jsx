@@ -3,6 +3,7 @@ import { Loader, RefreshCw, AlertCircle } from 'lucide-react';
 import useDashboardStore from '../../store/dashboardStore';
 import useAutoRefresh from '../../hooks/useAutoRefresh';
 import ErrorBoundary from '../common/ErrorBoundary';
+import CourierLoadingAnimation from '../animations/CourierLoadingAnimation';
 import FilteringLoader from '../common/FilteringLoader';
 import DashboardFilters from '../filters/DashboardFilters';
 import KPICardsSection from './KPICardsSection';
@@ -194,13 +195,7 @@ function Dashboard({ autoRefreshEnabled = true }) {
 
   // Loading state - show loader until data is ready
   if (isLoading || (!kpiMetrics && !error)) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <Loader className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
-        <p className="text-gray-600 dark:text-slate-400 text-lg font-medium">Loading dashboard data...</p>
-        <p className="text-gray-500 dark:text-slate-500 text-sm mt-2">Fetching real-time data from Google Sheets</p>
-      </div>
-    );
+    return <CourierLoadingAnimation />;
   }
 
   // Error state
