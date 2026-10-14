@@ -169,7 +169,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
           transition-all duration-300 ease-in-out flex flex-col z-40
           border-r border-indigo-300/50 dark:border-indigo-800/30 shadow-2xl shadow-purple-500/20 dark:shadow-none
           ${isCollapsed ? 'lg:w-20' : 'lg:w-64'}
-          ${isMobileOpen ? 'translate-x-0 w-72' : '-translate-x-full w-0 lg:translate-x-0 lg:w-64'}
+          ${isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full w-0 lg:translate-x-0 lg:w-64'}
         `}
       >
       {/* Space Theme Background - Dark Mode Only */}
@@ -193,11 +193,12 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
         }}
       />
       {/* Logo Section */}
-      <div className="p-6 border-b border-white/20 dark:border-indigo-700/50 relative z-10">
+      <div className="p-4 lg:p-6 border-b border-white/20 dark:border-indigo-700/50 relative z-10">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 flex items-center justify-center">
+            <div className="flex items-center space-x-2 lg:space-x-3">
+              {/* Logo - Hidden on mobile when open, visible on desktop */}
+              <div className="hidden lg:flex w-10 h-10 items-center justify-center">
                 <img 
                   src="/assets/spx-logo.png" 
                   alt="SPX Logo" 
@@ -206,8 +207,8 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                 />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white">SPX SOKO</h1>
-                <p className="text-xs text-white/80 dark:text-indigo-300">Dashboard</p>
+                <h1 className="text-base lg:text-lg font-bold text-white">SPX SOKO</h1>
+                <p className="text-[10px] lg:text-xs text-white/80 dark:text-indigo-300">Dashboard</p>
               </div>
             </div>
           )}
@@ -225,7 +226,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto relative z-10">
+      <nav className="flex-1 px-2 lg:px-3 py-3 lg:py-6 space-y-1 lg:space-y-2 overflow-y-auto relative z-10">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = item.id === activePage || (item.submenu && item.submenu.some(sub => sub.id === activePage));
@@ -241,7 +242,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                 onClick={() => handleNavigate(item)}
                 disabled={isDisabled}
                 className={`
-                  w-full flex items-center space-x-3 px-4 py-3 rounded-lg
+                  w-full flex items-center space-x-2 lg:space-x-3 px-3 lg:px-4 py-2 lg:py-3 rounded-lg
                   transition-all duration-200 group relative
                   ${isActive 
                     ? 'bg-white/95 text-indigo-700 shadow-lg shadow-indigo-200/50 dark:bg-white dark:text-indigo-900 dark:shadow-lg' 
@@ -252,23 +253,23 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                   ${isCollapsed ? 'justify-center' : ''}
                 `}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-600 dark:text-indigo-900' : 'text-white dark:text-indigo-200'}`} />
+                <Icon className={`w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0 ${isActive ? 'text-indigo-600 dark:text-indigo-900' : 'text-white dark:text-indigo-200'}`} />
                 {!isCollapsed && (
                   <>
-                    <span className="flex-1 text-left font-medium">{item.label}</span>
+                    <span className="flex-1 text-left font-medium text-sm lg:text-base">{item.label}</span>
                     {isDisabled && (
-                      <span className="text-xs bg-white/30 dark:bg-white/20 px-2 py-0.5 rounded-full text-white">
+                      <span className="text-[10px] bg-white/30 dark:bg-white/20 px-1.5 py-0.5 rounded-full text-white">
                         Soon
                       </span>
                     )}
                     {isExternal && (
-                      <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 h-3 lg:w-4 lg:h-4 opacity-60 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
                     )}
                     {hasSubmenu && (
                       <ChevronDown 
-                        className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                        className={`w-3 h-3 lg:w-4 lg:h-4 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                       />
                     )}
                   </>
@@ -286,7 +287,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
 
               {/* Submenu Items */}
               {hasSubmenu && isExpanded && !isCollapsed && item.submenu && (
-                <div className="mt-1 ml-4 space-y-1">
+                <div className="mt-0.5 lg:mt-1 ml-3 lg:ml-4 space-y-0.5 lg:space-y-1">
                   {item.submenu.map((subItem) => {
                     const isSubActive = subItem.id === activePage;
                     return (
@@ -299,15 +300,15 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                           }
                         }}
                         className={`
-                          w-full flex items-center space-x-3 px-4 py-2 rounded-lg
-                          transition-all duration-200 text-sm
+                          w-full flex items-center space-x-2 lg:space-x-3 px-3 lg:px-4 py-1.5 lg:py-2 rounded-lg
+                          transition-all duration-200 text-xs lg:text-sm
                           ${isSubActive
                             ? 'bg-white/30 text-white font-bold shadow-md dark:bg-indigo-700 dark:text-white'
                             : 'text-white/90 hover:bg-white/10 dark:text-indigo-200 dark:hover:bg-indigo-700/30'
                           }
                         `}
                       >
-                        <div className="w-1.5 h-1.5 rounded-full bg-current" />
+                        <div className="w-1 h-1 lg:w-1.5 lg:h-1.5 rounded-full bg-current flex-shrink-0" />
                         <span className="flex-1 text-left">{subItem.label}</span>
                       </button>
                     );
@@ -319,9 +320,9 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
         })}
       </nav>
 
-      {/* Footer - Version Info */}
+      {/* Footer - Version Info - Hidden on mobile */}
       {!isCollapsed && (
-        <div className="p-4 border-t border-white/20 dark:border-indigo-700/50 relative z-10">
+        <div className="hidden lg:block p-4 border-t border-white/20 dark:border-indigo-700/50 relative z-10">
           <div className="text-xs text-white/80 dark:text-indigo-300">
             <p className="font-semibold">Version 1.0.0</p>
             <p className="mt-1">© 2026 SPX SOKO</p>
