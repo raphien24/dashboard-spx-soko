@@ -100,11 +100,11 @@ function App() {
       <StarfieldBackground />
       
       <div className="flex h-screen bg-transparent overflow-hidden relative">
-        {/* Solid background layer behind content - Fun gradient for light mode */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:bg-slate-950 -z-10" />
+        {/* Solid background layer - Colorful gradient for light mode, dark slate for dark mode */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:bg-gradient-to-br dark:from-slate-950 dark:via-slate-950 dark:to-slate-950 -z-10" />
         
         {/* Animated gradient overlay - Light mode only */}
-        <div className="absolute inset-0 dark:opacity-0 opacity-100 -z-10 bg-gradient-to-tr from-transparent via-indigo-50/30 to-transparent animate-pulse" 
+        <div className="absolute inset-0 opacity-100 dark:opacity-0 -z-10 bg-gradient-to-tr from-transparent via-indigo-50/30 to-transparent animate-pulse" 
           style={{ animationDuration: '8s' }} 
         />
         
