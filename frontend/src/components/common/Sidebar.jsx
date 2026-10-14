@@ -196,7 +196,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
         <div className="flex items-center justify-between">
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg p-1">
+              <div className="w-10 h-10 flex items-center justify-center">
                 <img src="/assets/spx-logo.png" alt="SPX Logo" className="w-full h-full object-contain" />
               </div>
               <div>
@@ -206,7 +206,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
             </div>
           )}
           {isCollapsed && (
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center mx-auto shadow-lg p-1">
+            <div className="w-10 h-10 flex items-center justify-center mx-auto">
               <img src="/assets/spx-logo.png" alt="SPX Logo" className="w-full h-full object-contain" />
             </div>
           )}
