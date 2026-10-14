@@ -197,7 +197,12 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 flex items-center justify-center">
-                <img src="/assets/spx-logo.png" alt="SPX Logo" className="w-full h-full object-contain" />
+                <img 
+                  src="/assets/spx-logo.png" 
+                  alt="SPX Logo" 
+                  className="w-full h-full object-contain"
+                  style={{ mixBlendMode: 'multiply', filter: 'brightness(0) invert(1)' }}
+                />
               </div>
               <div>
                 <h1 className="text-lg font-bold text-white">SPX SOKO</h1>
@@ -207,7 +212,12 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
           )}
           {isCollapsed && (
             <div className="w-10 h-10 flex items-center justify-center mx-auto">
-              <img src="/assets/spx-logo.png" alt="SPX Logo" className="w-full h-full object-contain" />
+              <img 
+                src="/assets/spx-logo.png" 
+                alt="SPX Logo" 
+                className="w-full h-full object-contain"
+                style={{ mixBlendMode: 'multiply', filter: 'brightness(0) invert(1)' }}
+              />
             </div>
           )}
         </div>
