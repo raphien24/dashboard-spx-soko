@@ -216,14 +216,7 @@ const AnimatedKPICard = ({
               animate={inView ? { width: `${Math.min(progress.value, 100)}%` } : {}}
               transition={{ duration: 1.5, delay: delay + 0.5, ease: [0.34, 1.56, 0.64, 1] }}
               className={getProgressColor(progress.value)}
-            >
-              {/* Shimmer */}
-              <motion.div
-                className="h-full bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                animate={{ x: ['-100%', '200%'] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              />
-            </motion.div>
+            />
           </div>
         </div>
       )}

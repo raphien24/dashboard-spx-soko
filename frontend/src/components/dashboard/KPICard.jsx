@@ -183,22 +183,9 @@ function KPICard({
               delay: delay * 0.1 + 0.3,
               ease: [0.34, 1.56, 0.64, 1],
             }}
-            className={`h-full ${progressColor} rounded-full relative overflow-hidden`}
-          >
-            {/* Shimmer effect */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-              animate={{
-                x: ['-100%', '200%'],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                repeatDelay: 3,
-                ease: 'easeInOut',
-              }}
-            />
-          </motion.div>
+            className={`h-full ${progressColor} rounded-full`}
+          />
+        </div>
         </div>
       </div>
 

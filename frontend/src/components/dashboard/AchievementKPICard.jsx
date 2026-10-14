@@ -121,14 +121,7 @@ const AchievementKPICard = ({ achievement, title, delay = 0 }) => {
             animate={inView ? { width: `${Math.min(safeTotal, 100)}%` } : {}}
             transition={{ duration: 1.5, delay: delay + 0.5, ease: [0.34, 1.56, 0.64, 1] }}
             className={`h-3 rounded-full ${totalColor.bar}`}
-          >
-            {/* Shimmer effect */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-              animate={{ x: ['-100%', '200%'] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-            />
-          </motion.div>
+          />
         </div>
         <p className="text-xs text-gray-400 dark:text-slate-500 mt-1 text-right">
           {is4WH ? '% Achievement Dedicated 4WH' : '% Achievement Total'}
