@@ -4,8 +4,8 @@ import CourierDetailModal from './CourierDetailModal';
 import html2canvas from 'html2canvas';
 
 /**
- * Weekly Schedule Table Component
- * Displays courier schedule data in table format
+ * Weekly Courier Achievement Table Component
+ * Displays courier achievement data in table format
  * Filters are now managed by DashboardFilters component
  */
 function WeeklyScheduleTable({ data }) {
@@ -313,7 +313,7 @@ function WeeklyScheduleTable({ data }) {
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">Weekly Courier Schedule</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">Weekly Courier Achievement</h3>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-sm text-indigo-600 font-medium">Productivity Overview</span>
                 <span className="text-sm text-gray-400 dark:text-slate-500">•</span>

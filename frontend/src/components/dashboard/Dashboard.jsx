@@ -349,7 +349,7 @@ function Dashboard({ autoRefreshEnabled = true }) {
         </ErrorBoundary>
       </div>
 
-      {/* Weekly Schedule Table */}
+      {/* Weekly Courier Achievement Table */}
       <ErrorBoundary componentName="WeeklyScheduleTable">
         <WeeklyScheduleTable 
           data={courierSchedule || []}
