@@ -9,20 +9,31 @@ export const AuthProvider = ({ children }) => {
 
   // Load whitelist from localStorage
   useEffect(() => {
+    const defaultList = ['rafi.alvian@spxexpress.com', 'admin@spxsoko.online'];
     const savedWhitelist = localStorage.getItem('spx_whitelist');
+    
     if (savedWhitelist) {
       try {
-        setWhitelist(JSON.parse(savedWhitelist));
+        const parsedList = JSON.parse(savedWhitelist);
+        
+        // Ensure default emails are always present (merge with existing)
+        const mergedList = [...new Set([...defaultList, ...parsedList])];
+        
+        // Update if list changed
+        if (JSON.stringify(mergedList) !== JSON.stringify(parsedList)) {
+          setWhitelist(mergedList);
+          localStorage.setItem('spx_whitelist', JSON.stringify(mergedList));
+        } else {
+          setWhitelist(parsedList);
+        }
       } catch (e) {
         console.error('Failed to parse whitelist:', e);
         // Default whitelist if parsing fails
-        const defaultList = ['rafi.alvian@spxexpress.com', 'admin@spxsoko.online'];
         setWhitelist(defaultList);
         localStorage.setItem('spx_whitelist', JSON.stringify(defaultList));
       }
     } else {
       // Set default whitelist
-      const defaultList = ['rafi.alvian@spxexpress.com', 'admin@spxsoko.online'];
       setWhitelist(defaultList);
       localStorage.setItem('spx_whitelist', JSON.stringify(defaultList));
     }
