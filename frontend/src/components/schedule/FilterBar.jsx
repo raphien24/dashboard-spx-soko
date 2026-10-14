@@ -15,7 +15,7 @@ function FilterBar({ filters, onFilterChange, onReset }) {
         </div>
         <button
           onClick={onReset}
-          className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+          className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors"
         >
           Reset All
         </button>
@@ -35,7 +35,7 @@ function FilterBar({ filters, onFilterChange, onReset }) {
               onChange={(e) => onFilterChange({
                 dateRange: { ...filters.dateRange, start: e.target.value }
               })}
-              className="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="flex-1 px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
             <input
               type="date"
@@ -43,7 +43,7 @@ function FilterBar({ filters, onFilterChange, onReset }) {
               onChange={(e) => onFilterChange({
                 dateRange: { ...filters.dateRange, end: e.target.value }
               })}
-              className="flex-1 px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="flex-1 px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -56,7 +56,7 @@ function FilterBar({ filters, onFilterChange, onReset }) {
           <select
             value={filters.zone || 'all'}
             onChange={(e) => onFilterChange({ zone: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             {FILTER_OPTIONS.zones.map((option) => (
               <option key={option.value} value={option.value}>
@@ -74,7 +74,7 @@ function FilterBar({ filters, onFilterChange, onReset }) {
           <select
             value={filters.contract || 'all'}
             onChange={(e) => onFilterChange({ contract: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             {FILTER_OPTIONS.contracts.map((option) => (
               <option key={option.value} value={option.value}>
@@ -92,7 +92,7 @@ function FilterBar({ filters, onFilterChange, onReset }) {
           <select
             value={filters.vehicle || 'all'}
             onChange={(e) => onFilterChange({ vehicle: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             {FILTER_OPTIONS.vehicles.map((option) => (
               <option key={option.value} value={option.value}>
@@ -109,17 +109,17 @@ function FilterBar({ filters, onFilterChange, onReset }) {
           <div className="flex flex-wrap gap-2">
             <span className="text-sm text-gray-600 dark:text-slate-400">Active filters:</span>
             {filters.zone !== 'all' && (
-              <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+              <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs font-medium">
                 Zone: {FILTER_OPTIONS.zones.find(z => z.value === filters.zone)?.label}
               </span>
             )}
             {filters.contract !== 'all' && (
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+              <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium">
                 Contract: {FILTER_OPTIONS.contracts.find(c => c.value === filters.contract)?.label}
               </span>
             )}
             {filters.vehicle !== 'all' && (
-              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+              <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs font-medium">
                 Vehicle: {FILTER_OPTIONS.vehicles.find(v => v.value === filters.vehicle)?.label}
               </span>
             )}

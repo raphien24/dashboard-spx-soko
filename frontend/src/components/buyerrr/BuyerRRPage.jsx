@@ -572,7 +572,7 @@ const BuyerRRPage = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 pointer-events-none" />
                 <input type="text" value={searchCreated} onChange={e => setSearchCreated(e.target.value)}
                   placeholder="Cari TN, pickup point..."
-                  className="pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm w-52 focus:ring-2 focus:ring-indigo-500" />
+                  className="pl-9 pr-8 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 w-52 focus:ring-2 focus:ring-indigo-500" />
                 {searchCreated && <button onClick={() => setSearchCreated('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"><X className="w-4 h-4" /></button>}
               </div>
               <select value={filterPickup} onChange={e => setFilterPickup(e.target.value)}
@@ -640,7 +640,7 @@ const BuyerRRPage = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500 pointer-events-none" />
                 <input type="text" value={searchAssigned} onChange={e => setSearchAssigned(e.target.value)}
                   placeholder="Cari task ID, driver..."
-                  className="pl-9 pr-8 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm w-52 focus:ring-2 focus:ring-indigo-500" />
+                  className="pl-9 pr-8 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 w-52 focus:ring-2 focus:ring-indigo-500" />
                 {searchAssigned && <button onClick={() => setSearchAssigned('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"><X className="w-4 h-4" /></button>}
               </div>
               <select value={filterDriver} onChange={e => setFilterDriver(e.target.value)}

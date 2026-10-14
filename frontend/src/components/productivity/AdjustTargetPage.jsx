@@ -157,7 +157,7 @@ const AdjustTargetPage = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Week (Monday)</label>
               <select value={weekStart} onChange={e => setWeekStart(e.target.value)} required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500">
                 <option value="">Select Week...</option>
                 {weekOptions.map(w => <option key={w.value} value={w.value}>{w.label}</option>)}
               </select>
@@ -167,7 +167,7 @@ const AdjustTargetPage = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Contract</label>
               <select value={contract} onChange={e => setContract(e.target.value)} required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500">
                 <option value="Dedicated">Dedicated</option>
                 <option value="Kurir Plus">Kurir Plus</option>
               </select>
@@ -177,7 +177,7 @@ const AdjustTargetPage = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Vehicle</label>
               <select value={vehicle} onChange={e => setVehicle(e.target.value)} required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500">
+                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500">
                 <option value="2WH">2WH</option>
                 <option value="4WH">4WH</option>
               </select>
@@ -188,7 +188,7 @@ const AdjustTargetPage = () => {
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Appeal Target</label>
               <input type="number" step="0.01" value={appealTarget} onChange={e => setAppealTarget(e.target.value)} required
                 placeholder="e.g., 85.5"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500" />
+                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500" />
             </div>
           </div>
 
