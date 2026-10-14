@@ -27,13 +27,16 @@ const StarfieldBackground = () => {
     // Generate stars
     const generateStars = () => {
       const stars = [];
-      const numStars = 150;
+      const isMobile = window.innerWidth < 768;
+      const numStars = isMobile ? 80 : 150; // Fewer stars on mobile
 
       for (let i = 0; i < numStars; i++) {
         stars.push({
           x: Math.random() * window.innerWidth,
           y: Math.random() * Math.max(document.documentElement.scrollHeight, window.innerHeight),
-          radius: Math.random() * 1.5 + 0.5,
+          radius: isMobile 
+            ? Math.random() * 0.8 + 0.3  // Smaller stars on mobile (0.3-1.1px)
+            : Math.random() * 1.5 + 0.5, // Normal stars on desktop (0.5-2px)
           opacity: Math.random() * 0.5 + 0.3,
           twinkleSpeed: Math.random() * 0.02 + 0.01,
           twinklePhase: Math.random() * Math.PI * 2,

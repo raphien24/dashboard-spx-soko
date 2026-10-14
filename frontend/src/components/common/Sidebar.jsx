@@ -177,7 +177,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
           transition-all duration-300 ease-in-out flex flex-col z-40
           border-r border-indigo-300/50 dark:border-indigo-800/30 shadow-2xl shadow-purple-500/20 dark:shadow-none
           ${isCollapsed ? 'lg:w-20' : 'lg:w-64'}
-          ${isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full w-0 lg:translate-x-0 lg:w-64'}
+          ${isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full w-0 lg:translate-x-0 lg:w-64 hidden lg:flex'}
         `}
       >
       {/* Space Theme Background - Dark Mode Only */}
