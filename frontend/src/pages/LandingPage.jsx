@@ -29,7 +29,7 @@ const LandingPage = ({ onNavigate }) => {
       description: 'Monitor weekly and monthly productivity metrics',
       angle: 0,
       orbitRadius: 200,
-      orbitTilt: 0.25,
+      orbitTilt: 0.1,
       defaultPage: 'productivity-dashboard',
     },
     {
@@ -42,7 +42,7 @@ const LandingPage = ({ onNavigate }) => {
       description: 'Track attendance and presence management',
       angle: 60,
       orbitRadius: 200,
-      orbitTilt: 0.25,
+      orbitTilt: 0.1,
       external: true,
       url: 'https://absensi.spxsoko.online/admin',
     },
@@ -56,7 +56,7 @@ const LandingPage = ({ onNavigate }) => {
       description: 'Manage SP and punishment records',
       angle: 120,
       orbitRadius: 200,
-      orbitTilt: 0.25,
+      orbitTilt: 0.1,
       defaultPage: 'sp-generator',
     },
     {
@@ -69,7 +69,7 @@ const LandingPage = ({ onNavigate }) => {
       description: 'Fast track urgent packages',
       angle: 180,
       orbitRadius: 200,
-      orbitTilt: 0.25,
+      orbitTilt: 0.1,
       defaultPage: 'expedite',
     },
     {
@@ -82,7 +82,7 @@ const LandingPage = ({ onNavigate }) => {
       description: 'Monitor last mile backlog',
       angle: 240,
       orbitRadius: 200,
-      orbitTilt: 0.25,
+      orbitTilt: 0.1,
       defaultPage: 'backlog-lm',
     },
     {
@@ -95,7 +95,7 @@ const LandingPage = ({ onNavigate }) => {
       description: 'Health, Safety & Environment monitoring',
       angle: 300,
       orbitRadius: 200,
-      orbitTilt: 0.25,
+      orbitTilt: 0.1,
       defaultPage: 'hse-daily',
     },
     {
@@ -108,7 +108,7 @@ const LandingPage = ({ onNavigate }) => {
       description: 'Buyer return tracking',
       angle: 30,
       orbitRadius: 300,
-      orbitTilt: 0.3,
+      orbitTilt: 0.12,
       defaultPage: 'buyer-rr',
     },
     {
@@ -121,7 +121,7 @@ const LandingPage = ({ onNavigate }) => {
       description: 'SDHO monitoring dashboard',
       angle: 90,
       orbitRadius: 300,
-      orbitTilt: 0.3,
+      orbitTilt: 0.12,
       defaultPage: 'monitor-sdho',
     },
     {
@@ -134,7 +134,7 @@ const LandingPage = ({ onNavigate }) => {
       description: 'Control stuck first mile packages',
       angle: 150,
       orbitRadius: 300,
-      orbitTilt: 0.3,
+      orbitTilt: 0.12,
       defaultPage: 'control-stuck-fm',
     },
     {
@@ -147,7 +147,7 @@ const LandingPage = ({ onNavigate }) => {
       description: 'Application settings and preferences',
       angle: 210,
       orbitRadius: 300,
-      orbitTilt: 0.3,
+      orbitTilt: 0.12,
       defaultPage: 'whitelist-settings',
     },
   ];
@@ -191,7 +191,7 @@ const LandingPage = ({ onNavigate }) => {
     return () => clearInterval(interval);
   }, [rotationSpeed]);
 
-  // Animated nebula and cosmic effects (no falling stars)
+  // Starfield animation with moving stars
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -200,38 +200,63 @@ const LandingPage = ({ onNavigate }) => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Static stars (not falling)
     class Star {
       constructor() {
+        this.reset();
+      }
+
+      reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 1.5;
-        this.brightness = Math.random();
-        this.twinkleSpeed = Math.random() * 0.02 + 0.01;
+        this.z = Math.random() * canvas.width;
+        this.size = Math.random() * 2;
       }
 
       update() {
-        // Twinkle effect only
-        this.brightness += this.twinkleSpeed;
-        if (this.brightness > 1 || this.brightness < 0) {
-          this.twinkleSpeed = -this.twinkleSpeed;
+        // Move star towards viewer
+        this.z -= 2;
+        if (this.z <= 0) {
+          this.reset();
+          this.z = canvas.width;
         }
       }
 
       draw() {
-        ctx.fillStyle = `rgba(255, 255, 255, ${this.brightness})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
+        // Calculate 2D position from 3D
+        const sx = (this.x - canvas.width / 2) * (canvas.width / this.z);
+        const sy = (this.y - canvas.height / 2) * (canvas.width / this.z);
+        const x = sx + canvas.width / 2;
+        const y = sy + canvas.height / 2;
+
+        // Size based on distance
+        const size = (1 - this.z / canvas.width) * this.size * 2;
+        const opacity = 1 - this.z / canvas.width;
+
+        if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
+          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+          ctx.beginPath();
+          ctx.arc(x, y, size, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Draw star trail
+          const px = ((this.x - canvas.width / 2) * (canvas.width / (this.z + 2))) + canvas.width / 2;
+          const py = ((this.y - canvas.height / 2) * (canvas.width / (this.z + 2))) + canvas.height / 2;
+          
+          ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.5})`;
+          ctx.lineWidth = size;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(px, py);
+          ctx.stroke();
+        }
       }
     }
 
-    const stars = Array.from({ length: 300 }, () => new Star());
+    const stars = Array.from({ length: 400 }, () => new Star());
 
     let animationFrameId;
     const animate = () => {
-      // Don't clear canvas completely - create nebula trail effect
-      ctx.fillStyle = 'rgba(10, 10, 30, 0.05)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       stars.forEach((star) => {
@@ -279,135 +304,91 @@ const LandingPage = ({ onNavigate }) => {
     }
   };
 
-  // Calculate 3D position with perspective
+  // Calculate 3D position with perspective - adjusted for top-down view
   const calculate3DPosition = (angle, radius, tilt) => {
     const rad = (angle + rotation) * (Math.PI / 180);
     const x = Math.cos(rad) * radius;
-    const y = Math.sin(rad) * radius * tilt; // Apply tilt for elliptical orbit
-    const z = Math.sin(rad) * radius * (1 - tilt); // Depth for 3D effect
+    const y = Math.sin(rad) * radius * tilt; // Minimal Y for top-down
+    const z = Math.sin(rad) * radius * (1 - tilt) * 0.5; // Reduced Z depth
     
-    // Scale based on Z position (closer = bigger)
-    const scale = 1 + (z / radius) * 0.3;
-    const opacity = 0.6 + (z / radius) * 0.4;
+    // Less scale variation for top-down view
+    const scale = 1 + (z / radius) * 0.15;
+    const opacity = 0.75 + (z / radius) * 0.25;
     
     return { x, y, scale, opacity, z };
   };
 
   return (
-    <div className="min-h-screen overflow-hidden relative">
-      {/* Real Space Background Image */}
-      <div 
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=2013&auto=format&fit=crop)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      >
-        {/* Dark overlay for better contrast */}
-        <div className="absolute inset-0 bg-black/40" />
-      </div>
+    <div className="min-h-screen overflow-hidden relative bg-black">
+      {/* Pure Black Background */}
+      <div className="absolute inset-0 bg-black z-0" />
 
-      {/* Animated Canvas Layer (stars twinkling only) */}
+      {/* Starfield Animation Canvas */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 z-0"
-        style={{ 
-          mixBlendMode: 'screen',
-          opacity: 0.6
-        }}
       />
 
-      {/* Animated nebula clouds */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Purple nebula */}
-        <div
-          className="absolute w-[1000px] h-[1000px] rounded-full blur-3xl opacity-20"
-          style={{
-            background: 'radial-gradient(circle, rgba(147, 51, 234, 0.4), transparent 70%)',
-            top: '10%',
-            left: '5%',
-            transform: `translate(${mousePosition.x * 0.03}px, ${mousePosition.y * 0.03}px)`,
-            transition: 'transform 0.8s ease-out',
-            animation: 'nebulaPulse 15s ease-in-out infinite',
-          }}
-        />
-        {/* Blue nebula */}
-        <div
-          className="absolute w-[800px] h-[800px] rounded-full blur-3xl opacity-20"
-          style={{
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.4), transparent 70%)',
-            bottom: '10%',
-            right: '10%',
-            transform: `translate(${mousePosition.x * -0.02}px, ${mousePosition.y * -0.02}px)`,
-            transition: 'transform 0.8s ease-out',
-            animation: 'nebulaPulse 18s ease-in-out infinite 5s',
-          }}
-        />
-        {/* Pink nebula */}
-        <div
-          className="absolute w-[600px] h-[600px] rounded-full blur-3xl opacity-15"
-          style={{
-            background: 'radial-gradient(circle, rgba(236, 72, 153, 0.4), transparent 70%)',
-            top: '40%',
-            right: '20%',
-            transform: `translate(${mousePosition.x * 0.015}px, ${mousePosition.y * 0.015}px)`,
-            transition: 'transform 0.8s ease-out',
-            animation: 'nebulaPulse 20s ease-in-out infinite 10s',
-          }}
-        />
-      </div>
-
       {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
+      <div className="relative z-10 min-h-screen flex flex-col items-center px-4 py-8 md:py-12">
+        {/* Quick Dashboard Button */}
+        <div className="w-full max-w-7xl flex justify-end mb-4">
+          <button
+            onClick={() => onNavigate('productivity-dashboard')}
+            className="group px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-full text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+          >
+            <span>📊 Dashboard</span>
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
+
         {/* Welcome Message */}
-        <div className="text-center mb-12 md:mb-16 space-y-4">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+        <div className="text-center mb-8 md:mb-12 space-y-3">
+          <h1 className="text-3xl md:text-5xl font-bold text-white mb-3">
             Selamat Datang di Dashboard
           </h1>
-          <h2 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h2 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             SPX SOKO
           </h2>
-          <p className="text-xl md:text-2xl text-slate-300 mt-4">
+          <p className="text-lg md:text-xl text-slate-300 mt-3">
             {firstName} 👋
           </p>
-          <p className="text-sm md:text-base text-slate-400 mt-2">
+          <p className="text-xs md:text-sm text-slate-400 mt-2">
             Pilih menu untuk memulai
           </p>
         </div>
 
-        {/* Solar System with 3D Perspective */}
+        {/* Solar System with 3D Perspective - Top-down view */}
         <div 
           id="solar-system-container"
-          className="relative w-full max-w-5xl cursor-grab active:cursor-grabbing" 
-          style={{ height: '600px', perspective: '1200px' }}
+          className="relative w-full max-w-6xl cursor-grab active:cursor-grabbing mb-8" 
+          style={{ height: '500px', perspective: '1500px' }}
         >
           <div className="absolute inset-0 flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
             
-            {/* Orbit rings with 3D perspective - More vertical angle */}
-            <svg className="absolute inset-0 w-full h-full" style={{ transform: 'rotateX(75deg)' }}>
+            {/* Orbit rings with 3D perspective - Almost top-down (85deg) */}
+            <svg className="absolute inset-0 w-full h-full" style={{ transform: 'rotateX(85deg)' }}>
               {/* Inner orbit */}
               <ellipse
                 cx="50%"
                 cy="50%"
                 rx="200"
-                ry="50"
+                ry="17"
                 fill="none"
-                stroke="rgba(139, 92, 246, 0.3)"
-                strokeWidth="2"
-                strokeDasharray="8 4"
+                stroke="rgba(139, 92, 246, 0.4)"
+                strokeWidth="1"
+                strokeDasharray="6 3"
               />
               {/* Outer orbit */}
               <ellipse
                 cx="50%"
                 cy="50%"
                 rx="300"
-                ry="75"
+                ry="26"
                 fill="none"
-                stroke="rgba(99, 102, 241, 0.3)"
-                strokeWidth="2"
-                strokeDasharray="8 4"
+                stroke="rgba(99, 102, 241, 0.4)"
+                strokeWidth="1"
+                strokeDasharray="6 3"
               />
             </svg>
 
@@ -547,7 +528,7 @@ const LandingPage = ({ onNavigate }) => {
         </div>
 
         {/* Instruction Text */}
-        <div className="mt-12 md:mt-16 text-center space-y-2">
+        <div className="text-center space-y-2 pb-8">
           <p className="text-slate-400 text-sm md:text-base">
             Klik pada planet untuk melihat detail menu
           </p>
