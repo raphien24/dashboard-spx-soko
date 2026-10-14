@@ -106,6 +106,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       submenu: [
         { id: 'theme-settings', label: 'Theme', parent: 'settings' },
         { id: 'cookie-manager', label: 'Cookie Manager', parent: 'settings' },
+        { id: 'animation-demo', label: '🎨 Animation Demo', parent: 'settings' },
       ],
     },
   ];

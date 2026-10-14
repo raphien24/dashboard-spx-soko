@@ -10,6 +10,7 @@ import BuyerRRPage from './components/buyerrr/BuyerRRPage';
 import MonitorSDHOPage from './components/monitorsdho/MonitorSDHOPage';
 import CookieManagerPage from './components/settings/CookieManagerPage';
 import ThemeSettings from './pages/ThemeSettings';
+import AnimationDemo from './pages/AnimationDemo';
 import ControlStuckFMPage from './components/controlstuckfm/ControlStuckFMPage';
 import BacklogLMPage from './components/backlog/BacklogLMPage';
 import HSEDailyBriefing from './components/hse/HSEDailyBriefing';
@@ -53,6 +54,7 @@ function App() {
     'monitor-sdho':      'Monitor SDHO',
     'cookie-manager':    'Settings',
     'theme-settings':    'Settings',
+    'animation-demo':    'Settings',
     'control-stuck-fm':  'Control Stuck FM',
   };
 
@@ -71,6 +73,7 @@ function App() {
     'monitor-sdho':      'Monitor SDHO pickup data',
     'cookie-manager':    'Cookie Manager — SPX FMS Portal',
     'theme-settings':    'Theme — Light / Dark Mode',
+    'animation-demo':    '🎨 Animation Demo — Modern UI Effects',
     'control-stuck-fm':  'Control Stuck FM',
   };
 
@@ -201,6 +204,7 @@ function App() {
               {isMonitorSDHOPage   && <MonitorSDHOPage />}
               {activePage === 'cookie-manager' && <CookieManagerPage />}
               {activePage === 'theme-settings' && <ThemeSettings />}
+              {activePage === 'animation-demo' && <AnimationDemo />}
               {isControlStuckPage  && <ControlStuckFMPage />}
             </div>
           </main>
