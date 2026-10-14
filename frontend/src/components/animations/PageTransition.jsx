@@ -1,13 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
 
 /**
  * PageTransition Component
- * Smooth page transitions between routes
+ * Smooth page transitions
+ * Note: Simplified version without router dependency
  */
-const PageTransition = ({ children }) => {
-  const location = useLocation();
-
+const PageTransition = ({ children, key: transitionKey }) => {
   const pageVariants = {
     initial: {
       opacity: 0,
@@ -33,7 +31,7 @@ const PageTransition = ({ children }) => {
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={location.pathname}
+        key={transitionKey || 'page-content'}
         variants={pageVariants}
         initial="initial"
         animate="animate"
