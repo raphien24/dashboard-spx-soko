@@ -1,16 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import {
-  TrendingUp,
-  ClipboardCheck,
-  AlertTriangle,
-  Zap,
-  Package,
-  ShieldCheck,
-  Truck,
-  Activity,
-  GitMerge,
-  Settings,
   X,
   ExternalLink,
   ArrowRight
@@ -21,142 +11,143 @@ const LandingPage = ({ onNavigate }) => {
   const [selectedPlanet, setSelectedPlanet] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
+  const [rotationSpeed, setRotationSpeed] = useState(0.15);
   const canvasRef = useRef(null);
 
   // Get first name from user
   const firstName = user?.name?.split(' ')[0] || 'User';
 
-  // Menu items from sidebar (main menus only)
+  // Menu items from sidebar (main menus only) - Mapped to real solar system planets
   const planets = [
     {
       id: 'productivity',
       label: 'Productivity',
-      icon: TrendingUp,
+      planetEmoji: '🌍', // Earth - hijau seperti produktivitas
       color: 'from-green-400 to-emerald-600',
       solidColor: '#10b981',
       size: 'large',
       description: 'Monitor weekly and monthly productivity metrics',
       angle: 0,
-      orbitRadius: 180,
-      orbitTilt: 0.3, // Ellipse tilt for 3D effect
+      orbitRadius: 200,
+      orbitTilt: 0.25,
       defaultPage: 'productivity-dashboard',
     },
     {
       id: 'attendance',
       label: 'Attendance',
-      icon: ClipboardCheck,
+      planetEmoji: '🪐', // Saturn - dengan cincin (structure)
       color: 'from-blue-400 to-cyan-600',
       solidColor: '#3b82f6',
       size: 'medium',
       description: 'Track attendance and presence management',
       angle: 60,
-      orbitRadius: 180,
-      orbitTilt: 0.3,
+      orbitRadius: 200,
+      orbitTilt: 0.25,
       external: true,
       url: 'https://absensi.spxsoko.online/admin',
     },
     {
       id: 'punishment',
       label: 'Punishment',
-      icon: AlertTriangle,
+      planetEmoji: '🔴', // Mars - merah seperti warning
       color: 'from-red-400 to-orange-600',
       solidColor: '#ef4444',
       size: 'medium',
       description: 'Manage SP and punishment records',
       angle: 120,
-      orbitRadius: 180,
-      orbitTilt: 0.3,
+      orbitRadius: 200,
+      orbitTilt: 0.25,
       defaultPage: 'sp-generator',
     },
     {
       id: 'expedite',
       label: 'Expedite',
-      icon: Zap,
+      planetEmoji: '☄️', // Comet - cepat
       color: 'from-yellow-400 to-orange-500',
       solidColor: '#facc15',
       size: 'small',
       description: 'Fast track urgent packages',
       angle: 180,
-      orbitRadius: 180,
-      orbitTilt: 0.3,
+      orbitRadius: 200,
+      orbitTilt: 0.25,
       defaultPage: 'expedite',
     },
     {
       id: 'backlog-lm',
       label: 'Backlog LM',
-      icon: Package,
+      planetEmoji: '🪨', // Asteroid - backlog items
       color: 'from-purple-400 to-pink-600',
       solidColor: '#a855f7',
       size: 'small',
       description: 'Monitor last mile backlog',
       angle: 240,
-      orbitRadius: 180,
-      orbitTilt: 0.3,
+      orbitRadius: 200,
+      orbitTilt: 0.25,
       defaultPage: 'backlog-lm',
     },
     {
       id: 'hse',
       label: 'HSE',
-      icon: ShieldCheck,
+      planetEmoji: '🛡️', // Shield planet - safety
       color: 'from-indigo-400 to-blue-600',
       solidColor: '#6366f1',
       size: 'medium',
       description: 'Health, Safety & Environment monitoring',
       angle: 300,
-      orbitRadius: 180,
-      orbitTilt: 0.3,
+      orbitRadius: 200,
+      orbitTilt: 0.25,
       defaultPage: 'hse-daily',
     },
     {
       id: 'buyer-rr',
       label: 'Buyer RR',
-      icon: Truck,
+      planetEmoji: '🌕', // Moon - return tracking
       color: 'from-teal-400 to-cyan-600',
       solidColor: '#14b8a6',
       size: 'small',
       description: 'Buyer return tracking',
       angle: 30,
-      orbitRadius: 280,
-      orbitTilt: 0.35,
+      orbitRadius: 300,
+      orbitTilt: 0.3,
       defaultPage: 'buyer-rr',
     },
     {
       id: 'monitor-sdho',
       label: 'Monitor SDHO',
-      icon: Activity,
+      planetEmoji: '🔵', // Neptune - biru monitoring
       color: 'from-pink-400 to-rose-600',
       solidColor: '#ec4899',
       size: 'small',
       description: 'SDHO monitoring dashboard',
       angle: 90,
-      orbitRadius: 280,
-      orbitTilt: 0.35,
+      orbitRadius: 300,
+      orbitTilt: 0.3,
       defaultPage: 'monitor-sdho',
     },
     {
       id: 'control-stuck-fm',
       label: 'Stuck FM',
-      icon: GitMerge,
+      planetEmoji: '🟠', // Jupiter - besar, control
       color: 'from-amber-400 to-orange-600',
       solidColor: '#f59e0b',
       size: 'small',
       description: 'Control stuck first mile packages',
       angle: 150,
-      orbitRadius: 280,
-      orbitTilt: 0.35,
+      orbitRadius: 300,
+      orbitTilt: 0.3,
       defaultPage: 'control-stuck-fm',
     },
     {
       id: 'settings',
       label: 'Settings',
-      icon: Settings,
+      planetEmoji: '⚙️', // Gear - settings
       color: 'from-gray-400 to-slate-600',
       solidColor: '#94a3b8',
       size: 'small',
       description: 'Application settings and preferences',
       angle: 210,
-      orbitRadius: 280,
-      orbitTilt: 0.35,
+      orbitRadius: 300,
+      orbitTilt: 0.3,
       defaultPage: 'whitelist-settings',
     },
   ];
@@ -174,14 +165,31 @@ const LandingPage = ({ onNavigate }) => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Rotation animation
+  // Mouse wheel to control rotation speed
+  useEffect(() => {
+    const handleWheel = (e) => {
+      e.preventDefault();
+      setRotation((prev) => {
+        const delta = e.deltaY > 0 ? 5 : -5; // Scroll down = forward, scroll up = backward
+        return (prev + delta) % 360;
+      });
+    };
+
+    const container = document.getElementById('solar-system-container');
+    if (container) {
+      container.addEventListener('wheel', handleWheel, { passive: false });
+      return () => container.removeEventListener('wheel', handleWheel);
+    }
+  }, []);
+
+  // Auto rotation animation
   useEffect(() => {
     const interval = setInterval(() => {
-      setRotation((prev) => (prev + 0.1) % 360);
+      setRotation((prev) => (prev + rotationSpeed) % 360);
     }, 50);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [rotationSpeed]);
 
   // Animated starfield background
   useEffect(() => {
@@ -338,19 +346,23 @@ const LandingPage = ({ onNavigate }) => {
         </div>
 
         {/* Solar System with 3D Perspective */}
-        <div className="relative w-full max-w-5xl" style={{ height: '600px', perspective: '1200px' }}>
+        <div 
+          id="solar-system-container"
+          className="relative w-full max-w-5xl cursor-grab active:cursor-grabbing" 
+          style={{ height: '600px', perspective: '1200px' }}
+        >
           <div className="absolute inset-0 flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
             
-            {/* Orbit rings with 3D perspective */}
-            <svg className="absolute inset-0 w-full h-full" style={{ transform: 'rotateX(60deg)' }}>
+            {/* Orbit rings with 3D perspective - More vertical angle */}
+            <svg className="absolute inset-0 w-full h-full" style={{ transform: 'rotateX(75deg)' }}>
               {/* Inner orbit */}
               <ellipse
                 cx="50%"
                 cy="50%"
-                rx="180"
-                ry="54"
+                rx="200"
+                ry="50"
                 fill="none"
-                stroke="rgba(139, 92, 246, 0.2)"
+                stroke="rgba(139, 92, 246, 0.3)"
                 strokeWidth="2"
                 strokeDasharray="8 4"
               />
@@ -358,17 +370,17 @@ const LandingPage = ({ onNavigate }) => {
               <ellipse
                 cx="50%"
                 cy="50%"
-                rx="280"
-                ry="84"
+                rx="300"
+                ry="75"
                 fill="none"
-                stroke="rgba(99, 102, 241, 0.2)"
+                stroke="rgba(99, 102, 241, 0.3)"
                 strokeWidth="2"
                 strokeDasharray="8 4"
               />
             </svg>
 
             {/* Sun (Center Logo) with 3D sphere effect */}
-            <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 50 }}>
+            <div className="absolute inset-0 flex items-center justify-center" style={{ zIndex: 100 }}>
               <div 
                 className="relative rounded-full shadow-2xl shadow-orange-500/50 flex items-center justify-center"
                 style={{
@@ -399,7 +411,6 @@ const LandingPage = ({ onNavigate }) => {
 
             {/* Planets with 3D sphere rendering */}
             {planets.map((planet) => {
-              const Icon = planet.icon;
               const pos = calculate3DPosition(planet.angle, planet.orbitRadius, planet.orbitTilt);
               const size = getPlanetSize(planet.size);
 
@@ -444,16 +455,17 @@ const LandingPage = ({ onNavigate }) => {
                       }}
                     />
                     
-                    {/* Icon */}
+                    {/* Planet Emoji */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Icon 
-                        className="text-white drop-shadow-2xl group-hover:scale-110 transition-transform"
+                      <span 
+                        className="group-hover:scale-110 transition-transform"
                         style={{ 
-                          width: `${size.width * 0.4}px`, 
-                          height: `${size.height * 0.4}px`,
+                          fontSize: `${size.width * 0.5}px`,
                           filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))'
                         }}
-                      />
+                      >
+                        {planet.planetEmoji}
+                      </span>
                     </div>
 
                     {/* Atmosphere glow */}
@@ -467,14 +479,14 @@ const LandingPage = ({ onNavigate }) => {
                     />
                   </div>
                   
-                  {/* Planet label */}
-                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    <span className="text-sm font-semibold text-white drop-shadow-lg bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
+                  {/* Planet label - ALWAYS VISIBLE */}
+                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap transition-all pointer-events-none">
+                    <span className="text-xs font-semibold text-white drop-shadow-lg bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full border border-white/20 group-hover:bg-black/70 group-hover:scale-110">
                       {planet.label}
                     </span>
                   </div>
 
-                  {/* Orbit trail indicator */}
+                  {/* Orbit trail indicator - Only on hover */}
                   <div 
                     className="absolute inset-0 rounded-full border-2 opacity-0 group-hover:opacity-50 transition-opacity"
                     style={{
@@ -489,9 +501,12 @@ const LandingPage = ({ onNavigate }) => {
         </div>
 
         {/* Instruction Text */}
-        <div className="mt-12 md:mt-16 text-center">
+        <div className="mt-12 md:mt-16 text-center space-y-2">
           <p className="text-slate-400 text-sm md:text-base">
             Klik pada planet untuk melihat detail menu
+          </p>
+          <p className="text-slate-500 text-xs md:text-sm">
+            💡 Scroll mouse untuk mengontrol rotasi planet
           </p>
         </div>
       </div>
@@ -510,11 +525,16 @@ const LandingPage = ({ onNavigate }) => {
 
             {/* Planet icon */}
             <div className="flex justify-center mb-6">
-              <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${selectedPlanet.color} flex items-center justify-center shadow-2xl`}>
-                {(() => {
-                  const Icon = selectedPlanet.icon;
-                  return <Icon className="w-12 h-12 text-white" />;
-                })()}
+              <div className={`w-32 h-32 rounded-full bg-gradient-to-br ${selectedPlanet.color} flex items-center justify-center shadow-2xl relative`}
+                style={{
+                  boxShadow: `
+                    inset -8px -8px 20px rgba(0, 0, 0, 0.3),
+                    inset 4px 4px 12px rgba(255, 255, 255, 0.3),
+                    0 8px 32px ${selectedPlanet.solidColor}88
+                  `,
+                }}
+              >
+                <span className="text-6xl">{selectedPlanet.planetEmoji}</span>
               </div>
             </div>
 
