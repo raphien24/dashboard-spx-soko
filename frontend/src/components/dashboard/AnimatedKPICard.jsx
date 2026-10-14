@@ -86,8 +86,8 @@ const AnimatedKPICard = ({
   };
 
   const cardClasses = onClick 
-    ? `bg-white/95 dark:bg-slate-900/70 dark:backdrop-blur-xl rounded-xl shadow-lg shadow-indigo-100/50 dark:shadow-sm border ${borderColors[borderColor] || borderColors.indigo} p-6 hover:shadow-2xl hover:shadow-purple-200/60 dark:hover:shadow-lg transition-all cursor-pointer group ring-0 hover:ring-2 relative`
-    : `bg-white/95 dark:bg-slate-900/70 dark:backdrop-blur-xl rounded-xl shadow-lg shadow-indigo-100/50 dark:shadow-sm border ${borderColors[borderColor] || borderColors.indigo} p-6 hover:shadow-xl hover:shadow-purple-200/40 dark:hover:shadow-md transition-shadow`;
+    ? `bg-white/95 dark:bg-slate-900/70 dark:backdrop-blur-xl rounded-lg shadow-sm border ${borderColors[borderColor] || borderColors.indigo} p-4 hover:shadow-lg hover:shadow-purple-200/40 dark:hover:shadow-md transition-all cursor-pointer group ring-0 hover:ring-2 relative`
+    : `bg-white/95 dark:bg-slate-900/70 dark:backdrop-blur-xl rounded-lg shadow-sm border ${borderColors[borderColor] || borderColors.indigo} p-4 hover:shadow-md transition-shadow`;
 
   return (
     <motion.div
@@ -109,29 +109,29 @@ const AnimatedKPICard = ({
     >
       {/* Click hint */}
       {onClick && clickHint && (
-        <div className="absolute top-3 right-14 flex items-center gap-1 px-2 py-0.5 bg-purple-50 dark:bg-purple-950 text-purple-500 dark:text-purple-400 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          <MousePointerClick className="w-3 h-3" />
+        <div className="absolute top-2 right-12 flex items-center gap-1 px-2 py-0.5 bg-purple-50 dark:bg-purple-950 text-purple-500 dark:text-purple-400 rounded-full text-[10px] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <MousePointerClick className="w-2.5 h-2.5" />
           {clickHint}
         </div>
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2">
           {/* Icon */}
           {Icon && (
             <motion.div
-              className={`w-12 h-12 rounded-lg ${iconBgColors[color]} flex items-center justify-center`}
+              className={`w-10 h-10 rounded-lg ${iconBgColors[color]} flex items-center justify-center`}
               whileHover={{ rotate: 360, scale: 1.1 }}
               transition={{ duration: 0.6 }}
             >
-              <Icon className={`w-6 h-6 ${iconColors[color]}`} />
+              <Icon className={`w-5 h-5 ${iconColors[color]}`} />
             </motion.div>
           )}
           
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 uppercase">
+              <h3 className="text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase">
                 {title}
               </h3>
               {/* Top badges */}
@@ -143,7 +143,7 @@ const AnimatedKPICard = ({
                       initial={{ scale: 0 }}
                       animate={inView ? { scale: 1 } : {}}
                       transition={{ delay: delay + 0.2 + (i * 0.1) }}
-                      className={`px-1.5 py-0.5 ${badgeColors[b.color]} text-xs font-semibold rounded`}
+                      className={`px-1.5 py-0.5 ${badgeColors[b.color]} text-[10px] font-semibold rounded`}
                     >
                       {b.text}
                     </motion.span>
@@ -151,7 +151,7 @@ const AnimatedKPICard = ({
                 </div>
               )}
             </div>
-            <p className="text-xs text-gray-500 dark:text-slate-500 mt-0.5">{subtitle}</p>
+            <p className="text-[10px] text-gray-500 dark:text-slate-500 mt-0.5">{subtitle}</p>
           </div>
         </div>
         
@@ -161,7 +161,7 @@ const AnimatedKPICard = ({
             initial={{ scale: 0, rotate: -180 }}
             animate={inView ? { scale: 1, rotate: 0 } : {}}
             transition={{ delay: delay + 0.3, type: 'spring' }}
-            className={`px-2 py-1 ${badgeColors[(rightBadge || badge) ? (rightBadge?.color || badgeColor) : badgeColor]} text-xs font-semibold rounded`}
+            className={`px-2 py-0.5 ${badgeColors[(rightBadge || badge) ? (rightBadge?.color || badgeColor) : badgeColor]} text-[10px] font-semibold rounded`}
           >
             {(rightBadge?.text || badge)}
           </motion.div>
@@ -169,18 +169,18 @@ const AnimatedKPICard = ({
       </div>
 
       {/* Main Value */}
-      <div className="mb-4">
+      <div className="mb-3">
         <div className="flex items-baseline gap-2">
           <AnimatedCounter
             value={value}
             decimals={1}
-            className={`${borderColor === 'purple' ? 'text-6xl' : 'text-5xl'} font-black text-gray-900 dark:text-slate-100`}
+            className={`${borderColor === 'purple' ? 'text-4xl' : 'text-3xl'} font-black text-gray-900 dark:text-slate-100`}
             duration={1500}
             triggerOnce={true}
           />
-          <span className={`${borderColor === 'purple' ? 'text-xl' : 'text-lg'} text-gray-500 dark:text-slate-400 font-medium`}>{unit}</span>
+          <span className={`${borderColor === 'purple' ? 'text-base' : 'text-sm'} text-gray-500 dark:text-slate-400 font-medium`}>{unit}</span>
           {secondaryUnit && (
-            <span className={`${borderColor === 'purple' ? 'text-base' : 'text-sm'} text-gray-500 dark:text-slate-400 font-medium`}>
+            <span className={`${borderColor === 'purple' ? 'text-sm' : 'text-xs'} text-gray-500 dark:text-slate-400 font-medium`}>
               {secondaryUnit}
             </span>
           )}
@@ -189,12 +189,12 @@ const AnimatedKPICard = ({
 
       {/* Comparison Badge */}
       {comparisonBadge && (
-        <div className="mb-4">
+        <div className="mb-3">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: delay + 0.4 }}
-            className={`inline-flex items-center px-3 py-1 rounded-full ${badgeColors[comparisonBadge.color]} text-sm font-semibold`}
+            className={`inline-flex items-center px-2.5 py-1 rounded-full ${badgeColors[comparisonBadge.color]} text-xs font-semibold`}
           >
             {comparisonBadge.text}
           </motion.div>
@@ -203,19 +203,19 @@ const AnimatedKPICard = ({
 
       {/* Progress Bar (single) */}
       {progress && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between text-xs text-gray-600 dark:text-slate-400 mb-1">
+        <div className="mb-3">
+          <div className="flex items-center justify-between text-[10px] text-gray-600 dark:text-slate-400 mb-1">
             <span>{progress.label}</span>
             <span className="font-semibold">
               {progress.current} {progress.target && `/ ${progress.target} ${progress.unit}`}
             </span>
           </div>
-          <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
+          <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={inView ? { width: `${Math.min(progress.value, 100)}%` } : {}}
               transition={{ duration: 1.5, delay: delay + 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-              className={`h-2.5 rounded-full ${getProgressColor(progress.value)}`}
+              className={`h-2 rounded-full ${getProgressColor(progress.value)}`}
             />
           </div>
         </div>
@@ -223,10 +223,10 @@ const AnimatedKPICard = ({
 
       {/* Progress Bars (multiple) */}
       {progressBars && (
-        <div className="space-y-3 mb-4">
+        <div className="space-y-2.5 mb-3">
           {progressBars.map((bar, i) => (
             <div key={i}>
-              <div className="flex items-center justify-between text-xs mb-1">
+              <div className="flex items-center justify-between text-[10px] mb-1">
                 <span className={`font-medium text-${bar.color}-700 dark:text-${bar.color}-400`}>
                   {bar.label}
                 </span>
@@ -234,12 +234,12 @@ const AnimatedKPICard = ({
                   {bar.value} {bar.unit}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
+              <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={inView ? { width: `${bar.percent}%` } : {}}
                   transition={{ duration: 1.5, delay: delay + 0.5 + (i * 0.1), ease: [0.34, 1.56, 0.64, 1] }}
-                  className={`h-2 rounded-full ${progressColors[bar.color]}`}
+                  className={`h-1.5 rounded-full ${progressColors[bar.color]}`}
                 />
               </div>
             </div>
@@ -253,7 +253,7 @@ const AnimatedKPICard = ({
           initial={{ opacity: 0, y: 10 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: delay + 0.6 }}
-          className={`grid grid-cols-${subMetrics.length} gap-3 pt-3 ${progress || progressBars ? 'mt-3' : ''} border-t border-gray-100 dark:border-slate-800`}
+          className={`grid grid-cols-${subMetrics.length} gap-2 pt-2.5 ${progress || progressBars ? 'mt-2.5' : ''} border-t border-gray-100 dark:border-slate-800`}
         >
           {subMetrics.map((metric, i) => (
             <motion.div
@@ -262,8 +262,8 @@ const AnimatedKPICard = ({
               animate={inView ? { opacity: 1, scale: 1 } : {}}
               transition={{ delay: delay + 0.7 + (i * 0.1) }}
             >
-              <p className="text-xs text-gray-500 dark:text-slate-500">{metric.label}</p>
-              <p className="text-sm font-bold text-gray-900 dark:text-slate-100">{metric.value}</p>
+              <p className="text-[10px] text-gray-500 dark:text-slate-500">{metric.label}</p>
+              <p className="text-xs font-bold text-gray-900 dark:text-slate-100">{metric.value}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -275,7 +275,7 @@ const AnimatedKPICard = ({
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ delay: delay + 0.8 }}
-          className="mt-3 text-xs text-gray-400 dark:text-slate-500 italic"
+          className="mt-2.5 text-[10px] text-gray-400 dark:text-slate-500 italic"
         >
           Formula: {formula}
         </motion.div>
@@ -287,9 +287,9 @@ const AnimatedKPICard = ({
           initial={{ opacity: 0, y: 5 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: delay + 0.9 }}
-          className="mt-3"
+          className="mt-2.5"
         >
-          <div className={`inline-flex items-center px-3 py-1 rounded-full ${badgeColors[filterBadge.color]} text-xs font-medium`}>
+          <div className={`inline-flex items-center px-2.5 py-1 rounded-full ${badgeColors[filterBadge.color]} text-[10px] font-medium`}>
             {filterBadge.text}
           </div>
         </motion.div>
@@ -301,9 +301,9 @@ const AnimatedKPICard = ({
           initial={{ opacity: 0, y: 5 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: delay + 0.9 }}
-          className="mt-3"
+          className="mt-2.5"
         >
-          <div className={`inline-flex items-center px-3 py-1 rounded-full ${badgeColors[extraBadge.color]} text-xs font-semibold`}>
+          <div className={`inline-flex items-center px-2.5 py-1 rounded-full ${badgeColors[extraBadge.color]} text-[10px] font-semibold`}>
             {extraBadge.text}
           </div>
         </motion.div>
@@ -315,9 +315,9 @@ const AnimatedKPICard = ({
           initial={{ opacity: 0, y: 5 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: delay + 1.0 }}
-          className="mt-3"
+          className="mt-2.5"
         >
-          <div className={`inline-flex items-center px-4 py-2 rounded-full ${badgeColors[statusBadge.color]} ${borderColor === 'purple' ? 'text-2xl' : 'text-xs'} font-black`}>
+          <div className={`inline-flex items-center px-3 py-1.5 rounded-full ${badgeColors[statusBadge.color]} ${borderColor === 'purple' ? 'text-xl' : 'text-[10px]'} font-black`}>
             {statusBadge.text}
           </div>
         </motion.div>

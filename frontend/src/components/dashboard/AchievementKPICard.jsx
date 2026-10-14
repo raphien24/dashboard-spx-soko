@@ -1,4 +1,4 @@
-import { Trophy, TrendingUp, Target } from 'lucide-react';
+import { Trophy, TrendingUp, Target, Bike, Truck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import AnimatedCounter from '../animations/AnimatedCounter';
@@ -51,6 +51,9 @@ const AchievementKPICard = ({ achievement, title, delay = 0 }) => {
 
   const badgeLabel = safeTotal >= 100 ? 'Achieved' : safeTotal >= 75 ? 'On Track' : safeTotal >= 50 ? 'At Risk' : 'Below';
 
+  // Select icon based on vehicle type
+  const VehicleIcon = is4WH ? Truck : Bike;
+
   return (
     <motion.div
       ref={ref}
@@ -66,64 +69,64 @@ const AchievementKPICard = ({ achievement, title, delay = 0 }) => {
         y: -5,
         transition: { duration: 0.3 }
       }}
-      className="bg-white/95 dark:bg-slate-900/70 dark:backdrop-blur-xl rounded-xl shadow-sm border border-amber-200 dark:border-amber-800/50 p-6 hover:shadow-lg transition-all"
+      className="bg-white/95 dark:bg-slate-900/70 dark:backdrop-blur-xl rounded-lg shadow-sm border border-amber-200 dark:border-amber-800/50 p-4 hover:shadow-md transition-all"
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-5">
-        <div className="flex items-center gap-3">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-2">
           <motion.div
-            className="w-12 h-12 rounded-lg bg-amber-100 dark:bg-amber-950 flex items-center justify-center"
+            className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-950 flex items-center justify-center"
             whileHover={{ rotate: 360, scale: 1.1 }}
             transition={{ duration: 0.6 }}
           >
-            <Trophy className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+            <VehicleIcon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
           </motion.div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wide">
+            <h3 className="text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wide">
               {cardTitle}
             </h3>
-            <p className="text-xs text-gray-500 dark:text-slate-500 mt-0.5">Threshold: 75% of Target</p>
+            <p className="text-[10px] text-gray-500 dark:text-slate-500 mt-0.5">Threshold: 75% of Target</p>
           </div>
         </div>
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
           animate={inView ? { scale: 1, rotate: 0 } : {}}
           transition={{ delay: delay + 0.3, type: 'spring' }}
-          className={`px-2 py-1 text-xs font-semibold rounded ${is4WH ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400' : 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400'}`}
+          className={`px-2 py-0.5 text-[10px] font-semibold rounded ${is4WH ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400' : 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400'}`}
         >
           {is4WH ? '4WH' : '2WH'}
         </motion.div>
       </div>
 
       {/* Total Achievement */}
-      <div className="mb-5">
-        <div className="flex items-baseline gap-2 mb-2">
+      <div className="mb-4">
+        <div className="flex items-baseline gap-2 mb-1.5">
           <AnimatedCounter
             value={safeTotal}
             decimals={1}
-            className={`text-5xl font-bold ${totalColor.text}`}
+            className={`text-3xl font-bold ${totalColor.text} dark:text-slate-200`}
             duration={1500}
             triggerOnce={true}
           />
-          <span className="text-xl text-gray-500 dark:text-slate-500 font-medium">%</span>
+          <span className="text-base text-gray-500 dark:text-slate-500 font-medium">%</span>
           <motion.span
             initial={{ scale: 0 }}
             animate={inView ? { scale: 1 } : {}}
             transition={{ delay: delay + 0.4, type: 'spring' }}
-            className={`ml-1 px-2 py-0.5 rounded-full text-xs font-semibold ${totalColor.badge}`}
+            className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${totalColor.badge} dark:bg-opacity-20`}
           >
             {badgeLabel}
           </motion.span>
         </div>
-        <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+        <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={inView ? { width: `${Math.min(safeTotal, 100)}%` } : {}}
             transition={{ duration: 1.5, delay: delay + 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-            className={`h-3 rounded-full ${totalColor.bar}`}
+            className={`h-2 rounded-full ${totalColor.bar}`}
           />
         </div>
-        <p className="text-xs text-gray-400 dark:text-slate-500 mt-1 text-right">
+        <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-1 text-right">
           {is4WH ? '% Achievement Dedicated 4WH' : '% Achievement Total'}
         </p>
       </div>
@@ -133,18 +136,18 @@ const AchievementKPICard = ({ achievement, title, delay = 0 }) => {
         initial={{ opacity: 0, y: 10 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ delay: delay + 0.7 }}
-        className={`grid gap-4 pt-4 border-t border-gray-100 dark:border-slate-800 ${!is4WH && hasPlus ? 'grid-cols-2' : 'grid-cols-1'}`}
+        className={`grid gap-3 pt-3 border-t border-gray-100 dark:border-slate-800 ${!is4WH && hasPlus ? 'grid-cols-2' : 'grid-cols-1'}`}
       >
         {/* Dedicated */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}
           transition={{ delay: delay + 0.8 }}
-          className={`rounded-lg p-3 ${hasDedicated ? 'bg-gray-50 dark:bg-slate-800' : 'bg-gray-50 dark:bg-slate-800 opacity-50'}`}
+          className={`rounded-lg p-2.5 ${hasDedicated ? 'bg-gray-50 dark:bg-slate-800' : 'bg-gray-50 dark:bg-slate-800 opacity-50'}`}
         >
           <div className="flex items-center justify-between mb-1">
-            <p className="text-xs text-gray-500 dark:text-slate-500 font-medium">Dedicated {is4WH ? '4WH' : '2WH'}</p>
-            <span className={`text-sm font-bold ${dedColor.text}`}>
+            <p className="text-[10px] text-gray-500 dark:text-slate-500 font-medium">Dedicated {is4WH ? '4WH' : '2WH'}</p>
+            <span className={`text-xs font-bold ${dedColor.text} dark:text-slate-200`}>
               {hasDedicated ? `${safeDedicated.toFixed(1)}%` : 'N/A'}
             </span>
           </div>
@@ -156,9 +159,9 @@ const AchievementKPICard = ({ achievement, title, delay = 0 }) => {
               className={`h-1.5 rounded-full ${dedColor.bar}`}
             />
           </div>
-          <div className="flex items-center justify-between text-xs text-gray-400 dark:text-slate-500">
-            <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{safeDedicatedResult.toFixed(1)}</span>
-            <span className="flex items-center gap-1"><Target className="w-3 h-3" />{safeDedicatedTarget.toFixed(1)}</span>
+          <div className="flex items-center justify-between text-[10px] text-gray-400 dark:text-slate-500">
+            <span className="flex items-center gap-1"><TrendingUp className="w-2.5 h-2.5" />{safeDedicatedResult.toFixed(1)}</span>
+            <span className="flex items-center gap-1"><Target className="w-2.5 h-2.5" />{safeDedicatedTarget.toFixed(1)}</span>
           </div>
         </motion.div>
 
@@ -168,11 +171,11 @@ const AchievementKPICard = ({ achievement, title, delay = 0 }) => {
             initial={{ opacity: 0, x: 20 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ delay: delay + 0.9 }}
-            className="rounded-lg p-3 bg-gray-50 dark:bg-slate-800"
+            className="rounded-lg p-2.5 bg-gray-50 dark:bg-slate-800"
           >
             <div className="flex items-center justify-between mb-1">
-              <p className="text-xs text-gray-500 dark:text-slate-500 font-medium">Kurir Plus 2WH</p>
-              <span className={`text-sm font-bold ${plusColor.text}`}>{safePlus.toFixed(1)}%</span>
+              <p className="text-[10px] text-gray-500 dark:text-slate-500 font-medium">Kurir Plus 2WH</p>
+              <span className={`text-xs font-bold ${plusColor.text} dark:text-slate-200`}>{safePlus.toFixed(1)}%</span>
             </div>
             <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden mb-1">
               <motion.div
@@ -182,9 +185,9 @@ const AchievementKPICard = ({ achievement, title, delay = 0 }) => {
                 className={`h-1.5 rounded-full ${plusColor.bar}`}
               />
             </div>
-            <div className="flex items-center justify-between text-xs text-gray-400 dark:text-slate-500">
-              <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{safePlusResult.toFixed(1)}</span>
-              <span className="flex items-center gap-1"><Target className="w-3 h-3" />{safePlusTarget.toFixed(1)}</span>
+            <div className="flex items-center justify-between text-[10px] text-gray-400 dark:text-slate-500">
+              <span className="flex items-center gap-1"><TrendingUp className="w-2.5 h-2.5" />{safePlusResult.toFixed(1)}</span>
+              <span className="flex items-center gap-1"><Target className="w-2.5 h-2.5" />{safePlusTarget.toFixed(1)}</span>
             </div>
           </motion.div>
         )}
@@ -195,8 +198,7 @@ const AchievementKPICard = ({ achievement, title, delay = 0 }) => {
         initial={{ opacity: 0 }}
         animate={inView ? { opacity: 1 } : {}}
         transition={{ delay: delay + 1.1 }}
-        className="text-xs text-gray-400 dark:text-slate-500 italic mt-3"
-      >
+        className="text-[10px] text-gray-400 dark:text-slate-500 italic mt-2.5">
         Formula: (Result − Target×{safeThreshold}%) ÷ (Target − Target×{safeThreshold}%)
       </motion.p>
     </motion.div>
