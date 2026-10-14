@@ -21,12 +21,24 @@ const AnimatedCounter = ({
   });
 
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [targetValue, setTargetValue] = useState(0);
+
+  // Update target value when value prop changes
+  useEffect(() => {
+    if (value !== targetValue) {
+      setTargetValue(value);
+      // Reset animation state when value changes significantly
+      if (!hasAnimated && value > 0) {
+        setHasAnimated(false);
+      }
+    }
+  }, [value, targetValue, hasAnimated]);
 
   const props = useSpring({
-    val: inView && !hasAnimated ? value : 0,
+    val: (inView || !triggerOnce) ? targetValue : 0,
     config: { duration },
     onRest: () => {
-      if (inView) setHasAnimated(true);
+      if (inView && triggerOnce) setHasAnimated(true);
     },
   });
 

@@ -15,7 +15,8 @@ const KPICardsSection = ({ kpiData, onProductivityClick }) => {
       title: weeklyProductivity?.label || 'WEEKLY AVG PRODUCTIVITY',
       subtitle: weeklyProductivity?.unit || 'Weekly Delivered • Active Shifts',
       value: weeklyProductivity?.value || 0,
-      unit: 'DELIVERED / COURIER / SHIFT',
+      unit: '', // Empty untuk main value
+      secondaryUnit: 'DELIVERED / COURIER / SHIFT',
       icon: TrendingUp,
       color: 'purple',
       badge: weeklyProductivity?.badge || 'CORE KPI',
@@ -23,7 +24,7 @@ const KPICardsSection = ({ kpiData, onProductivityClick }) => {
       progress: {
         label: 'Productivity vs Target',
         value: weeklyProductivity?.progress || 0,
-        current: weeklyProductivity?.value?.toFixed(1) || '0',
+        current: `${weeklyProductivity?.value?.toFixed(1) || '0'}`,
         target: weeklyProductivity?.target?.toFixed(1) || '0',
         unit: 'pkgs'
       },
