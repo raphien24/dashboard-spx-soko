@@ -63,6 +63,13 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
+      // Debug logging
+      console.log('=== LOGIN DEBUG ===');
+      console.log('Email attempting login:', email);
+      console.log('Current whitelist:', currentWhitelist);
+      console.log('Is whitelisted?', currentWhitelist.includes(email));
+      console.log('==================');
+
       // Check if email is in whitelist
       if (!currentWhitelist.includes(email)) {
         throw new Error('Email not authorized. Please contact administrator.');
