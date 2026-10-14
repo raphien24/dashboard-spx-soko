@@ -1,7 +1,9 @@
-import React from 'react';
-import { Users, Package, Target, TrendingUp, AlertTriangle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Users, Package, Target, TrendingUp, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 
 const SecondaryMetricsSection = ({ summaryData }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
   if (!summaryData) return null;
 
   const {
@@ -71,7 +73,30 @@ const SecondaryMetricsSection = ({ summaryData }) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+    <div className="mb-6">
+      {/* Toggle Button - Mobile Only */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="lg:hidden w-full mb-3 px-4 py-3 bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Package className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+          <span className="text-sm font-semibold text-gray-900 dark:text-slate-100">
+            Summary Metrics
+          </span>
+          <span className="text-xs text-gray-500 dark:text-slate-400">
+            ({metrics.length} cards)
+          </span>
+        </div>
+        {isExpanded ? (
+          <ChevronUp className="w-5 h-5 text-gray-400" />
+        ) : (
+          <ChevronDown className="w-5 h-5 text-gray-400" />
+        )}
+      </button>
+
+      {/* Cards Grid - Hidden on mobile when collapsed */}
+      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 ${isExpanded ? '' : 'hidden lg:grid'}`}>
       {metrics.map((metric) => {
         const Icon = metric.icon;
         const isException = metric.id === 'exceptions';
@@ -159,6 +184,7 @@ const SecondaryMetricsSection = ({ summaryData }) => {
           </div>
         );
       })}
+      </div>
     </div>
   );
 };
