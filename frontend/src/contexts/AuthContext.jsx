@@ -16,13 +16,13 @@ export const AuthProvider = ({ children }) => {
       } catch (e) {
         console.error('Failed to parse whitelist:', e);
         // Default whitelist if parsing fails
-        const defaultList = ['admin@spxsoko.online'];
+        const defaultList = ['rafi.alvian@spxexpress.com', 'admin@spxsoko.online'];
         setWhitelist(defaultList);
         localStorage.setItem('spx_whitelist', JSON.stringify(defaultList));
       }
     } else {
       // Set default whitelist
-      const defaultList = ['admin@spxsoko.online'];
+      const defaultList = ['rafi.alvian@spxexpress.com', 'admin@spxsoko.online'];
       setWhitelist(defaultList);
       localStorage.setItem('spx_whitelist', JSON.stringify(defaultList));
     }

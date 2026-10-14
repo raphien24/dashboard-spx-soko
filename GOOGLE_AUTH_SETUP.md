@@ -175,6 +175,13 @@ Default whitelist email (bisa diubah di localStorage):
 
 ## 🐛 Troubleshooting
 
+### Error: "The OAuth client was not found" or "invalid_client"
+**Solution**: 
+- Environment variable tidak ter-load di production
+- **FIX**: Redeploy project di Cloudflare Pages
+- Go to Deployments → Retry deployment
+- Wait for fresh build dengan environment variable
+
 ### Error: "popup_closed_by_user"
 **Solution**: User closed popup. Try again.
 
