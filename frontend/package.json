@@ -10,13 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-spring/web": "^10.1.2",
     "axios": "^1.20.0",
     "date-fns": "^4.4.0",
+    "framer-motion": "^14.2.0",
     "googleapis": "^182.0.0",
     "html2canvas": "^1.4.1",
     "lucide-react": "^1.48.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-intersection-observer": "^11.0.1",
+    "react-spring": "^10.0.4",
     "recharts": "^3.10.1",
     "zustand": "^5.0.15"
   },
