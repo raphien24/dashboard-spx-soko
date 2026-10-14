@@ -176,7 +176,7 @@ function App() {
           </main>
 
           {/* Footer */}
-          <footer className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:bg-slate-900/90 backdrop-blur-md border-t-2 border-purple-200 dark:border-slate-800/50 px-3 sm:px-6 py-2 sm:py-3 relative">
+          <footer className="bg-transparent px-3 sm:px-6 py-2 sm:py-3 relative">
             <div className="flex items-center justify-center text-xs text-gray-500 dark:text-slate-500">
               © 2026 SPX SOKO
             </div>
