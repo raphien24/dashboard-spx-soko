@@ -7,8 +7,6 @@ import FilteringLoader from '../common/FilteringLoader';
 import DashboardFilters from '../filters/DashboardFilters';
 import KPICardsSection from './KPICardsSection';
 import SecondaryMetricsSection from './SecondaryMetricsSection';
-import PerformanceByContractChart from '../charts/PerformanceByContractChart';
-import TopZonesChart from '../charts/TopZonesChart';
 import FleetCompositionChart from '../charts/FleetCompositionChart';
 import WeeklyScheduleTable from '../schedule/WeeklyScheduleTable';
 import ProductivityDrilldownModal from './ProductivityDrilldownModal';
@@ -344,19 +342,10 @@ function Dashboard({ autoRefreshEnabled = true }) {
       </ErrorBoundary>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Performance by Contract Type */}
-        <ErrorBoundary componentName="PerformanceByContractChart">
-          {performanceData && performanceData.length > 0 && (
-            <PerformanceByContractChart data={performanceData} />
-          )}
-        </ErrorBoundary>
-
-        {/* Top Zones by Parcel Volume */}
-        <ErrorBoundary componentName="TopZonesChart">
-          {zonesData && zonesData.length > 0 && (
-            <TopZonesChart data={zonesData} />
-          )}
+      <div className="grid grid-cols-1 gap-6">
+        {/* Fleet Composition Chart */}
+        <ErrorBoundary componentName="FleetCompositionChart">
+          {fleetData && <FleetCompositionChart data={fleetData} />}
         </ErrorBoundary>
       </div>
 
