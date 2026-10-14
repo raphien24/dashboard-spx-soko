@@ -344,14 +344,14 @@ function Dashboard({ autoRefreshEnabled = true }) {
       </ErrorBoundary>
 
       {/* Info Footer */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-blue-50 dark:bg-slate-900/70 border border-blue-200 dark:border-slate-700/50 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+          <div className="w-5 h-5 bg-blue-500 dark:bg-indigo-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
             <span className="text-white text-xs font-bold">i</span>
           </div>
-          <div className="text-sm text-blue-900">
+          <div className="text-sm text-blue-900 dark:text-slate-300">
             <p className="font-medium mb-1">Dashboard Information</p>
-            <p className="text-blue-700">
+            <p className="text-blue-700 dark:text-slate-400">
               Data is synced in real-time from Google Sheets (Sheet: "raw"). 
               Auto-refresh is {autoRefreshEnabled ? 'enabled' : 'disabled'}. 
               All calculations are based on active courier records with delivered packages &gt; 0.
