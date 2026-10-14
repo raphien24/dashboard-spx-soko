@@ -92,7 +92,7 @@ function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-4 sm:p-6">
+    <div className="bg-white/95 dark:bg-slate-900/70 dark:backdrop-blur-xl rounded-xl shadow-sm border border-gray-200 dark:border-slate-700/50 p-4 sm:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">

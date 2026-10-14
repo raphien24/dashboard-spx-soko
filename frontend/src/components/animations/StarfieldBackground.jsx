@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * Starfield Background Component (GPT-6 Astra Style)
@@ -9,6 +9,7 @@ const StarfieldBackground = () => {
   const canvasRef = useRef(null);
   const starsRef = useRef([]);
   const scrollYRef = useRef(0);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -20,7 +21,7 @@ const StarfieldBackground = () => {
     // Set canvas size
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
-      canvas.height = document.documentElement.scrollHeight;
+      canvas.height = Math.max(document.documentElement.scrollHeight, window.innerHeight);
     };
 
     // Generate stars
@@ -30,8 +31,8 @@ const StarfieldBackground = () => {
 
       for (let i = 0; i < numStars; i++) {
         stars.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * Math.max(document.documentElement.scrollHeight, window.innerHeight),
           radius: Math.random() * 1.5 + 0.5,
           opacity: Math.random() * 0.5 + 0.3,
           twinkleSpeed: Math.random() * 0.02 + 0.01,
@@ -45,6 +46,12 @@ const StarfieldBackground = () => {
 
     // Draw stars
     const drawStars = () => {
+      if (!isDark) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        animationFrameId = requestAnimationFrame(drawStars);
+        return;
+      }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       starsRef.current.forEach((star) => {
@@ -98,16 +105,23 @@ const StarfieldBackground = () => {
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isDark]);
+
+  if (!isDark) return null;
 
   return (
-    <motion.canvas
+    <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none dark:opacity-100 opacity-0 transition-opacity duration-500"
-      style={{ zIndex: 0 }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
+      className="fixed inset-0 pointer-events-none"
+      style={{ 
+        zIndex: 9999,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        mixBlendMode: 'screen'
+      }}
     />
   );
 };

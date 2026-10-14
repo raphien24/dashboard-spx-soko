@@ -96,17 +96,20 @@ function App() {
 
   return (
     <ThemeProvider>
-      {/* Animated Starfield Background - Dark mode only */}
+      {/* Animated Starfield Background - Dark mode only - On top of everything */}
       <StarfieldBackground />
       
-      <div className="flex h-screen bg-gray-50 dark:bg-slate-950 overflow-hidden relative">
+      <div className="flex h-screen bg-transparent overflow-hidden relative">
+        {/* Solid background layer behind content */}
+        <div className="absolute inset-0 bg-gray-50 dark:bg-slate-950 -z-10" />
+        
         {/* Sidebar */}
         <Sidebar activePage={activePage} onNavigate={handleNavigation} />
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
-          <header className="bg-white dark:bg-slate-900 shadow-sm border-b border-gray-200 dark:border-slate-800">
+          <header className="bg-white/95 dark:bg-slate-900/70 backdrop-blur-md shadow-sm border-b border-gray-200 dark:border-slate-700/50 relative">
             <div className="px-3 sm:px-6 py-3 sm:py-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
                 <div className="pl-12 lg:pl-0">
@@ -140,59 +143,13 @@ function App() {
                     )}
                   </div>
                 </div>
-                
-                {/* Controls — only show on productivity page */}
-                {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && !isBacklogLMPage && !isHSEPage && !isAdjustTarget && (
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    {/* Last Update Display */}
-                    <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700">
-                      <span className="text-sm text-gray-600 dark:text-slate-400">Last Update:</span>
-                      <span className="text-sm font-semibold text-gray-900 dark:text-slate-200">
-                        {dataDateRange?.latest ? formatLastUpdate(dataDateRange.latest) : 'Loading...'}
-                      </span>
-                    </div>
 
-                    {/* Auto-refresh Toggle */}
-                    <button
-                      onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
-                      className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
-                        autoRefreshEnabled
-                          ? 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900 border border-green-200 dark:border-green-800'
-                          : 'bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700'
-                      }`}
-                      title={autoRefreshEnabled ? 'Pause auto-refresh' : 'Resume auto-refresh'}
-                    >
-                      {autoRefreshEnabled ? (
-                        <>
-                          <Pause className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="hidden sm:inline">Auto-Refresh On</span>
-                          <span className="sm:hidden">Auto</span>
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-3 h-3 sm:w-4 sm:h-4" />
-                          <span className="hidden sm:inline">Auto-Refresh Off</span>
-                          <span className="sm:hidden">Off</span>
-                        </>
-                      )}
-                    </button>
-
-                    {/* Manual Refresh */}
-                    <button
-                      className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-indigo-600 dark:bg-indigo-600 hover:bg-indigo-700 dark:hover:bg-indigo-700 text-white rounded-lg text-xs sm:text-sm font-medium transition-colors"
-                      title="Refresh data now"
-                    >
-                      <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="hidden sm:inline">Refresh</span>
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </header>
 
           {/* Main Content - Scrollable */}
-          <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-950">
+          <main className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-transparent relative">
             <div className={`${isPunishmentPage ? 'p-3 sm:p-4 md:p-6 h-full' : 'p-3 sm:p-4 md:p-6'}`}>
               {isProductivityDash && <Dashboard autoRefreshEnabled={autoRefreshEnabled} />}
               {isProductivityMonthly && <DashboardMonthly />}
@@ -214,7 +171,7 @@ function App() {
           </main>
 
           {/* Footer */}
-          <footer className="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-3 sm:px-6 py-2 sm:py-3">
+          <footer className="bg-white/95 dark:bg-slate-900/70 backdrop-blur-md border-t border-gray-200 dark:border-slate-700/50 px-3 sm:px-6 py-2 sm:py-3 relative">
             <div className="flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm gap-2 sm:gap-0">
               <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
                 <p className="text-gray-600 dark:text-slate-400 text-center">

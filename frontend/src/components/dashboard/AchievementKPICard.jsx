@@ -66,7 +66,7 @@ const AchievementKPICard = ({ achievement, title, delay = 0 }) => {
         y: -5,
         transition: { duration: 0.3 }
       }}
-      className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-amber-200 dark:border-amber-800/50 p-6 hover:shadow-lg transition-all"
+      className="bg-white/95 dark:bg-slate-900/70 dark:backdrop-blur-xl rounded-xl shadow-sm border border-amber-200 dark:border-amber-800/50 p-6 hover:shadow-lg transition-all"
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-5">

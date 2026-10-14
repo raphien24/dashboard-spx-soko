@@ -163,46 +163,48 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       {/* Sidebar */}
       <div 
         className={`
-          fixed lg:relative h-screen
-          bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 
-          dark:from-slate-950 dark:via-indigo-950 dark:to-slate-950
-          text-white transition-all duration-300 ease-in-out flex flex-col z-40
-          border-r border-indigo-800/30 dark:border-indigo-900/30 shadow-2xl
+          fixed lg:relative h-screen relative
+          bg-white dark:bg-slate-900/70 dark:backdrop-blur-xl
+          transition-all duration-300 ease-in-out flex flex-col z-40
+          border-r border-gray-200 dark:border-slate-700/50 shadow-lg dark:shadow-2xl
           ${isCollapsed ? 'lg:w-20' : 'lg:w-64'}
           ${isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0 w-64'}
         `}
+      >
+      {/* Space Theme Background - Dark Mode Only */}
+      <div className="absolute inset-0 opacity-0 dark:opacity-100 pointer-events-none transition-opacity duration-300 bg-gradient-to-b from-slate-900/50 via-indigo-950/50 to-slate-900/50"
         style={{
           backgroundImage: `
-            radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 50% 50%, rgba(147, 197, 253, 0.05) 0%, transparent 70%)
+            radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(147, 197, 253, 0.1) 0%, transparent 70%)
           `,
         }}
-      >
+      />
       {/* Logo Section */}
-      <div className="p-6 border-b border-indigo-700/50">
+      <div className="p-6 border-b border-gray-200 dark:border-indigo-700/50 relative z-10">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-lg flex items-center justify-center">
-                <LayoutDashboard className="w-6 h-6 text-indigo-600" />
+              <div className="w-10 h-10 bg-indigo-600 dark:bg-white rounded-lg flex items-center justify-center shadow-lg">
+                <LayoutDashboard className="w-6 h-6 text-white dark:text-indigo-600" />
               </div>
               <div>
-                <h1 className="text-lg font-bold">SPX SOKO</h1>
-                <p className="text-xs text-indigo-300">Dashboard</p>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white">SPX SOKO</h1>
+                <p className="text-xs text-gray-500 dark:text-indigo-300">Dashboard</p>
               </div>
             </div>
           )}
           {isCollapsed && (
-            <div className="w-10 h-10 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-lg flex items-center justify-center mx-auto">
-              <LayoutDashboard className="w-6 h-6 text-indigo-600" />
+            <div className="w-10 h-10 bg-indigo-600 dark:bg-white rounded-lg flex items-center justify-center mx-auto shadow-lg">
+              <LayoutDashboard className="w-6 h-6 text-white dark:text-indigo-600" />
             </div>
           )}
         </div>
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto">
+      <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto relative z-10">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = item.id === activePage || (item.submenu && item.submenu.some(sub => sub.id === activePage));
@@ -221,10 +223,10 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                   w-full flex items-center space-x-3 px-4 py-3 rounded-lg
                   transition-all duration-200 group relative
                   ${isActive 
-                    ? 'bg-white dark:bg-slate-900 text-indigo-900 shadow-lg' 
+                    ? 'bg-indigo-50 dark:bg-white text-indigo-600 dark:text-indigo-900 shadow-lg' 
                     : isDisabled
-                    ? 'text-indigo-400 cursor-not-allowed opacity-50'
-                    : 'text-indigo-100 hover:bg-indigo-700/50'
+                    ? 'text-gray-400 dark:text-white/50 cursor-not-allowed opacity-50'
+                    : 'text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10'
                   }
                   ${isCollapsed ? 'justify-center' : ''}
                 `}
@@ -234,7 +236,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                   <>
                     <span className="flex-1 text-left font-medium">{item.label}</span>
                     {isDisabled && (
-                      <span className="text-xs bg-indigo-700 px-2 py-0.5 rounded-full">
+                      <span className="text-xs bg-gray-200 dark:bg-white/20 px-2 py-0.5 rounded-full">
                         Soon
                       </span>
                     )}
@@ -279,8 +281,8 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                           w-full flex items-center space-x-3 px-4 py-2 rounded-lg
                           transition-all duration-200 text-sm
                           ${isSubActive
-                            ? 'bg-indigo-700 text-white'
-                            : 'text-indigo-200 hover:bg-indigo-700/30'
+                            ? 'bg-indigo-100 dark:bg-white/20 text-indigo-700 dark:text-white font-medium'
+                            : 'text-gray-600 dark:text-white/80 hover:bg-gray-50 dark:hover:bg-white/10'
                           }
                         `}
                       >
@@ -298,8 +300,8 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
 
       {/* Footer - Version Info */}
       {!isCollapsed && (
-        <div className="p-4 border-t border-indigo-700/50">
-          <div className="text-xs text-indigo-300">
+        <div className="p-4 border-t border-gray-200 dark:border-indigo-700/50 relative z-10">
+          <div className="text-xs text-gray-500 dark:text-indigo-300">
             <p className="font-semibold">Version 1.0.0</p>
             <p className="mt-1">© 2026 SPX SOKO</p>
           </div>
@@ -309,7 +311,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       {/* Collapse Toggle Button (Desktop Only) */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-white dark:bg-slate-900 dark:bg-slate-900 rounded-full shadow-lg items-center justify-center text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors z-10"
+        className="hidden lg:flex absolute -right-3 top-20 w-6 h-6 bg-white dark:bg-slate-900 rounded-full shadow-lg items-center justify-center text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors z-10 border border-gray-200 dark:border-indigo-700"
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
