@@ -289,14 +289,6 @@ function Dashboard({ autoRefreshEnabled = true }) {
             )}
           </div>
         </div>
-        <button
-          onClick={() => refreshDashboardData()}
-          disabled={isRefreshing}
-          className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-lg transition-colors disabled:opacity-50 border border-indigo-200"
-        >
-          <RefreshCw className={`w-4 h-4 inline mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh Data
-        </button>
       </div>
 
       {/* Error Banner (non-blocking) */}

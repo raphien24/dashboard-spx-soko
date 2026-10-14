@@ -17,6 +17,7 @@ import HSEDailyBriefing from './components/hse/HSEDailyBriefing';
 import HSEWeekly5S from './components/hse/HSEWeekly5S';
 import useDashboardStore from './store/dashboardStore';
 import { ThemeProvider } from './contexts/ThemeContext';
+import StarfieldBackground from './components/animations/StarfieldBackground';
 
 function App() {
   const [activePage, setActivePage] = useState('productivity-dashboard');
@@ -95,7 +96,10 @@ function App() {
 
   return (
     <ThemeProvider>
-      <div className="flex h-screen bg-gray-50 dark:bg-slate-950 overflow-hidden">
+      {/* Animated Starfield Background - Dark mode only */}
+      <StarfieldBackground />
+      
+      <div className="flex h-screen bg-gray-50 dark:bg-slate-950 overflow-hidden relative">
         {/* Sidebar */}
         <Sidebar activePage={activePage} onNavigate={handleNavigation} />
 

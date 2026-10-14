@@ -163,11 +163,21 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       {/* Sidebar */}
       <div 
         className={`
-          fixed lg:relative h-screen bg-gradient-to-b from-indigo-900 via-indigo-800 to-indigo-900 
+          fixed lg:relative h-screen
+          bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 
+          dark:from-slate-950 dark:via-indigo-950 dark:to-slate-950
           text-white transition-all duration-300 ease-in-out flex flex-col z-40
+          border-r border-indigo-800/30 dark:border-indigo-900/30 shadow-2xl
           ${isCollapsed ? 'lg:w-20' : 'lg:w-64'}
           ${isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0 w-64'}
         `}
+        style={{
+          backgroundImage: `
+            radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(147, 197, 253, 0.05) 0%, transparent 70%)
+          `,
+        }}
       >
       {/* Logo Section */}
       <div className="p-6 border-b border-indigo-700/50">

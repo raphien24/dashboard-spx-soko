@@ -174,13 +174,13 @@ const AnimatedKPICard = ({
           <AnimatedCounter
             value={value}
             decimals={1}
-            className="text-5xl font-bold text-gray-900 dark:text-slate-100"
+            className={`${borderColor === 'purple' ? 'text-6xl' : 'text-5xl'} font-black text-gray-900 dark:text-slate-100`}
             duration={1500}
             triggerOnce={true}
           />
-          <span className="text-lg text-gray-500 dark:text-slate-400 font-medium">{unit}</span>
+          <span className={`${borderColor === 'purple' ? 'text-2xl' : 'text-lg'} text-gray-500 dark:text-slate-400 font-medium`}>{unit}</span>
           {secondaryUnit && (
-            <span className="text-sm text-gray-500 dark:text-slate-400 font-medium">
+            <span className={`${borderColor === 'purple' ? 'text-base' : 'text-sm'} text-gray-500 dark:text-slate-400 font-medium`}>
               {secondaryUnit}
             </span>
           )}
