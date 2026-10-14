@@ -12,7 +12,19 @@ const LandingPage = ({ onNavigate }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [rotationSpeed, setRotationSpeed] = useState(0.15);
+  const [isMobile, setIsMobile] = useState(false);
   const canvasRef = useRef(null);
+
+  // Detect mobile/desktop
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Get first name from user
   const firstName = user?.name?.split(' ')[0] || 'User';
@@ -28,7 +40,7 @@ const LandingPage = ({ onNavigate }) => {
       size: 'large',
       description: 'Monitor weekly and monthly productivity metrics',
       angle: 0,
-      orbitRadius: 200,
+      orbitRadius: { desktop: 350, mobile: 140 },
       orbitTilt: 0.1,
       defaultPage: 'productivity-dashboard',
     },
@@ -41,7 +53,7 @@ const LandingPage = ({ onNavigate }) => {
       size: 'medium',
       description: 'Track attendance and presence management',
       angle: 60,
-      orbitRadius: 200,
+      orbitRadius: { desktop: 350, mobile: 140 },
       orbitTilt: 0.1,
       external: true,
       url: 'https://absensi.spxsoko.online/admin',
@@ -55,7 +67,7 @@ const LandingPage = ({ onNavigate }) => {
       size: 'medium',
       description: 'Manage SP and punishment records',
       angle: 120,
-      orbitRadius: 200,
+      orbitRadius: { desktop: 350, mobile: 140 },
       orbitTilt: 0.1,
       defaultPage: 'sp-generator',
     },
@@ -68,7 +80,7 @@ const LandingPage = ({ onNavigate }) => {
       size: 'small',
       description: 'Fast track urgent packages',
       angle: 180,
-      orbitRadius: 200,
+      orbitRadius: { desktop: 350, mobile: 140 },
       orbitTilt: 0.1,
       defaultPage: 'expedite',
     },
@@ -81,7 +93,7 @@ const LandingPage = ({ onNavigate }) => {
       size: 'small',
       description: 'Monitor last mile backlog',
       angle: 240,
-      orbitRadius: 200,
+      orbitRadius: { desktop: 350, mobile: 140 },
       orbitTilt: 0.1,
       defaultPage: 'backlog-lm',
     },
@@ -94,7 +106,7 @@ const LandingPage = ({ onNavigate }) => {
       size: 'medium',
       description: 'Health, Safety & Environment monitoring',
       angle: 300,
-      orbitRadius: 200,
+      orbitRadius: { desktop: 350, mobile: 140 },
       orbitTilt: 0.1,
       defaultPage: 'hse-daily',
     },
@@ -107,8 +119,8 @@ const LandingPage = ({ onNavigate }) => {
       size: 'small',
       description: 'Buyer return tracking',
       angle: 30,
-      orbitRadius: 300,
-      orbitTilt: 0.12,
+      orbitRadius: { desktop: 480, mobile: 200 },
+      orbitTilt: 0.1,
       defaultPage: 'buyer-rr',
     },
     {
@@ -120,8 +132,8 @@ const LandingPage = ({ onNavigate }) => {
       size: 'small',
       description: 'SDHO monitoring dashboard',
       angle: 90,
-      orbitRadius: 300,
-      orbitTilt: 0.12,
+      orbitRadius: { desktop: 480, mobile: 200 },
+      orbitTilt: 0.1,
       defaultPage: 'monitor-sdho',
     },
     {
@@ -133,8 +145,8 @@ const LandingPage = ({ onNavigate }) => {
       size: 'small',
       description: 'Control stuck first mile packages',
       angle: 150,
-      orbitRadius: 300,
-      orbitTilt: 0.12,
+      orbitRadius: { desktop: 480, mobile: 200 },
+      orbitTilt: 0.1,
       defaultPage: 'control-stuck-fm',
     },
     {
@@ -146,8 +158,8 @@ const LandingPage = ({ onNavigate }) => {
       size: 'small',
       description: 'Application settings and preferences',
       angle: 210,
-      orbitRadius: 300,
-      orbitTilt: 0.12,
+      orbitRadius: { desktop: 480, mobile: 200 },
+      orbitTilt: 0.1,
       defaultPage: 'whitelist-settings',
     },
   ];
@@ -361,30 +373,34 @@ const LandingPage = ({ onNavigate }) => {
         {/* Solar System with 3D Perspective - Top-down view */}
         <div 
           id="solar-system-container"
-          className="relative w-full max-w-6xl cursor-grab active:cursor-grabbing mb-8" 
-          style={{ height: '500px', perspective: '1500px' }}
+          className="relative w-full cursor-grab active:cursor-grabbing mb-8" 
+          style={{ 
+            maxWidth: isMobile ? '100%' : '1400px',
+            height: isMobile ? '450px' : '550px', 
+            perspective: '1500px' 
+          }}
         >
           <div className="absolute inset-0 flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
             
             {/* Orbit rings with 3D perspective - Almost top-down (85deg) */}
             <svg className="absolute inset-0 w-full h-full" style={{ transform: 'rotateX(85deg)' }}>
-              {/* Inner orbit */}
+              {/* Inner orbit - responsive radius */}
               <ellipse
                 cx="50%"
                 cy="50%"
-                rx="200"
-                ry="17"
+                rx={isMobile ? "140" : "350"}
+                ry={isMobile ? "12" : "30"}
                 fill="none"
                 stroke="rgba(139, 92, 246, 0.4)"
                 strokeWidth="1"
                 strokeDasharray="6 3"
               />
-              {/* Outer orbit */}
+              {/* Outer orbit - responsive radius */}
               <ellipse
                 cx="50%"
                 cy="50%"
-                rx="300"
-                ry="26"
+                rx={isMobile ? "200" : "480"}
+                ry={isMobile ? "17" : "41"}
                 fill="none"
                 stroke="rgba(99, 102, 241, 0.4)"
                 strokeWidth="1"
@@ -392,13 +408,13 @@ const LandingPage = ({ onNavigate }) => {
               />
             </svg>
 
-            {/* Sun (Center Logo) with 3D sphere effect */}
+            {/* Sun (Center Logo) with 3D sphere effect - responsive size */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 100 }}>
               <div 
                 className="relative rounded-full shadow-2xl shadow-orange-500/50 flex items-center justify-center pointer-events-none"
                 style={{
-                  width: '140px',
-                  height: '140px',
+                  width: isMobile ? '100px' : '140px',
+                  height: isMobile ? '100px' : '140px',
                   background: 'radial-gradient(circle at 30% 30%, #fef3c7, #fbbf24, #f59e0b, #dc2626)',
                   animation: 'sunPulse 4s ease-in-out infinite',
                 }}
@@ -410,7 +426,13 @@ const LandingPage = ({ onNavigate }) => {
                     background: 'radial-gradient(circle at 35% 35%, rgba(254, 243, 199, 0.9), transparent)',
                   }}
                 />
-                <span className="text-4xl font-bold text-white drop-shadow-2xl z-10 pointer-events-none" style={{ textShadow: '0 0 20px rgba(0,0,0,0.5)' }}>
+                <span 
+                  className="font-bold text-white drop-shadow-2xl z-10 pointer-events-none" 
+                  style={{ 
+                    fontSize: isMobile ? '28px' : '36px',
+                    textShadow: '0 0 20px rgba(0,0,0,0.5)' 
+                  }}
+                >
                   SPX
                 </span>
                 
@@ -424,7 +446,8 @@ const LandingPage = ({ onNavigate }) => {
 
             {/* Planets with 3D sphere rendering */}
             {planets.map((planet) => {
-              const pos = calculate3DPosition(planet.angle, planet.orbitRadius, planet.orbitTilt);
+              const radius = isMobile ? planet.orbitRadius.mobile : planet.orbitRadius.desktop;
+              const pos = calculate3DPosition(planet.angle, radius, planet.orbitTilt);
               const size = getPlanetSize(planet.size);
 
               return (
