@@ -144,6 +144,12 @@ function App() {
                             </>
                           )}
                         </div>
+                        <span className="hidden sm:inline text-gray-300 dark:text-slate-700">•</span>
+                        <div className="px-3 py-2 bg-gray-50 dark:bg-slate-800/50 rounded-lg">
+                          <span className="text-xs text-gray-600 dark:text-slate-400">
+                            Last Update: {dataDateRange?.latest ? formatLastUpdate(dataDateRange.latest) : 'Loading...'}
+                          </span>
+                        </div>
                       </>
                     )}
                   </div>
