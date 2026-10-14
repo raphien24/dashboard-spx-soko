@@ -117,7 +117,7 @@ function App() {
           <header className="bg-white/95 dark:bg-slate-900/70 backdrop-blur-md shadow-lg shadow-purple-100/50 dark:shadow-none border-b-2 border-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 dark:border-slate-700/50 relative flex-shrink-0 z-10">
             <div className="px-3 sm:px-6 py-2 sm:py-3">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-                <div className="pl-14 sm:pl-12 lg:pl-0 w-full sm:w-auto">
+                <div className="w-full sm:w-auto">
                   <h1 className="text-base sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-slate-100 leading-tight">
                     {currentTitle}
                   </h1>

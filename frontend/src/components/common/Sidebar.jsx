@@ -144,13 +144,22 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
 
   return (
     <>
-      {/* Mobile Menu Button (Fixed Top-Left) */}
+      {/* Mobile Menu Button - Arrow at Center Left */}
       <button
         onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="lg:hidden fixed top-3 left-3 z-50 p-2.5 bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white rounded-lg shadow-2xl hover:bg-indigo-50 dark:hover:bg-indigo-700 transition-all border-2 border-indigo-600 dark:border-transparent"
+        className="lg:hidden fixed left-0 top-1/2 -translate-y-1/2 z-50 py-8 px-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-700 dark:to-purple-700 text-white rounded-r-full shadow-lg hover:px-2 transition-all"
         aria-label="Toggle menu"
+        style={{ writingMode: 'vertical-rl' }}
       >
-        {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        {isMobileOpen ? (
+          <svg className="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+          </svg>
+        ) : (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+          </svg>
+        )}
       </button>
 
       {/* Mobile Overlay */}
