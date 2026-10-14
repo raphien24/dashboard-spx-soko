@@ -215,7 +215,7 @@ const AnimatedKPICard = ({
               initial={{ width: 0 }}
               animate={inView ? { width: `${Math.min(progress.value, 100)}%` } : {}}
               transition={{ duration: 1.5, delay: delay + 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-              className={getProgressColor(progress.value)}
+              className={`h-2.5 rounded-full ${getProgressColor(progress.value)}`}
             />
           </div>
         </div>
@@ -239,7 +239,7 @@ const AnimatedKPICard = ({
                   initial={{ width: 0 }}
                   animate={inView ? { width: `${bar.percent}%` } : {}}
                   transition={{ duration: 1.5, delay: delay + 0.5 + (i * 0.1), ease: [0.34, 1.56, 0.64, 1] }}
-                  className={progressColors[bar.color]}
+                  className={`h-2 rounded-full ${progressColors[bar.color]}`}
                 />
               </div>
             </div>
