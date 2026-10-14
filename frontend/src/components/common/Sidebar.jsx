@@ -144,20 +144,19 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
 
   return (
     <>
-      {/* Mobile Menu Button - Arrow at Center Left */}
+      {/* Mobile Menu Button - Clean Arrow at Center Left */}
       <button
         onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="lg:hidden fixed left-0 top-1/2 -translate-y-1/2 z-50 py-8 px-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-700 dark:to-purple-700 text-white rounded-r-full shadow-lg hover:px-2 transition-all"
+        className="lg:hidden fixed left-0 top-1/2 -translate-y-1/2 z-50 py-6 px-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
         aria-label="Toggle menu"
-        style={{ writingMode: 'vertical-rl' }}
       >
         {isMobileOpen ? (
-          <svg className="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+          <svg className="w-6 h-6 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
           </svg>
         ) : (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+          <svg className="w-6 h-6 drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
           </svg>
         )}
       </button>
@@ -201,13 +200,29 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
           `,
         }}
       />
-      {/* Logo Section */}
-      <div className="p-4 lg:p-6 border-b border-white/20 dark:border-indigo-700/50 relative z-10">
-        <div className="flex items-center justify-between">
-          {!isCollapsed && (
-            <div className="flex items-center space-x-2 lg:space-x-3">
-              {/* Logo - Hidden on mobile when open, visible on desktop */}
-              <div className="hidden lg:flex w-10 h-10 items-center justify-center">
+      {/* Logo Section - Only show when sidebar is open on mobile */}
+      {(isMobileOpen || window.innerWidth >= 1024) && (
+        <div className="p-4 lg:p-6 border-b border-white/20 dark:border-indigo-700/50 relative z-10">
+          <div className="flex items-center justify-between">
+            {!isCollapsed && (
+              <div className="flex items-center space-x-2 lg:space-x-3">
+                {/* Logo - Hidden on mobile when open, visible on desktop */}
+                <div className="hidden lg:flex w-10 h-10 items-center justify-center">
+                  <img 
+                    src="/assets/spx-logo.png" 
+                    alt="SPX Logo" 
+                    className="w-full h-full object-contain"
+                    style={{ mixBlendMode: 'multiply', filter: 'brightness(0) invert(1)' }}
+                  />
+                </div>
+                <div>
+                  <h1 className="text-base lg:text-lg font-bold text-white">SPX SOKO</h1>
+                  <p className="text-[10px] lg:text-xs text-white/80 dark:text-indigo-300">Dashboard</p>
+                </div>
+              </div>
+            )}
+            {isCollapsed && (
+              <div className="w-10 h-10 flex items-center justify-center mx-auto">
                 <img 
                   src="/assets/spx-logo.png" 
                   alt="SPX Logo" 
@@ -215,24 +230,10 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                   style={{ mixBlendMode: 'multiply', filter: 'brightness(0) invert(1)' }}
                 />
               </div>
-              <div>
-                <h1 className="text-base lg:text-lg font-bold text-white">SPX SOKO</h1>
-                <p className="text-[10px] lg:text-xs text-white/80 dark:text-indigo-300">Dashboard</p>
-              </div>
-            </div>
-          )}
-          {isCollapsed && (
-            <div className="w-10 h-10 flex items-center justify-center mx-auto">
-              <img 
-                src="/assets/spx-logo.png" 
-                alt="SPX Logo" 
-                className="w-full h-full object-contain"
-                style={{ mixBlendMode: 'multiply', filter: 'brightness(0) invert(1)' }}
-              />
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Navigation Menu */}
       <nav className="flex-1 px-2 lg:px-3 py-3 lg:py-6 space-y-1 lg:space-y-2 overflow-y-auto relative z-10">
