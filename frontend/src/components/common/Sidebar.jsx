@@ -164,9 +164,9 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       <div 
         className={`
           fixed lg:relative h-screen relative
-          bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 dark:bg-slate-950
+          bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 dark:bg-gradient-to-b dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900
           transition-all duration-300 ease-in-out flex flex-col z-40
-          border-r border-indigo-300/50 dark:border-slate-800/50 shadow-2xl shadow-purple-500/20 dark:shadow-none
+          border-r border-indigo-300/50 dark:border-indigo-800/30 shadow-2xl shadow-purple-500/20 dark:shadow-none
           ${isCollapsed ? 'lg:w-20' : 'lg:w-64'}
           ${isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full lg:translate-x-0 w-64'}
         `}
@@ -175,9 +175,9 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       <div className="absolute inset-0 opacity-0 dark:opacity-100 pointer-events-none transition-opacity duration-300"
         style={{
           backgroundImage: `
-            radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 50% 50%, rgba(147, 197, 253, 0.08) 0%, transparent 70%)
+            radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.25) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.25) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(147, 197, 253, 0.15) 0%, transparent 70%)
           `,
         }}
       />
@@ -192,22 +192,22 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
         }}
       />
       {/* Logo Section */}
-      <div className="p-6 border-b border-white/20 dark:border-slate-800/50 relative z-10">
+      <div className="p-6 border-b border-white/20 dark:border-indigo-700/50 relative z-10">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-white dark:bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
-                <LayoutDashboard className="w-6 h-6 text-indigo-600 dark:text-white" />
+              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg">
+                <LayoutDashboard className="w-6 h-6 text-indigo-600" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white dark:text-slate-100">SPX SOKO</h1>
-                <p className="text-xs text-white/80 dark:text-slate-400">Dashboard</p>
+                <h1 className="text-lg font-bold text-white">SPX SOKO</h1>
+                <p className="text-xs text-white/80 dark:text-indigo-300">Dashboard</p>
               </div>
             </div>
           )}
           {isCollapsed && (
-            <div className="w-10 h-10 bg-white dark:bg-indigo-600 rounded-lg flex items-center justify-center mx-auto shadow-lg">
-              <LayoutDashboard className="w-6 h-6 text-indigo-600 dark:text-white" />
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center mx-auto shadow-lg">
+              <LayoutDashboard className="w-6 h-6 text-indigo-600" />
             </div>
           )}
         </div>
@@ -233,15 +233,15 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                   w-full flex items-center space-x-3 px-4 py-3 rounded-lg
                   transition-all duration-200 group relative
                   ${isActive 
-                    ? 'bg-white/95 text-indigo-700 shadow-lg shadow-indigo-200/50 dark:bg-indigo-600 dark:text-white dark:shadow-lg' 
+                    ? 'bg-white/95 text-indigo-700 shadow-lg shadow-indigo-200/50 dark:bg-white dark:text-indigo-900 dark:shadow-lg' 
                     : isDisabled
-                    ? 'text-white/50 dark:text-slate-500 cursor-not-allowed opacity-50'
-                    : 'text-white hover:bg-white/20 dark:text-slate-300 dark:hover:bg-slate-800'
+                    ? 'text-white/50 dark:text-indigo-400/50 cursor-not-allowed opacity-50'
+                    : 'text-white hover:bg-white/20 dark:text-indigo-100 dark:hover:bg-indigo-700/30'
                   }
                   ${isCollapsed ? 'justify-center' : ''}
                 `}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-600 dark:text-white' : 'text-white dark:text-slate-400'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-indigo-600 dark:text-indigo-900' : 'text-white dark:text-indigo-200'}`} />
                 {!isCollapsed && (
                   <>
                     <span className="flex-1 text-left font-medium">{item.label}</span>
@@ -291,8 +291,8 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
                           w-full flex items-center space-x-3 px-4 py-2 rounded-lg
                           transition-all duration-200 text-sm
                           ${isSubActive
-                            ? 'bg-white/30 text-white font-bold shadow-md dark:bg-indigo-600/50 dark:text-white'
-                            : 'text-white/90 hover:bg-white/10 dark:text-slate-400 dark:hover:bg-slate-800'
+                            ? 'bg-white/30 text-white font-bold shadow-md dark:bg-indigo-700 dark:text-white'
+                            : 'text-white/90 hover:bg-white/10 dark:text-indigo-200 dark:hover:bg-indigo-700/30'
                           }
                         `}
                       >
@@ -310,8 +310,8 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
 
       {/* Footer - Version Info */}
       {!isCollapsed && (
-        <div className="p-4 border-t border-white/20 dark:border-slate-800/50 relative z-10">
-          <div className="text-xs text-white/80 dark:text-slate-400">
+        <div className="p-4 border-t border-white/20 dark:border-indigo-700/50 relative z-10">
+          <div className="text-xs text-white/80 dark:text-indigo-300">
             <p className="font-semibold">Version 1.0.0</p>
             <p className="mt-1">© 2026 SPX SOKO</p>
           </div>
