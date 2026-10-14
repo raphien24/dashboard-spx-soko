@@ -92,12 +92,12 @@ function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-4 sm:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 text-indigo-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Dashboard Filters</h3>
+          <Filter className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Dashboard Filters</h3>
         </div>
         {hasChanges && (
           <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded">
@@ -110,26 +110,26 @@ function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Week Picker */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">
             <Calendar className="w-4 h-4 inline mr-1" />
             Week Range
           </label>
           <div className="flex items-center gap-2">
             <button
               onClick={() => handleWeekChange('prev')}
-              className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+              className="px-3 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
               title="Previous week"
             >
               ←
             </button>
-            <div className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-center">
-              <span className="text-sm font-medium text-gray-900">
+            <div className="flex-1 px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 rounded-lg text-center">
+              <span className="text-sm font-medium text-gray-900 dark:text-slate-100">
                 {formatWeekLabel(tempFilters.weekOffset)}
               </span>
             </div>
             <button
               onClick={() => handleWeekChange('next')}
-              className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+              className="px-3 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
               title="Next week"
             >
               →
@@ -145,7 +145,7 @@ function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
 
         {/* Contract Type Filter */}
         <div className="space-y-2">
-          <label htmlFor="contract-filter" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="contract-filter" className="block text-sm font-medium text-gray-700 dark:text-slate-300">
             Contract Type
           </label>
           <select
@@ -163,7 +163,7 @@ function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
 
         {/* Vehicle Type Filter */}
         <div className="space-y-2">
-          <label htmlFor="vehicle-filter" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="vehicle-filter" className="block text-sm font-medium text-gray-700 dark:text-slate-300">
             Vehicle Type
           </label>
           <select
@@ -180,14 +180,14 @@ function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4 pt-4 border-t border-gray-200">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-slate-800">
         <button
           onClick={handleApplyFilter}
           disabled={!hasChanges}
           className={`flex-1 sm:flex-none px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${
             hasChanges
               ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-gray-100 dark:bg-slate-800 text-gray-400 cursor-not-allowed'
           }`}
         >
           <Filter className="w-4 h-4 inline mr-2" />
@@ -196,7 +196,7 @@ function DashboardFilters({ onApplyFilter, initialFilters, dataDateRange }) {
         
         <button
           onClick={handleResetFilter}
-          className="flex-1 sm:flex-none px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+          className="flex-1 sm:flex-none px-4 py-2.5 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
         >
           <X className="w-4 h-4 inline mr-2" />
           Reset

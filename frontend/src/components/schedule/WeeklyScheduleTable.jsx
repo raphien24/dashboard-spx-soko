@@ -302,9 +302,9 @@ function WeeklyScheduleTable({ data }) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200 dark:border-slate-800">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
@@ -313,7 +313,7 @@ function WeeklyScheduleTable({ data }) {
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Weekly Courier Schedule</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">Weekly Courier Schedule</h3>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-sm text-indigo-600 font-medium">Productivity Overview</span>
                 <span className="text-sm text-gray-400">•</span>
@@ -336,7 +336,7 @@ function WeeklyScheduleTable({ data }) {
 
             {/* Dropdown Menu */}
             {showExportMenu && !isExporting && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+              <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-gray-200 z-50">
                 <div className="p-2">
                   <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100">
                     Export Options
@@ -350,8 +350,8 @@ function WeeklyScheduleTable({ data }) {
                       <CheckCircle className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">Achieved Target</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">Achieved Target</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-500">
                         {filteredData.filter(c => (c.productivityPercentage || 0) >= 100).length} couriers
                       </p>
                     </div>
@@ -365,8 +365,8 @@ function WeeklyScheduleTable({ data }) {
                       <XCircle className="w-5 h-5 text-orange-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">Not Achieved Target</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">Not Achieved Target</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-500">
                         {filteredData.filter(c => (c.productivityPercentage || 0) < 100).length} couriers
                       </p>
                     </div>
@@ -380,8 +380,8 @@ function WeeklyScheduleTable({ data }) {
                       <Filter className="w-5 h-5 text-indigo-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">All Filtered Couriers</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">All Filtered Couriers</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-500">
                         {filteredData.length} couriers
                       </p>
                     </div>
@@ -404,7 +404,7 @@ function WeeklyScheduleTable({ data }) {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                 selectedDay === tab.label
                   ? 'bg-indigo-600 text-white shadow-md'
-                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 dark:bg-slate-800 border border-gray-200'
               }`}
             >
               {tab.label}
@@ -419,7 +419,7 @@ function WeeklyScheduleTable({ data }) {
       </div>
 
       {/* Search Bar */}
-      <div className="p-6 bg-gray-50 border-b border-gray-200">
+      <div className="p-6 bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800">
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
@@ -433,7 +433,7 @@ function WeeklyScheduleTable({ data }) {
 
         {/* Active Filters Info */}
         <div className="flex items-center gap-2 text-xs">
-          <span className="text-gray-500">Showing {paginatedData.length} of {filteredData.length} couriers</span>
+          <span className="text-gray-500 dark:text-slate-500">Showing {paginatedData.length} of {filteredData.length} couriers</span>
           <div className="flex items-center gap-1">
             <CheckCircle className="w-3 h-3 text-green-600" />
             <span className="text-green-600 font-medium">Zero Duplicate Names</span>
@@ -446,7 +446,7 @@ function WeeklyScheduleTable({ data }) {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-100 border-b border-gray-200">
+          <thead className="bg-gray-100 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-800">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                 #
@@ -542,7 +542,7 @@ function WeeklyScheduleTable({ data }) {
               <tr>
                 <td colSpan="11" className="px-4 py-12 text-center">
                   <div className="flex flex-col items-center justify-center">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
                       <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                       </svg>
@@ -579,14 +579,14 @@ function WeeklyScheduleTable({ data }) {
                   {/* Courier Info */}
                   <td className="px-4 py-4">
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{courier.name || 'Unknown'}</p>
-                      <p className="text-xs text-gray-500">ID: {courier.id || '-'}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">{courier.name || 'Unknown'}</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-500">ID: {courier.id || '-'}</p>
                       <p className="text-xs text-blue-600">{courier.shiftsCount || 0} shifts in week</p>
                     </div>
                   </td>
 
                   {/* District */}
-                  <td className="px-4 py-4 text-sm text-gray-700">
+                  <td className="px-4 py-4 text-sm text-gray-700 dark:text-slate-300">
                     {courier.district || '-'}
                   </td>
 
@@ -611,7 +611,7 @@ function WeeklyScheduleTable({ data }) {
                   </td>
 
                   {/* Vehicle */}
-                  <td className="px-4 py-4 text-sm font-medium text-gray-700">
+                  <td className="px-4 py-4 text-sm font-medium text-gray-700 dark:text-slate-300">
                     {courier.vehicle || 'N/A'}
                   </td>
 
@@ -640,14 +640,14 @@ function WeeklyScheduleTable({ data }) {
 
                   {/* Avg Daily / Target */}
                   <td className="px-4 py-4 text-right">
-                    <p className="text-sm font-bold text-gray-900">{courier.avgDaily?.toFixed(1)}</p>
-                    <p className="text-xs text-gray-500">tgt: {courier.target?.toFixed(0)} /day</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-slate-100">{courier.avgDaily?.toFixed(1)}</p>
+                    <p className="text-xs text-gray-500 dark:text-slate-500">tgt: {courier.target?.toFixed(0)} /day</p>
                   </td>
 
                   {/* Total Week Deliv */}
                   <td className="px-4 py-4 text-right">
-                    <p className="text-sm font-bold text-gray-900">{courier.totalWeekDeliv || 0}</p>
-                    <p className="text-xs text-gray-500">of 1 SM</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-slate-100">{courier.totalWeekDeliv || 0}</p>
+                    <p className="text-xs text-gray-500 dark:text-slate-500">of 1 SM</p>
                   </td>
 
                   {/* Success % */}
@@ -657,7 +657,7 @@ function WeeklyScheduleTable({ data }) {
                     }`}>
                       {courier.successRate?.toFixed(1)}%
                     </p>
-                    <p className="text-xs text-gray-500">of 1 SM</p>
+                    <p className="text-xs text-gray-500 dark:text-slate-500">of 1 SM</p>
                   </td>
 
                   {/* Active Days */}
@@ -679,7 +679,7 @@ function WeeklyScheduleTable({ data }) {
                             className={`w-6 h-6 rounded flex items-center justify-center text-xs font-medium ${
                               isActive 
                                 ? 'bg-green-100 text-green-700' 
-                                : 'bg-gray-100 text-gray-400'
+                                : 'bg-gray-100 dark:bg-slate-800 text-gray-400'
                             }`}
                             title={`${day.key.charAt(0).toUpperCase() + day.key.slice(1)}: ${isActive ? 'Aktif' : 'Tidak Aktif'}`}
                           >
@@ -701,13 +701,13 @@ function WeeklyScheduleTable({ data }) {
       <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-slate-400">
               Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredData.length)} of {filteredData.length} couriers
             </div>
             
             {/* Rows per page selector */}
             <div className="flex items-center gap-2">
-              <label htmlFor="rows-per-page" className="text-sm text-gray-600">
+              <label htmlFor="rows-per-page" className="text-sm text-gray-600 dark:text-slate-400">
                 Rows per page:
               </label>
               <select
@@ -731,7 +731,7 @@ function WeeklyScheduleTable({ data }) {
             <button
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 dark:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Previous
             </button>
@@ -758,7 +758,7 @@ function WeeklyScheduleTable({ data }) {
             <button
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 dark:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>

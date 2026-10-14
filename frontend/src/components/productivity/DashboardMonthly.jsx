@@ -123,13 +123,13 @@ const DashboardMonthly = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Monthly Productivity Dashboard</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Monthly Productivity Dashboard</h2>
           <p className="text-sm text-gray-500 mt-1">Monthly aggregated productivity metrics and trends</p>
         </div>
       </div>
 
       {/* Month and Filters Selector */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Month Selector */}
           <div>
@@ -197,8 +197,8 @@ const DashboardMonthly = () => {
 
         {/* Selected Month Display */}
         {selectedMonth && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <p className="text-sm text-gray-600">
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-800">
+            <p className="text-sm text-gray-600 dark:text-slate-400">
               Showing data for: <span className="font-semibold text-indigo-600">{formatMonthDisplay(selectedMonth)}</span>
               {' '} | {selectedContract} | {selectedVehicle}
             </p>
@@ -210,7 +210,7 @@ const DashboardMonthly = () => {
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-12">
           <Loader className="w-10 h-10 text-indigo-600 animate-spin mb-3" />
-          <p className="text-gray-600">Processing monthly data...</p>
+          <p className="text-gray-600 dark:text-slate-400">Processing monthly data...</p>
         </div>
       )}
 
@@ -418,18 +418,18 @@ const DashboardMonthly = () => {
 
           {/* Detailed Calculation Formula - Collapsible */}
           {monthlyMetrics.productivity2WHKPI && isFormulaExpanded && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 border-b border-gray-200">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 border-b border-gray-200 dark:border-slate-800">
                 <h4 className="text-gray-900 font-bold text-sm flex items-center gap-2">
                   📊 Detailed Calculation Formula - Productivity 2WH KPI
                 </h4>
               </div>
               <div className="p-5 space-y-4">
                 {/* Step 1 */}
-                <div className="pb-4 border-b border-gray-200">
+                <div className="pb-4 border-b border-gray-200 dark:border-slate-800">
                   <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 1: Calculate Average Productivity</h5>
                   <div className="text-gray-700 text-xs space-y-1 ml-3">
-                    <p className="font-mono bg-gray-50 p-2 rounded border border-gray-200">Avg Productivity = Total Delivered ÷ Total Active Shifts</p>
+                    <p className="font-mono bg-gray-50 dark:bg-slate-800 p-2 rounded border border-gray-200 dark:border-slate-800">Avg Productivity = Total Delivered ÷ Total Active Shifts</p>
                     <p className="mt-2">Example for Dedicated 2WH:</p>
                     <p className="ml-2">• Total Delivered: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.delivered.toLocaleString()}</p>
                     <p className="ml-2">• Total Shifts: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.shifts.toLocaleString()}</p>
@@ -438,7 +438,7 @@ const DashboardMonthly = () => {
                 </div>
 
                 {/* Step 2 */}
-                <div className="pb-4 border-b border-gray-200">
+                <div className="pb-4 border-b border-gray-200 dark:border-slate-800">
                   <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 2: Get Target (Appeal → Original)</h5>
                   <div className="text-gray-700 text-xs space-y-1 ml-3">
                     <p>Priority: <span className="font-semibold">Appeal Target</span> (Supabase) → <span className="font-semibold">Monday Original</span> (Raw data)</p>
@@ -447,19 +447,19 @@ const DashboardMonthly = () => {
                 </div>
 
                 {/* Step 3 */}
-                <div className="pb-4 border-b border-gray-200">
+                <div className="pb-4 border-b border-gray-200 dark:border-slate-800">
                   <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 3: Calculate Threshold (75%)</h5>
                   <div className="text-gray-700 text-xs space-y-1 ml-3">
-                    <p className="font-mono bg-gray-50 p-2 rounded border border-gray-200">Threshold = Target × 0.75</p>
+                    <p className="font-mono bg-gray-50 dark:bg-slate-800 p-2 rounded border border-gray-200 dark:border-slate-800">Threshold = Target × 0.75</p>
                     <p className="ml-2">• Dedicated 2WH: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold} = {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target} × 0.75</p>
                   </div>
                 </div>
 
                 {/* Step 4 */}
-                <div className="pb-4 border-b border-gray-200">
+                <div className="pb-4 border-b border-gray-200 dark:border-slate-800">
                   <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 4: Apply Threshold Formula</h5>
                   <div className="text-gray-700 text-xs space-y-1 ml-3">
-                    <p className="font-mono bg-gray-50 p-2 rounded border border-gray-200">Achievement = (Result − Threshold) ÷ (Target − Threshold) × 100%</p>
+                    <p className="font-mono bg-gray-50 dark:bg-slate-800 p-2 rounded border border-gray-200 dark:border-slate-800">Achievement = (Result − Threshold) ÷ (Target − Threshold) × 100%</p>
                     <p className="mt-2">Then cap between 0-100%</p>
                     <p className="ml-2 mt-2">Example for Dedicated 2WH:</p>
                     <p className="ml-2">• Result: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</p>
@@ -473,7 +473,7 @@ const DashboardMonthly = () => {
                 <div>
                   <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 5: Average Both Contract Types</h5>
                   <div className="text-gray-700 text-xs space-y-1 ml-3">
-                    <p className="font-mono bg-gray-50 p-2 rounded border border-gray-200">Final KPI = (Dedicated Achievement + Kurir Plus Achievement) ÷ 2</p>
+                    <p className="font-mono bg-gray-50 dark:bg-slate-800 p-2 rounded border border-gray-200 dark:border-slate-800">Final KPI = (Dedicated Achievement + Kurir Plus Achievement) ÷ 2</p>
                     <p className="mt-2">Current calculation:</p>
                     <p className="ml-2">• Dedicated: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%</p>
                     <p className="ml-2">• Kurir Plus: {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}%</p>
@@ -487,27 +487,27 @@ const DashboardMonthly = () => {
           {/* Summary Stats Grid */}
           {monthlyMetrics.summary && (
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-gray-600">Total Delivered</h3>
+                  <h3 className="text-sm font-medium text-gray-600 dark:text-slate-400">Total Delivered</h3>
                 </div>
-                <p className="text-3xl font-bold text-gray-900">{monthlyMetrics.summary.totalDelivered.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">{monthlyMetrics.summary.totalDelivered.toLocaleString()}</p>
                 <p className="text-sm text-gray-500 mt-1">Parcels delivered this month</p>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-gray-600">Active Shifts</h3>
+                  <h3 className="text-sm font-medium text-gray-600 dark:text-slate-400">Active Shifts</h3>
                 </div>
-                <p className="text-3xl font-bold text-gray-900">{monthlyMetrics.summary.totalActiveShifts.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">{monthlyMetrics.summary.totalActiveShifts.toLocaleString()}</p>
                 <p className="text-sm text-gray-500 mt-1">Total active courier shifts</p>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-gray-600">Avg Daily Productivity</h3>
+                  <h3 className="text-sm font-medium text-gray-600 dark:text-slate-400">Avg Daily Productivity</h3>
                 </div>
-                <p className="text-3xl font-bold text-gray-900">
+                <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">
                   {monthlyMetrics.summary.avgProductivity != null 
                     ? monthlyMetrics.summary.avgProductivity.toFixed(1) 
                     : '0.0'}
@@ -515,7 +515,7 @@ const DashboardMonthly = () => {
                 <p className="text-sm text-gray-500 mt-1">Delivered per shift</p>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-indigo-200 p-6 bg-indigo-50">
+              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-200 p-6 bg-indigo-50">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-medium text-indigo-700">Monthly Target</h3>
                 </div>
@@ -527,11 +527,11 @@ const DashboardMonthly = () => {
                 <p className="text-sm text-indigo-600 mt-1">Target per shift (avg)</p>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-gray-600">Operating Days</h3>
+                  <h3 className="text-sm font-medium text-gray-600 dark:text-slate-400">Operating Days</h3>
                 </div>
-                <p className="text-3xl font-bold text-gray-900">{monthlyMetrics.summary.operatingDays}</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">{monthlyMetrics.summary.operatingDays}</p>
                 <p className="text-sm text-gray-500 mt-1">Days with activity</p>
               </div>
             </div>
@@ -556,19 +556,19 @@ const DashboardMonthly = () => {
 
           {/* Daily Breakdown Table */}
           {monthlyMetrics.dailyBreakdown && monthlyMetrics.dailyBreakdown.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Breakdown</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Day</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Delivered</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Shifts</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Productivity</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Target</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Achievement</th>
+                    <tr className="border-b border-gray-200 dark:border-slate-800">
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-slate-300">Date</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-slate-300">Day</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-slate-300">Delivered</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-slate-300">Shifts</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-slate-300">Productivity</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-slate-300">Target</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-slate-300">Achievement</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -583,10 +583,10 @@ const DashboardMonthly = () => {
 
                       return (
                         <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="py-3 px-4 font-medium text-gray-900">{day.date}</td>
-                          <td className="py-3 px-4 text-gray-600">{day.dayName}</td>
-                          <td className="py-3 px-4 text-right font-medium text-gray-900">{day.delivered.toLocaleString()}</td>
-                          <td className="py-3 px-4 text-right text-gray-600">{day.activeShifts}</td>
+                          <td className="py-3 px-4 font-medium text-gray-900 dark:text-slate-100">{day.date}</td>
+                          <td className="py-3 px-4 text-gray-600 dark:text-slate-400">{day.dayName}</td>
+                          <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-slate-100">{day.delivered.toLocaleString()}</td>
+                          <td className="py-3 px-4 text-right text-gray-600 dark:text-slate-400">{day.activeShifts}</td>
                           <td className={`py-3 px-4 text-right font-semibold ${isAboveTarget ? 'text-green-700' : 'text-gray-900'}`}>
                             {day.avgProductivity.toFixed(1)}
                           </td>
@@ -601,10 +601,10 @@ const DashboardMonthly = () => {
                     })}
                   </tbody>
                   <tfoot>
-                    <tr className="bg-gray-50 border-t-2 border-gray-300">
-                      <td className="py-3 px-4 font-bold text-gray-900" colSpan="2">TOTAL / AVERAGE</td>
-                      <td className="py-3 px-4 text-right font-bold text-gray-900">{monthlyMetrics.summary.totalDelivered.toLocaleString()}</td>
-                      <td className="py-3 px-4 text-right font-bold text-gray-900">{monthlyMetrics.summary.totalActiveShifts}</td>
+                    <tr className="bg-gray-50 dark:bg-slate-800 border-t-2 border-gray-300">
+                      <td className="py-3 px-4 font-bold text-gray-900 dark:text-slate-100" colSpan="2">TOTAL / AVERAGE</td>
+                      <td className="py-3 px-4 text-right font-bold text-gray-900 dark:text-slate-100">{monthlyMetrics.summary.totalDelivered.toLocaleString()}</td>
+                      <td className="py-3 px-4 text-right font-bold text-gray-900 dark:text-slate-100">{monthlyMetrics.summary.totalActiveShifts}</td>
                       <td className="py-3 px-4 text-right font-bold text-indigo-900">{monthlyMetrics.summary.avgProductivity.toFixed(1)}</td>
                       <td className="py-3 px-4 text-right font-bold text-indigo-700">{monthlyMetrics.summary.avgTarget.toFixed(1)}</td>
                       <td className="py-3 px-4 text-right font-bold text-indigo-900">
@@ -626,7 +626,7 @@ const DashboardMonthly = () => {
               <Calendar className="w-8 h-8 text-indigo-600" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Select Month and Load Data</h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-slate-400">
               Choose a month and click "Load Data" to view monthly productivity metrics
             </p>
           </div>

@@ -7,11 +7,11 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 function TopZonesChart({ data }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           🌍 Top Zones by Parcel Volume
         </h3>
-        <div className="h-64 bg-gray-100 rounded-lg animate-pulse" />
+        <div className="h-64 bg-gray-100 dark:bg-slate-800 rounded-lg animate-pulse" />
       </div>
     );
   }
@@ -35,19 +35,19 @@ function TopZonesChart({ data }) {
     if (active && payload && payload.length) {
       const item = payload[0].payload;
       return (
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200 dark:border-slate-800">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700">
               #{item.rank}
             </div>
-            <p className="font-semibold text-gray-900">{item.zone}</p>
+            <p className="font-semibold text-gray-900 dark:text-slate-100">{item.zone}</p>
           </div>
           <div className="space-y-1 text-sm">
-            <p className="text-gray-600">
-              Delivered: <span className="font-semibold text-gray-900">{item.delivered?.toLocaleString()}</span>
+            <p className="text-gray-600 dark:text-slate-400">
+              Delivered: <span className="font-semibold text-gray-900 dark:text-slate-100">{item.delivered?.toLocaleString()}</span>
             </p>
-            <p className="text-gray-600">
-              Total: <span className="font-semibold text-gray-900">{item.total?.toLocaleString()}</span>
+            <p className="text-gray-600 dark:text-slate-400">
+              Total: <span className="font-semibold text-gray-900 dark:text-slate-100">{item.total?.toLocaleString()}</span>
             </p>
             <p className="text-green-600 font-semibold">
               Success Rate: {item.successRate}%
@@ -81,16 +81,16 @@ function TopZonesChart({ data }) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-2 h-2 rounded-full bg-green-500"></div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
             Top Zones by Parcel Volume
           </h3>
         </div>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-slate-500">
           Operational zone breakdown
         </p>
       </div>
@@ -141,7 +141,7 @@ function TopZonesChart({ data }) {
                 <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700">
                   #{item?.rank || 0}
                 </div>
-                <span className="font-medium text-gray-700">{item?.zone || 'Unknown'}</span>
+                <span className="font-medium text-gray-700 dark:text-slate-300">{item?.zone || 'Unknown'}</span>
               </div>
               <div className="text-right">
                 <span className="text-gray-900 font-semibold text-xs">

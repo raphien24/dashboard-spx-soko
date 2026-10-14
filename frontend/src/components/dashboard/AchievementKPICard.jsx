@@ -43,7 +43,7 @@ const AchievementKPICard = ({ achievement, title }) => {
   const badgeLabel = safeTotal >= 100 ? 'Achieved' : safeTotal >= 75 ? 'On Track' : safeTotal >= 50 ? 'At Risk' : 'Below';
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-amber-200 p-6 hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-amber-200 p-6 hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div className="flex items-center gap-3">
@@ -85,7 +85,7 @@ const AchievementKPICard = ({ achievement, title }) => {
       {/* Breakdown */}
       <div className={`grid gap-4 pt-4 border-t border-gray-100 ${!is4WH && hasPlus ? 'grid-cols-2' : 'grid-cols-1'}`}>
         {/* Dedicated */}
-        <div className={`rounded-lg p-3 ${hasDedicated ? 'bg-gray-50' : 'bg-gray-50 opacity-50'}`}>
+        <div className={`rounded-lg p-3 ${hasDedicated ? 'bg-gray-50' : 'bg-gray-50 dark:bg-slate-800 opacity-50'}`}>
           <div className="flex items-center justify-between mb-1">
             <p className="text-xs text-gray-500 font-medium">Dedicated {is4WH ? '4WH' : '2WH'}</p>
             <span className={`text-sm font-bold ${dedColor.text}`}>

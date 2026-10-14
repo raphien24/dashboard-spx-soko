@@ -7,11 +7,11 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 function PerformanceByContractChart({ data }) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           📊 Performance by Contract Type
         </h3>
-        <div className="h-64 bg-gray-100 rounded-lg animate-pulse" />
+        <div className="h-64 bg-gray-100 dark:bg-slate-800 rounded-lg animate-pulse" />
       </div>
     );
   }
@@ -28,10 +28,10 @@ function PerformanceByContractChart({ data }) {
     if (active && payload && payload.length) {
       const item = payload[0].payload;
       return (
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200 dark:border-slate-800">
           <p className="font-semibold text-gray-900 mb-2">{item.contractType}</p>
           <div className="space-y-1 text-sm">
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-slate-400">
               <span className="font-medium">{item.couriers} couriers</span>
             </p>
             <p className="text-green-600 font-semibold">
@@ -51,16 +51,16 @@ function PerformanceByContractChart({ data }) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+    <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-slate-800">
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
             Performance by Contract Type
           </h3>
         </div>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-slate-500">
           Assigned vs Delivered volume
         </p>
       </div>
@@ -110,12 +110,12 @@ function PerformanceByContractChart({ data }) {
                 className="w-3 h-3 rounded-full flex-shrink-0" 
                 style={{ backgroundColor: colors[item?.contractType] || '#7C3AED' }}
               ></div>
-              <span className="font-medium text-gray-700">● {item?.contractType || 'Unknown'}</span>
-              <span className="text-gray-500">({item?.couriers || 0} couriers)</span>
+              <span className="font-medium text-gray-700 dark:text-slate-300">● {item?.contractType || 'Unknown'}</span>
+              <span className="text-gray-500 dark:text-slate-500">({item?.couriers || 0} couriers)</span>
             </div>
             <div className="flex items-center gap-4 text-xs">
               <span className="text-green-600 font-semibold">{item?.successRate || 0}% success</span>
-              <span className="text-gray-600">
+              <span className="text-gray-600 dark:text-slate-400">
                 Delivered {item?.delivered?.toLocaleString() || 0}/{item?.total?.toLocaleString() || 0}
               </span>
               <span className="text-red-500">Failed: {item?.failed?.toLocaleString() || 0}</span>

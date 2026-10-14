@@ -80,7 +80,7 @@ const SecondaryMetricsSection = ({ summaryData }) => {
         return (
           <div
             key={metric.id}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow"
+            className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow"
           >
             {/* Icon & Label */}
             <div className="flex items-center justify-between mb-3">
@@ -123,12 +123,12 @@ const SecondaryMetricsSection = ({ summaryData }) => {
             {/* Details */}
             <div className="space-y-1">
               {metric.detail && (
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-slate-400">
                   {metric.detail}
                 </p>
               )}
               {metric.detail2 && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-slate-500">
                   {metric.detail2}
                 </p>
               )}
