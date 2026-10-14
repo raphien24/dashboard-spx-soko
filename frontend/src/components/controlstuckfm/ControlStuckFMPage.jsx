@@ -44,20 +44,20 @@ const REVERSE = [
   { idx: 11, label: 'Return Onhold',            short: 'Onhold'        },
 ];
 
-// Warna per index
+// Warna per index - dengan dark mode support
 const COLORS = [
   null,
-  { bg: 'bg-blue-50',   text: 'text-blue-700',   dot: 'bg-blue-400',   val: 'text-blue-900'   }, // 1 pickup done
-  { bg: 'bg-cyan-50',   text: 'text-cyan-700',   dot: 'bg-cyan-400',   val: 'text-cyan-900'   }, // 2 handedover
-  { bg: 'bg-indigo-50', text: 'text-indigo-700', dot: 'bg-indigo-400', val: 'text-indigo-900' }, // 3 received
-  { bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-400', val: 'text-violet-900' }, // 4 packing
-  { bg: 'bg-purple-50', text: 'text-purple-700', dot: 'bg-purple-400', val: 'text-purple-900' }, // 5 packed
+  { bg: 'bg-blue-50 dark:bg-blue-950/30',   text: 'text-blue-700 dark:text-blue-300',   dot: 'bg-blue-400 dark:bg-blue-600',   val: 'text-blue-900 dark:text-blue-200'   }, // 1 pickup done
+  { bg: 'bg-cyan-50 dark:bg-cyan-950/30',   text: 'text-cyan-700 dark:text-cyan-300',   dot: 'bg-cyan-400 dark:bg-cyan-600',   val: 'text-cyan-900 dark:text-cyan-200'   }, // 2 handedover
+  { bg: 'bg-indigo-50 dark:bg-indigo-950/30', text: 'text-indigo-700 dark:text-indigo-300', dot: 'bg-indigo-400 dark:bg-indigo-600', val: 'text-indigo-900 dark:text-indigo-200' }, // 3 received
+  { bg: 'bg-violet-50 dark:bg-violet-950/30', text: 'text-violet-700 dark:text-violet-300', dot: 'bg-violet-400 dark:bg-violet-600', val: 'text-violet-900 dark:text-violet-200' }, // 4 packing
+  { bg: 'bg-purple-50 dark:bg-purple-950/30', text: 'text-purple-700 dark:text-purple-300', dot: 'bg-purple-400 dark:bg-purple-600', val: 'text-purple-900 dark:text-purple-200' }, // 5 packed
   null,
-  { bg: 'bg-orange-50', text: 'text-orange-700', dot: 'bg-orange-400', val: 'text-orange-900' }, // 7
-  { bg: 'bg-amber-50',  text: 'text-amber-700',  dot: 'bg-amber-400',  val: 'text-amber-900'  }, // 8
-  { bg: 'bg-yellow-50', text: 'text-yellow-700', dot: 'bg-yellow-400', val: 'text-yellow-900' }, // 9
-  { bg: 'bg-rose-50',   text: 'text-rose-700',   dot: 'bg-rose-400',   val: 'text-rose-900'   }, // 10
-  { bg: 'bg-red-50',    text: 'text-red-700',    dot: 'bg-red-400',    val: 'text-red-900'    }, // 11
+  { bg: 'bg-orange-50 dark:bg-orange-950/30', text: 'text-orange-700 dark:text-orange-300', dot: 'bg-orange-400 dark:bg-orange-600', val: 'text-orange-900 dark:text-orange-200' }, // 7
+  { bg: 'bg-amber-50 dark:bg-amber-950/30',  text: 'text-amber-700 dark:text-amber-300',  dot: 'bg-amber-400 dark:bg-amber-600',  val: 'text-amber-900 dark:text-amber-200'  }, // 8
+  { bg: 'bg-yellow-50 dark:bg-yellow-950/30', text: 'text-yellow-700 dark:text-yellow-300', dot: 'bg-yellow-400 dark:bg-yellow-600', val: 'text-yellow-900 dark:text-yellow-200' }, // 9
+  { bg: 'bg-rose-50 dark:bg-rose-950/30',   text: 'text-rose-700 dark:text-rose-300',   dot: 'bg-rose-400 dark:bg-rose-600',   val: 'text-rose-900 dark:text-rose-200'   }, // 10
+  { bg: 'bg-red-50 dark:bg-red-950/30',    text: 'text-red-700 dark:text-red-300',    dot: 'bg-red-400 dark:bg-red-600',    val: 'text-red-900 dark:text-red-200'    }, // 11
 ];
 
 const ControlStuckFMPage = () => {
@@ -213,9 +213,9 @@ const ControlStuckFMPage = () => {
 
       {/* ── Scraper Panel ── */}
       <div className={`rounded-xl border p-4 shadow-sm ${
-        scraperState === 'running' ? 'bg-blue-50 border-blue-200' :
-        scraperState === 'done'    ? 'bg-green-50 border-green-200' :
-        scraperState === 'error'   ? 'bg-red-50 border-red-200' :
+        scraperState === 'running' ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900' :
+        scraperState === 'done'    ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-900' :
+        scraperState === 'error'   ? 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900' :
         'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'}`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -246,11 +246,11 @@ const ControlStuckFMPage = () => {
             </button>
             <button onClick={() => startScraper('resume')} disabled={scraperState === 'running'}
               title="Resume: lanjutkan tanpa fetch ulang dari awal"
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
               <RotateCcw className="w-4 h-4" /> Resume
             </button>
             <button onClick={fetchData} disabled={scraperState === 'running'}
-              className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:bg-slate-700 disabled:opacity-50 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
+              className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 disabled:opacity-50 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
               <RefreshCw className="w-4 h-4" /> Refresh
             </button>
           </div>
@@ -281,12 +281,12 @@ const ControlStuckFMPage = () => {
               </div>
             </div>
             {scraperProgress?.message && scraperProgress.message !== 'Mengirim perintah ke GAS...' && scraperProgress.message !== 'Memulai...' && (
-              <p className="text-xs text-gray-600 dark:text-slate-400 font-mono bg-gray-50 dark:bg-slate-800 px-3 py-2 rounded-lg border">
+              <p className="text-xs text-gray-600 dark:text-slate-400 font-mono bg-gray-50 dark:bg-slate-800 px-3 py-2 rounded-lg border dark:border-slate-700">
                 {scraperProgress.message}
               </p>
             )}
             {scraperProgress?.message?.startsWith('❌') && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-xs text-red-600">
+              <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-lg px-4 py-3 text-xs text-red-600 dark:text-red-400">
                 <p className="font-semibold mb-1">Detail Error:</p>
                 <p className="font-mono break-all">{scraperProgress.message.replace('❌ ', '')}</p>
                 <p className="mt-1 text-red-500">• Cookie expired → update via bookmarklet &nbsp;• API down → coba lagi &nbsp;• Timeout → klik Resume</p>
@@ -305,11 +305,11 @@ const ControlStuckFMPage = () => {
           </div>
           <div className="flex items-center gap-3">
             {update1 && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-lg border border-indigo-200">
-                <Clock className="w-4 h-4 text-indigo-500" />
+              <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg border border-indigo-200 dark:border-indigo-900">
+                <Clock className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
                 <div>
-                  <p className="text-xs text-indigo-500">Update 1 (max 16.00)</p>
-                  <p className="text-sm font-bold text-indigo-800">{update1}</p>
+                  <p className="text-xs text-indigo-500 dark:text-indigo-400">Update 1 (max 16.00)</p>
+                  <p className="text-sm font-bold text-indigo-800 dark:text-indigo-300">{update1}</p>
                 </div>
               </div>
             )}
@@ -325,9 +325,9 @@ const ControlStuckFMPage = () => {
           </div>
         </div>
         {remarks && remarks !== '( ISI SESUAI CONTOH KOLOM T )' && (
-          <div className="mt-3 flex items-start gap-2 px-4 py-2.5 bg-amber-50 rounded-lg border border-amber-200">
-            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-amber-800 font-medium">{remarks}</p>
+          <div className="mt-3 flex items-start gap-2 px-4 py-2.5 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-900">
+            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-800 dark:text-amber-300 font-medium">{remarks}</p>
           </div>
         )}
       </div>
@@ -339,9 +339,9 @@ const ControlStuckFMPage = () => {
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">Forward</h3>
           <span className="text-blue-200 text-xs">Paket masuk ke FM Hub</span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-y divide-gray-100">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-y divide-gray-100 dark:divide-slate-700">
           {FORWARD.map(({ idx, label }) => {
-            const c = COLORS[idx] || { bg: 'bg-gray-50 dark:bg-slate-800', text: 'text-gray-600 dark:text-slate-400', dot: 'bg-gray-300', val: 'text-gray-900 dark:text-slate-100' };
+            const c = COLORS[idx] || { bg: 'bg-gray-50 dark:bg-slate-800', text: 'text-gray-600 dark:text-slate-400', dot: 'bg-gray-300 dark:bg-slate-600', val: 'text-gray-900 dark:text-slate-100' };
             const v = val(idx);
             return (
               <div key={idx} className={`p-5 ${c.bg}`}>
@@ -361,9 +361,9 @@ const ControlStuckFMPage = () => {
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">Reverse</h3>
           <span className="text-orange-100 text-xs">Paket return di FM Hub</span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-y divide-gray-100">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 divide-x divide-y divide-gray-100 dark:divide-slate-700">
           {REVERSE.map(({ idx, label }) => {
-            const c = COLORS[idx] || { bg: 'bg-gray-50 dark:bg-slate-800', text: 'text-gray-600 dark:text-slate-400', dot: 'bg-gray-300', val: 'text-gray-900 dark:text-slate-100' };
+            const c = COLORS[idx] || { bg: 'bg-gray-50 dark:bg-slate-800', text: 'text-gray-600 dark:text-slate-400', dot: 'bg-gray-300 dark:bg-slate-600', val: 'text-gray-900 dark:text-slate-100' };
             const v = val(idx);
             return (
               <div key={idx} className={`p-5 ${c.bg}`}>

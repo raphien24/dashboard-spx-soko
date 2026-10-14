@@ -253,9 +253,9 @@ const BacklogLMPage = () => {
 
       {/* ── Scraper Panel ── */}
       <div className={`rounded-xl border p-4 shadow-sm ${
-        scraperState === 'running' ? 'bg-blue-50 border-blue-200' :
-        scraperState === 'done'    ? 'bg-green-50 border-green-200' :
-        scraperState === 'error'   ? 'bg-red-50 border-red-200' :
+        scraperState === 'running' ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900' :
+        scraperState === 'done'    ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-900' :
+        scraperState === 'error'   ? 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900' :
         'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'}`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -286,11 +286,11 @@ const BacklogLMPage = () => {
             </button>
             <button onClick={() => startScraper('resume')} disabled={scraperState === 'running'}
               title="Resume: isi ulang hanya baris SLS yang kosong/Error"
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:bg-slate-700 disabled:opacity-50 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 disabled:opacity-50 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
               <RotateCcw className="w-4 h-4" /> Resume
             </button>
             <button onClick={fetchData} disabled={scraperState === 'running'}
-              className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:bg-slate-700 disabled:opacity-50 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
+              className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 disabled:opacity-50 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium border border-gray-300 dark:border-slate-700">
               <RefreshCw className="w-4 h-4" /> Refresh
             </button>
           </div>
@@ -322,12 +322,12 @@ const BacklogLMPage = () => {
               </div>
             </div>
             {scraperProgress?.message && scraperProgress.message !== 'Mengirim perintah ke GAS...' && (
-              <p className="text-xs text-gray-600 dark:text-slate-400 font-mono bg-gray-50 dark:bg-slate-800 px-3 py-2 rounded-lg border truncate">
+              <p className="text-xs text-gray-600 dark:text-slate-400 font-mono bg-gray-50 dark:bg-slate-800 px-3 py-2 rounded-lg border dark:border-slate-700 truncate">
                 {scraperProgress.message}
               </p>
             )}
             {scraperState === 'error' && scraperProgress?.message?.startsWith('❌') && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-xs text-red-600">
+              <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-lg px-4 py-3 text-xs text-red-600 dark:text-red-400">
                 <p className="font-semibold mb-1">Detail Error:</p>
                 <p className="font-mono break-all">{scraperProgress.message.replace('❌ ', '')}</p>
                 <p className="mt-1">• Cookie expired → update via bookmarklet &nbsp;• API down → coba lagi &nbsp;• Timeout → klik Resume</p>
@@ -339,7 +339,7 @@ const BacklogLMPage = () => {
 
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-200 p-4 col-span-1">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-200 dark:border-indigo-900 p-4 col-span-1">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-950 rounded-lg flex items-center justify-center">
               <Package className="w-5 h-5 text-indigo-600" />
@@ -351,9 +351,9 @@ const BacklogLMPage = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-red-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-red-200 dark:border-red-900 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-red-100 dark:bg-red-950 rounded-lg flex items-center justify-center">
               <ShieldCheck className="w-5 h-5 text-red-600" />
             </div>
             <div>
@@ -363,9 +363,9 @@ const BacklogLMPage = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-yellow-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-yellow-200 dark:border-yellow-900 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-950 rounded-lg flex items-center justify-center">
               <ShieldX className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
@@ -387,9 +387,9 @@ const BacklogLMPage = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-orange-200 p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-orange-200 dark:border-orange-900 p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-950 rounded-lg flex items-center justify-center">
               <Clock className="w-5 h-5 text-orange-500" />
             </div>
             <div>
@@ -423,27 +423,27 @@ const BacklogLMPage = () => {
               </div>
               {/* Filter SLS */}
               <select value={filterSLS} onChange={e => setFilterSLS(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua SLS</option>
                 <option value="Sudah">SLS Sudah</option>
                 <option value="Belum">SLS Belum</option>
               </select>
               {/* Filter Zone */}
               <select value={filterZone} onChange={e => setFilterZone(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Zone</option>
                 {stats.zoneOptions.map(z => <option key={z} value={z}>{z}</option>)}
               </select>
               {/* Filter Account */}
               <select value={filterAccount} onChange={e => setFilterAccount(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Account</option>
                 {stats.accountOptions.map(a => <option key={a} value={a}>{a}</option>)}
               </select>
               {/* Reset */}
               {(search || filterZone !== 'all' || filterSLS !== 'all' || filterAccount !== 'all') && (
                 <button onClick={() => { setSearch(''); setFilterZone('all'); setFilterSLS('all'); setFilterAccount('all'); }}
-                  className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 dark:text-slate-400 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:bg-slate-800">
+                  className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 dark:text-slate-400 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800">
                   <X className="w-3.5 h-3.5" /> Reset
                 </button>
               )}
@@ -453,8 +453,8 @@ const BacklogLMPage = () => {
                 disabled={!filtered.length}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   copiedAll
-                    ? 'bg-green-100 text-green-700 border border-green-300'
-                    : 'bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950 text-indigo-700 border border-indigo-200 disabled:bg-gray-100 dark:bg-slate-800 disabled:text-gray-400 dark:text-slate-500 disabled:border-gray-200 dark:border-slate-800'
+                    ? 'bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-900'
+                    : 'bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/30 dark:hover:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900 disabled:bg-gray-100 dark:disabled:bg-slate-800 disabled:text-gray-400 dark:disabled:text-slate-500 disabled:border-gray-200 dark:disabled:border-slate-800'
                 }`}
                 title={`Copy ${filtered.length} Shipment ID ke clipboard`}
               >
