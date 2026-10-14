@@ -174,13 +174,13 @@ const AnimatedKPICard = ({
           <AnimatedCounter
             value={value}
             decimals={1}
-            className={`${borderColor === 'purple' ? 'text-8xl' : 'text-5xl'} font-black text-gray-900 dark:text-slate-100`}
+            className={`${borderColor === 'purple' ? 'text-6xl' : 'text-5xl'} font-black text-gray-900 dark:text-slate-100`}
             duration={1500}
             triggerOnce={true}
           />
-          <span className={`${borderColor === 'purple' ? 'text-3xl' : 'text-lg'} text-gray-500 dark:text-slate-400 font-bold`}>{unit}</span>
+          <span className={`${borderColor === 'purple' ? 'text-xl' : 'text-lg'} text-gray-500 dark:text-slate-400 font-medium`}>{unit}</span>
           {secondaryUnit && (
-            <span className={`${borderColor === 'purple' ? 'text-xl' : 'text-sm'} text-gray-500 dark:text-slate-400 font-semibold`}>
+            <span className={`${borderColor === 'purple' ? 'text-base' : 'text-sm'} text-gray-500 dark:text-slate-400 font-medium`}>
               {secondaryUnit}
             </span>
           )}
@@ -317,7 +317,7 @@ const AnimatedKPICard = ({
           transition={{ delay: delay + 1.0 }}
           className="mt-3"
         >
-          <div className={`inline-flex items-center px-3 py-1 rounded-full ${badgeColors[statusBadge.color]} text-xs font-semibold`}>
+          <div className={`inline-flex items-center px-4 py-2 rounded-full ${badgeColors[statusBadge.color]} ${borderColor === 'purple' ? 'text-2xl' : 'text-xs'} font-black`}>
             {statusBadge.text}
           </div>
         </motion.div>
