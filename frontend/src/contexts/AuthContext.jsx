@@ -49,8 +49,22 @@ export const AuthProvider = ({ children }) => {
       const name = googleUser.name;
       const picture = googleUser.picture;
 
+      // Get current whitelist (check localStorage directly to ensure it's initialized)
+      let currentWhitelist = whitelist;
+      if (currentWhitelist.length === 0) {
+        const savedWhitelist = localStorage.getItem('spx_whitelist');
+        if (savedWhitelist) {
+          currentWhitelist = JSON.parse(savedWhitelist);
+        } else {
+          // Initialize default whitelist if not exists
+          currentWhitelist = ['rafi.alvian@spxexpress.com', 'admin@spxsoko.online'];
+          localStorage.setItem('spx_whitelist', JSON.stringify(currentWhitelist));
+          setWhitelist(currentWhitelist);
+        }
+      }
+
       // Check if email is in whitelist
-      if (!whitelist.includes(email)) {
+      if (!currentWhitelist.includes(email)) {
         throw new Error('Email not authorized. Please contact administrator.');
       }
 
