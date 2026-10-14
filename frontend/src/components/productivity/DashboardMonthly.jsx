@@ -251,24 +251,24 @@ const DashboardMonthly = () => {
                 {/* Sub-metrics Grid */}
                 <div className="grid grid-cols-2 gap-3">
                   {/* Dedicated 2WH */}
-                  <div className="bg-white dark:bg-slate-900/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                  <div className="bg-white/90 dark:bg-slate-900/10 backdrop-blur-sm rounded-lg p-3 border border-indigo-200 dark:border-white/20">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-white text-xs font-semibold">Dedicated</span>
-                      <span className="text-white text-lg font-bold">
+                      <span className="text-indigo-900 dark:text-white text-xs font-semibold">Dedicated</span>
+                      <span className="text-indigo-900 dark:text-white text-lg font-bold">
                         {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="w-full bg-white dark:bg-slate-900 dark:bg-slate-900/20 rounded-full h-2 mb-2">
+                    <div className="w-full bg-indigo-100 dark:bg-slate-900/20 rounded-full h-2 mb-2">
                       <div 
                         className={`h-2 rounded-full ${
-                          monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement >= 100 ? 'bg-green-400' :
-                          monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement >= 75 ? 'bg-yellow-300' :
-                          'bg-red-400'
+                          monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement >= 100 ? 'bg-green-500 dark:bg-green-400' :
+                          monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement >= 75 ? 'bg-yellow-500 dark:bg-yellow-300' :
+                          'bg-red-500 dark:bg-red-400'
                         }`}
                         style={{ width: `${Math.min(monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement, 100)}%` }}
                       />
                     </div>
-                    <div className="text-indigo-100 text-[11px] space-y-1">
+                    <div className="text-indigo-700 dark:text-indigo-100 text-[11px] space-y-1">
                       <div className="flex justify-between">
                         <span>Avg:</span>
                         <span className="font-semibold">{monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.avg}</span>
@@ -277,7 +277,7 @@ const DashboardMonthly = () => {
                         <span>Target:</span>
                         <span className="font-semibold">{monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</span>
                       </div>
-                      <div className="flex justify-between text-yellow-300">
+                      <div className="flex justify-between text-yellow-700 dark:text-yellow-300">
                         <span>Thr 75%:</span>
                         <span className="font-semibold">{monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold}</span>
                       </div>
@@ -285,24 +285,24 @@ const DashboardMonthly = () => {
                   </div>
 
                   {/* Kurir Plus 2WH */}
-                  <div className="bg-white dark:bg-slate-900/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                  <div className="bg-white/90 dark:bg-slate-900/10 backdrop-blur-sm rounded-lg p-3 border border-indigo-200 dark:border-white/20">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-white text-xs font-semibold">Kurir Plus</span>
-                      <span className="text-white text-lg font-bold">
+                      <span className="text-indigo-900 dark:text-white text-xs font-semibold">Kurir Plus</span>
+                      <span className="text-indigo-900 dark:text-white text-lg font-bold">
                         {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="w-full bg-white dark:bg-slate-900 dark:bg-slate-900/20 rounded-full h-2 mb-2">
+                    <div className="w-full bg-indigo-100 dark:bg-slate-900/20 rounded-full h-2 mb-2">
                       <div 
                         className={`h-2 rounded-full ${
-                          monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement >= 100 ? 'bg-green-400' :
-                          monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement >= 75 ? 'bg-yellow-300' :
-                          'bg-red-400'
+                          monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement >= 100 ? 'bg-green-500 dark:bg-green-400' :
+                          monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement >= 75 ? 'bg-yellow-500 dark:bg-yellow-300' :
+                          'bg-red-500 dark:bg-red-400'
                         }`}
                         style={{ width: `${Math.min(monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement, 100)}%` }}
                       />
                     </div>
-                    <div className="text-indigo-100 text-[11px] space-y-1">
+                    <div className="text-indigo-700 dark:text-indigo-100 text-[11px] space-y-1">
                       <div className="flex justify-between">
                         <span>Avg:</span>
                         <span className="font-semibold">{monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.avg}</span>
@@ -311,7 +311,7 @@ const DashboardMonthly = () => {
                         <span>Target:</span>
                         <span className="font-semibold">{monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.target}</span>
                       </div>
-                      <div className="flex justify-between text-yellow-300">
+                      <div className="flex justify-between text-yellow-700 dark:text-yellow-300">
                         <span>Thr 75%:</span>
                         <span className="font-semibold">{monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.threshold}</span>
                       </div>
@@ -322,7 +322,7 @@ const DashboardMonthly = () => {
                 {/* Formula Toggle */}
                 <button
                   onClick={() => setIsFormulaExpanded(!isFormulaExpanded)}
-                  className="w-full mt-3 px-3 py-2 bg-white dark:bg-slate-900 dark:bg-slate-900/10 hover:bg-white dark:bg-slate-900/20 rounded-lg transition-colors text-indigo-100 text-xs font-medium flex items-center justify-between"
+                  className="w-full mt-3 px-3 py-2 bg-white/50 dark:bg-slate-900/10 hover:bg-white/70 dark:hover:bg-slate-900/20 rounded-lg transition-colors text-indigo-900 dark:text-indigo-100 text-xs font-medium flex items-center justify-between border border-indigo-200 dark:border-white/10"
                 >
                   <span>📊 View Calculation Formula</span>
                   {isFormulaExpanded ? (
@@ -365,20 +365,20 @@ const DashboardMonthly = () => {
                 </div>
 
                 {/* Metrics Card */}
-                <div className="bg-white dark:bg-slate-900/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                <div className="bg-white/90 dark:bg-slate-900/10 backdrop-blur-sm rounded-lg p-4 border border-purple-200 dark:border-white/20">
                   {/* Progress Bar */}
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-white text-sm font-semibold">Dedicated 4WH</span>
-                    <span className="text-white text-xl font-bold">
+                    <span className="text-purple-900 dark:text-white text-sm font-semibold">Dedicated 4WH</span>
+                    <span className="text-purple-900 dark:text-white text-xl font-bold">
                       {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement.toFixed(1)}%
                     </span>
                   </div>
-                  <div className="w-full bg-white dark:bg-slate-900 dark:bg-slate-900/20 rounded-full h-2.5 mb-4">
+                  <div className="w-full bg-purple-100 dark:bg-slate-900/20 rounded-full h-2.5 mb-4">
                     <div 
                       className={`h-2.5 rounded-full ${
-                        monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement >= 100 ? 'bg-green-400' :
-                        monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement >= 75 ? 'bg-yellow-300' :
-                        'bg-red-400'
+                        monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement >= 100 ? 'bg-green-500 dark:bg-green-400' :
+                        monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement >= 75 ? 'bg-yellow-500 dark:bg-yellow-300' :
+                        'bg-red-500 dark:bg-red-400'
                       }`}
                       style={{ width: `${Math.min(monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.achievement, 100)}%` }}
                     />
@@ -386,27 +386,27 @@ const DashboardMonthly = () => {
 
                   {/* Metrics Grid */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-white dark:bg-slate-900/5 rounded p-2">
-                      <p className="text-purple-200 text-[10px] mb-1">Avg Productivity</p>
-                      <p className="text-white text-lg font-bold">
+                    <div className="bg-purple-50 dark:bg-slate-900/5 rounded p-2 border border-purple-100 dark:border-transparent">
+                      <p className="text-purple-600 dark:text-purple-200 text-[10px] mb-1">Avg Productivity</p>
+                      <p className="text-purple-900 dark:text-white text-lg font-bold">
                         {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.avg}
                       </p>
                     </div>
-                    <div className="bg-white dark:bg-slate-900/5 rounded p-2">
-                      <p className="text-purple-200 text-[10px] mb-1">Target</p>
-                      <p className="text-white text-lg font-bold">
+                    <div className="bg-purple-50 dark:bg-slate-900/5 rounded p-2 border border-purple-100 dark:border-transparent">
+                      <p className="text-purple-600 dark:text-purple-200 text-[10px] mb-1">Target</p>
+                      <p className="text-purple-900 dark:text-white text-lg font-bold">
                         {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.target}
                       </p>
                     </div>
-                    <div className="bg-white dark:bg-slate-900/5 rounded p-2">
-                      <p className="text-purple-200 text-[10px] mb-1">Threshold 75%</p>
-                      <p className="text-yellow-300 text-lg font-bold">
+                    <div className="bg-purple-50 dark:bg-slate-900/5 rounded p-2 border border-purple-100 dark:border-transparent">
+                      <p className="text-purple-600 dark:text-purple-200 text-[10px] mb-1">Threshold 75%</p>
+                      <p className="text-yellow-700 dark:text-yellow-300 text-lg font-bold">
                         {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.threshold}
                       </p>
                     </div>
-                    <div className="bg-white dark:bg-slate-900/5 rounded p-2">
-                      <p className="text-purple-200 text-[10px] mb-1">Total Shifts</p>
-                      <p className="text-white text-lg font-bold">
+                    <div className="bg-purple-50 dark:bg-slate-900/5 rounded p-2 border border-purple-100 dark:border-transparent">
+                      <p className="text-purple-600 dark:text-purple-200 text-[10px] mb-1">Total Shifts</p>
+                      <p className="text-purple-900 dark:text-white text-lg font-bold">
                         {monthlyMetrics.productivity4WHDedicatedKPI.subMetrics.shifts.toLocaleString()}
                       </p>
                     </div>
