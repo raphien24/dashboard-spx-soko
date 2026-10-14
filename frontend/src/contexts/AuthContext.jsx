@@ -1,0 +1,114 @@
+import { createContext, useContext, useState, useEffect } from 'react';
+
+const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [whitelist, setWhitelist] = useState([]);
+
+  // Load whitelist from localStorage
+  useEffect(() => {
+    const savedWhitelist = localStorage.getItem('spx_whitelist');
+    if (savedWhitelist) {
+      try {
+        setWhitelist(JSON.parse(savedWhitelist));
+      } catch (e) {
+        console.error('Failed to parse whitelist:', e);
+        // Default whitelist if parsing fails
+        const defaultList = ['admin@spxsoko.online'];
+        setWhitelist(defaultList);
+        localStorage.setItem('spx_whitelist', JSON.stringify(defaultList));
+      }
+    } else {
+      // Set default whitelist
+      const defaultList = ['admin@spxsoko.online'];
+      setWhitelist(defaultList);
+      localStorage.setItem('spx_whitelist', JSON.stringify(defaultList));
+    }
+  }, []);
+
+  // Check if user is already logged in (from localStorage)
+  useEffect(() => {
+    const savedUser = localStorage.getItem('spx_user');
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        setUser(userData);
+      } catch (e) {
+        console.error('Failed to parse user data:', e);
+        localStorage.removeItem('spx_user');
+      }
+    }
+    setLoading(false);
+  }, []);
+
+  const login = async (googleUser) => {
+    try {
+      const email = googleUser.email;
+      const name = googleUser.name;
+      const picture = googleUser.picture;
+
+      // Check if email is in whitelist
+      if (!whitelist.includes(email)) {
+        throw new Error('Email not authorized. Please contact administrator.');
+      }
+
+      const userData = {
+        email,
+        name,
+        picture,
+        loginTime: new Date().toISOString(),
+      };
+
+      setUser(userData);
+      localStorage.setItem('spx_user', JSON.stringify(userData));
+      return { success: true };
+    } catch (error) {
+      console.error('Login failed:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('spx_user');
+    // Also sign out from Google
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.disableAutoSelect();
+    }
+  };
+
+  const updateWhitelist = (newWhitelist) => {
+    setWhitelist(newWhitelist);
+    localStorage.setItem('spx_whitelist', JSON.stringify(newWhitelist));
+  };
+
+  const isEmailWhitelisted = (email) => {
+    return whitelist.includes(email);
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        whitelist,
+        login,
+        logout,
+        updateWhitelist,
+        isEmailWhitelisted,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};

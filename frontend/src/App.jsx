@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Play, Pause, RefreshCw } from 'lucide-react';
+import { Play, Pause, RefreshCw, LogOut, User } from 'lucide-react';
 import Sidebar from './components/common/Sidebar';
 import Dashboard from './components/dashboard/Dashboard';
 import DashboardMonthly from './components/productivity/DashboardMonthly';
@@ -11,17 +11,21 @@ import MonitorSDHOPage from './components/monitorsdho/MonitorSDHOPage';
 import CookieManagerPage from './components/settings/CookieManagerPage';
 import ThemeSettings from './pages/ThemeSettings';
 import AnimationDemo from './pages/AnimationDemo';
+import WhitelistSettings from './pages/WhitelistSettings';
 import ControlStuckFMPage from './components/controlstuckfm/ControlStuckFMPage';
 import BacklogLMPage from './components/backlog/BacklogLMPage';
 import HSEDailyBriefing from './components/hse/HSEDailyBriefing';
 import HSEWeekly5S from './components/hse/HSEWeekly5S';
 import useDashboardStore from './store/dashboardStore';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { useAuth } from './contexts/AuthContext';
 import StarfieldBackground from './components/animations/StarfieldBackground';
 
 function App() {
   const [activePage, setActivePage] = useState('productivity-dashboard');
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const { user, logout } = useAuth();
   
   // Get raw data to detect last update date
   const { rawCourierData, detectDateRangeFromData } = useDashboardStore();
@@ -91,7 +95,7 @@ function App() {
   const isHSEPage         = activePage === 'hse-daily' || activePage === 'hse-weekly';
   const isBuyerRRPage     = activePage === 'buyer-rr';
   const isMonitorSDHOPage  = activePage === 'monitor-sdho';
-  const isSettingsPage     = activePage === 'cookie-manager' || activePage === 'theme-settings';
+  const isSettingsPage     = activePage === 'cookie-manager' || activePage === 'theme-settings' || activePage === 'whitelist-settings';
   const isControlStuckPage = activePage === 'control-stuck-fm';
 
   return (
@@ -150,6 +154,62 @@ function App() {
                   </div>
                 </div>
 
+                {/* User Menu */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                  >
+                    {user?.picture ? (
+                      <img
+                        src={user.picture}
+                        alt={user.name}
+                        className="w-7 h-7 rounded-full border-2 border-indigo-200 dark:border-indigo-700"
+                      />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center">
+                        <User className="w-4 h-4 text-white" />
+                      </div>
+                    )}
+                    <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-slate-300">
+                      {user?.name?.split(' ')[0] || 'User'}
+                    </span>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {showUserMenu && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-30"
+                        onClick={() => setShowUserMenu(false)}
+                      />
+                      <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-200 dark:border-slate-700 z-40 overflow-hidden">
+                        {/* User Info */}
+                        <div className="px-4 py-3 border-b border-gray-200 dark:border-slate-700">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">
+                            {user?.name}
+                          </p>
+                          <p className="text-xs text-gray-600 dark:text-slate-400 truncate">
+                            {user?.email}
+                          </p>
+                        </div>
+
+                        {/* Logout Button */}
+                        <button
+                          onClick={() => {
+                            logout();
+                            setShowUserMenu(false);
+                          }}
+                          className="w-full px-4 py-3 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-2"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Logout
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
               </div>
             </div>
           </header>
@@ -171,6 +231,7 @@ function App() {
               {isMonitorSDHOPage   && <MonitorSDHOPage />}
               {activePage === 'cookie-manager' && <CookieManagerPage />}
               {activePage === 'theme-settings' && <ThemeSettings />}
+              {activePage === 'whitelist-settings' && <WhitelistSettings />}
               {activePage === 'animation-demo' && <AnimationDemo />}
               {isControlStuckPage  && <ControlStuckFMPage />}
             </div>

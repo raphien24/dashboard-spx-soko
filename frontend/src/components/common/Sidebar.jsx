@@ -104,6 +104,7 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       active: false,
       hasSubmenu: true,
       submenu: [
+        { id: 'whitelist-settings', label: 'Whitelist', parent: 'settings' },
         { id: 'theme-settings', label: 'Theme', parent: 'settings' },
         { id: 'cookie-manager', label: 'Cookie Manager', parent: 'settings' },
         { id: 'animation-demo', label: '🎨 Animation Demo', parent: 'settings' },
