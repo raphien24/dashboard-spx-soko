@@ -77,7 +77,7 @@ function CourierDetailModal({ courier, onClose }) {
                 <Package className="w-4 h-4" />
                 <span className="text-xs font-medium">Avg Daily</span>
               </div>
-              <p className="text-2xl font-bold text-indigo-600">{courier.avgDaily?.toFixed(1) || 0}</p>
+              <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{courier.avgDaily?.toFixed(1) || 0}</p>
               <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">packages/day</p>
             </div>
 
@@ -153,7 +153,7 @@ function CourierDetailModal({ courier, onClose }) {
                         <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-slate-100">
                           {shift.handedOver || 0}
                         </td>
-                        <td className="px-4 py-3 text-sm text-right font-bold text-indigo-600">
+                        <td className="px-4 py-3 text-sm text-right font-bold text-indigo-600 dark:text-indigo-400">
                           {shift.delivered || 0}
                         </td>
                         <td className="px-4 py-3 text-sm text-right">

@@ -408,7 +408,7 @@ const BacklogLMPage = () => {
               <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-indigo-600" />
                 Backlog LM Detail
-                <span className="px-2 py-0.5 text-xs bg-indigo-100 dark:bg-indigo-950 text-indigo-700 rounded-full">{filtered.length}</span>
+                <span className="px-2 py-0.5 text-xs bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-400 rounded-full">{filtered.length}</span>
               </h3>
               {lastUpdate && <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">Last update: {lastUpdate}</p>}
             </div>

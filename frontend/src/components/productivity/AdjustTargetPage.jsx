@@ -252,7 +252,7 @@ const AdjustTargetPage = () => {
                       }`}>{appeal.vehicleType}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <span className="text-lg font-bold text-indigo-700">{appeal.appealTarget}</span>
+                      <span className="text-lg font-bold text-indigo-700 dark:text-indigo-400">{appeal.appealTarget}</span>
                     </td>
                     <td className="px-4 py-3 text-gray-500 dark:text-slate-500 text-xs">{appeal.lastUpdated}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-slate-400 text-xs">{appeal.updatedBy}</td>

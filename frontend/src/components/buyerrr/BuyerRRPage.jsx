@@ -492,7 +492,7 @@ const BuyerRRPage = () => {
               <ClipboardList className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-indigo-700">{stats.totalCreated}</p>
+              <p className="text-2xl font-bold text-indigo-700 dark:text-indigo-400">{stats.totalCreated}</p>
               <p className="text-xs text-gray-500 dark:text-slate-500">Status Created</p>
             </div>
           </div>
@@ -583,7 +583,7 @@ const BuyerRRPage = () => {
               <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
                 <ClipboardList className="w-4 h-4 text-indigo-600" />
                 Status Created
-                <span className="ml-1 px-2 py-0.5 text-xs bg-indigo-100 dark:bg-indigo-950 text-indigo-700 rounded-full font-medium">
+                <span className="ml-1 px-2 py-0.5 text-xs bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-400 rounded-full font-medium">
                   {filteredCreated.length}
                 </span>
               </h3>

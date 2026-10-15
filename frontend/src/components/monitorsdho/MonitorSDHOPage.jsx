@@ -286,7 +286,7 @@ const MonitorSDHOPage = () => {
               <Clock className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-blue-600">{dataCreated.length}</p>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{dataCreated.length}</p>
               <p className="text-xs text-gray-500 dark:text-slate-500">Status Created</p>
             </div>
           </div>
@@ -310,7 +310,7 @@ const MonitorSDHOPage = () => {
               <Activity className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-purple-600">
+              <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                 {lastUpdate ? lastUpdate.split(' ')[1] || 'N/A' : 'N/A'}
               </p>
               <p className="text-xs text-gray-500 dark:text-slate-500">Last Update</p>
