@@ -600,12 +600,12 @@ const BuyerRRPage = () => {
                 {searchCreated && <button onClick={() => setSearchCreated('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"><X className="w-4 h-4" /></button>}
               </div>
               <select value={filterPickup} onChange={e => setFilterPickup(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Pickup Point</option>
                 {stats.pickupOptions.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
               <select value={filterAttempts} onChange={e => setFilterAttempts(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Attempts</option>
                 {[0, 1, 2, 3, 4, 5, 6].map(n => <option key={n} value={String(n)}>{n === 0 ? '0x' : n + 'x'}</option>)}
               </select>
@@ -668,7 +668,7 @@ const BuyerRRPage = () => {
                 {searchAssigned && <button onClick={() => setSearchAssigned('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"><X className="w-4 h-4" /></button>}
               </div>
               <select value={filterDriver} onChange={e => setFilterDriver(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Driver</option>
                 {stats.driverOptions.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
