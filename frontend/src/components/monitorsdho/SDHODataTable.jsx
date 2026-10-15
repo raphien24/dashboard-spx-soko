@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import {
-  Search, X, Download, ChevronUp, ChevronDown, Package, RefreshCw
+  Search, X, Download, ChevronUp, ChevronDown, Package, RefreshCw,
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 const SDHODataTable = ({ 
@@ -13,6 +14,8 @@ const SDHODataTable = ({
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState(columns[0]?.key || '');
   const [sortDir, setSortDir] = useState('asc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 50;
 
   // Filter dan sort
   const filtered = useMemo(() => {
@@ -47,6 +50,17 @@ const SDHODataTable = ({
     return result;
   }, [data, search, sortKey, sortDir, columns]);
 
+  // Pagination
+  const totalPages = Math.ceil(filtered.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const paginatedData = filtered.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search changes
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [search]);
+
   const handleSort = (key) => {
     if (sortKey === key) {
       setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -54,6 +68,7 @@ const SDHODataTable = ({
       setSortKey(key);
       setSortDir('asc');
     }
+    setCurrentPage(1); // Reset to first page when sorting
   };
 
   // Export CSV
@@ -158,7 +173,7 @@ const SDHODataTable = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
-            {filtered.length === 0 ? (
+            {paginatedData.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-4 py-16 text-center">
                   <div className="flex flex-col items-center gap-3">
@@ -172,7 +187,7 @@ const SDHODataTable = ({
                 </td>
               </tr>
             ) : (
-              filtered.map((row, i) => (
+              paginatedData.map((row, i) => (
                 <tr key={i} className={`hover:bg-${statusColor}-50 dark:hover:bg-slate-800/30 transition-colors`}>
                   {columns.map(col => (
                     <td key={col.key} className="px-4 py-3 align-middle">
@@ -194,11 +209,73 @@ const SDHODataTable = ({
         </table>
       </div>
 
-      {/* Footer */}
+      {/* Footer with Pagination */}
       {filtered.length > 0 && (
-        <div className="px-4 py-3 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-800 text-xs text-gray-500 dark:text-slate-500">
-          <strong className="text-gray-700 dark:text-slate-300">{filtered.length}</strong> record{filtered.length !== 1 && 's'} ditampilkan
-          {filtered.length !== data.length && ` dari ${data.length} total`}
+        <div className="px-4 py-3 bg-gray-50 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-800">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            {/* Info */}
+            <div className="text-xs text-gray-500 dark:text-slate-500">
+              Menampilkan <strong className="text-gray-700 dark:text-slate-300">{startIndex + 1}</strong> - <strong className="text-gray-700 dark:text-slate-300">{Math.min(endIndex, filtered.length)}</strong> dari <strong className="text-gray-700 dark:text-slate-300">{filtered.length}</strong> record
+              {filtered.length !== data.length && ` (disaring dari ${data.length} total)`}
+            </div>
+            
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded-lg border border-gray-300 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Previous page"
+                >
+                  <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-slate-400" />
+                </button>
+                
+                <div className="flex items-center gap-1">
+                  {/* Page numbers */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => {
+                      // Show first page, last page, current page, and pages around current
+                      if (page === 1 || page === totalPages) return true;
+                      if (Math.abs(page - currentPage) <= 1) return true;
+                      return false;
+                    })
+                    .map((page, idx, arr) => {
+                      // Add ellipsis
+                      const prevPage = arr[idx - 1];
+                      const showEllipsis = prevPage && page - prevPage > 1;
+                      
+                      return (
+                        <div key={page} className="flex items-center">
+                          {showEllipsis && (
+                            <span className="px-2 text-gray-400 dark:text-slate-500">...</span>
+                          )}
+                          <button
+                            onClick={() => setCurrentPage(page)}
+                            className={`min-w-[32px] h-8 px-2 rounded-lg text-sm font-medium transition-colors ${
+                              currentPage === page
+                                ? `bg-${statusColor}-600 text-white`
+                                : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        </div>
+                      );
+                    })}
+                </div>
+                
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded-lg border border-gray-300 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Next page"
+                >
+                  <ChevronRight className="w-4 h-4 text-gray-600 dark:text-slate-400" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -324,18 +324,18 @@ const MonitorSDHOPage = () => {
         </div>
       )}
 
-      {/* ── Tabel 1: Status CREATED (A:G) ── */}
+      {/* ── Tabel 1: Status CREATED ── */}
       <SDHODataTable
-        title="Status: CREATED (Kolom A:G)"
+        title="Status: CREATED"
         data={dataCreated}
         columns={CREATED_COLS}
         statusColor="blue"
         onRefresh={fetchData}
       />
 
-      {/* ── Tabel 2: Status ASSIGNED (N:R) ── */}
+      {/* ── Tabel 2: Status ASSIGNED ── */}
       <SDHODataTable
-        title="Status: ASSIGNED (Kolom N:R)"
+        title="Status: ASSIGNED"
         data={dataAssigned}
         columns={ASSIGNED_COLS}
         statusColor="green"
