@@ -190,9 +190,9 @@ const MonitorSDHOPage = () => {
     <div className="space-y-5">
       {/* ── Scraper Panel ── */}
       <div className={`rounded-xl border p-4 shadow-sm ${
-        scraperState === 'running' ? 'bg-blue-50 border-blue-200' :
-        scraperState === 'done'    ? 'bg-green-50 border-green-200' :
-        scraperState === 'error'   ? 'bg-red-50 border-red-200' :
+        scraperState === 'running' ? 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-900' :
+        scraperState === 'done'    ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-900' :
+        scraperState === 'error'   ? 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-900' :
         'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'
       }`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
