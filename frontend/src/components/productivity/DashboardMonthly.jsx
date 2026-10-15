@@ -574,23 +574,23 @@ const DashboardMonthly = () => {
                   <tbody>
                     {monthlyMetrics.dailyBreakdown.map((day, index) => {
                       const achievementColor = 
-                        day.achievement >= 100 ? 'text-green-700 bg-green-50' :
-                        day.achievement >= 75 ? 'text-yellow-700 bg-yellow-50' :
-                        day.achievement >= 50 ? 'text-orange-700 bg-orange-50' :
-                        'text-red-700 bg-red-50';
+                        day.achievement >= 100 ? 'text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/50' :
+                        day.achievement >= 75 ? 'text-yellow-700 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-950/50' :
+                        day.achievement >= 50 ? 'text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-950/50' :
+                        'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/50';
 
                       const isAboveTarget = day.avgProductivity >= day.target;
 
                       return (
-                        <tr key={index} className="border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:bg-slate-800">
+                        <tr key={index} className="border-b border-gray-100 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50">
                           <td className="py-3 px-4 font-medium text-gray-900 dark:text-slate-100">{day.date}</td>
                           <td className="py-3 px-4 text-gray-600 dark:text-slate-400">{day.dayName}</td>
                           <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-slate-100">{day.delivered.toLocaleString()}</td>
                           <td className="py-3 px-4 text-right text-gray-600 dark:text-slate-400">{day.activeShifts}</td>
-                          <td className={`py-3 px-4 text-right font-semibold ${isAboveTarget ? 'text-green-700' : 'text-gray-900 dark:text-slate-100'}`}>
+                          <td className={`py-3 px-4 text-right font-semibold ${isAboveTarget ? 'text-green-700 dark:text-green-400' : 'text-gray-900 dark:text-slate-100'}`}>
                             {day.avgProductivity.toFixed(1)}
                           </td>
-                          <td className="py-3 px-4 text-right text-indigo-700 font-medium">{day.target.toFixed(1)}</td>
+                          <td className="py-3 px-4 text-right text-indigo-700 dark:text-indigo-400 font-medium">{day.target.toFixed(1)}</td>
                           <td className="py-3 px-4 text-right">
                             <span className={`px-2 py-1 rounded-md font-semibold ${achievementColor}`}>
                               {day.pureAchievement.toFixed(1)}%
@@ -605,9 +605,9 @@ const DashboardMonthly = () => {
                       <td className="py-3 px-4 font-bold text-gray-900 dark:text-slate-100" colSpan="2">TOTAL / AVERAGE</td>
                       <td className="py-3 px-4 text-right font-bold text-gray-900 dark:text-slate-100">{monthlyMetrics.summary.totalDelivered.toLocaleString()}</td>
                       <td className="py-3 px-4 text-right font-bold text-gray-900 dark:text-slate-100">{monthlyMetrics.summary.totalActiveShifts}</td>
-                      <td className="py-3 px-4 text-right font-bold text-indigo-900">{monthlyMetrics.summary.avgProductivity.toFixed(1)}</td>
-                      <td className="py-3 px-4 text-right font-bold text-indigo-700">{monthlyMetrics.summary.avgTarget.toFixed(1)}</td>
-                      <td className="py-3 px-4 text-right font-bold text-indigo-900">
+                      <td className="py-3 px-4 text-right font-bold text-indigo-900 dark:text-indigo-300">{monthlyMetrics.summary.avgProductivity.toFixed(1)}</td>
+                      <td className="py-3 px-4 text-right font-bold text-indigo-700 dark:text-indigo-400">{monthlyMetrics.summary.avgTarget.toFixed(1)}</td>
+                      <td className="py-3 px-4 text-right font-bold text-indigo-900 dark:text-indigo-300">
                         {monthlyMetrics.achievement.pureAchievement.toFixed(1)}%
                       </td>
                     </tr>
