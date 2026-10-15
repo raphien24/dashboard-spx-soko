@@ -199,7 +199,7 @@ const DashboardMonthly = () => {
         {selectedMonth && (
           <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-800">
             <p className="text-sm text-gray-600 dark:text-slate-400">
-              Showing data for: <span className="font-semibold text-indigo-600">{formatMonthDisplay(selectedMonth)}</span>
+              Showing data for: <span className="font-semibold text-indigo-600 dark:text-indigo-400">{formatMonthDisplay(selectedMonth)}</span>
               {' '} | {selectedContract} | {selectedVehicle}
             </p>
           </div>
@@ -427,7 +427,7 @@ const DashboardMonthly = () => {
               <div className="p-5 space-y-4">
                 {/* Step 1 */}
                 <div className="pb-4 border-b border-gray-200 dark:border-slate-800">
-                  <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 1: Calculate Average Productivity</h5>
+                  <h5 className="text-indigo-600 dark:text-indigo-400 font-semibold text-sm mb-2">Step 1: Calculate Average Productivity</h5>
                   <div className="text-gray-700 dark:text-slate-300 text-xs space-y-1 ml-3">
                     <p className="font-mono bg-gray-50 dark:bg-slate-800 p-2 rounded border border-gray-200 dark:border-slate-800">Avg Productivity = Total Delivered ÷ Total Active Shifts</p>
                     <p className="mt-2">Example for Dedicated 2WH:</p>
@@ -439,7 +439,7 @@ const DashboardMonthly = () => {
 
                 {/* Step 2 */}
                 <div className="pb-4 border-b border-gray-200 dark:border-slate-800">
-                  <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 2: Get Target (Appeal → Original)</h5>
+                  <h5 className="text-indigo-600 dark:text-indigo-400 font-semibold text-sm mb-2">Step 2: Get Target (Appeal → Original)</h5>
                   <div className="text-gray-700 dark:text-slate-300 text-xs space-y-1 ml-3">
                     <p>Priority: <span className="font-semibold">Appeal Target</span> (Supabase) → <span className="font-semibold">Monday Original</span> (Raw data)</p>
                     <p className="ml-2">• Dedicated 2WH Target: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target}</p>
@@ -448,7 +448,7 @@ const DashboardMonthly = () => {
 
                 {/* Step 3 */}
                 <div className="pb-4 border-b border-gray-200 dark:border-slate-800">
-                  <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 3: Calculate Threshold (75%)</h5>
+                  <h5 className="text-indigo-600 dark:text-indigo-400 font-semibold text-sm mb-2">Step 3: Calculate Threshold (75%)</h5>
                   <div className="text-gray-700 dark:text-slate-300 text-xs space-y-1 ml-3">
                     <p className="font-mono bg-gray-50 dark:bg-slate-800 p-2 rounded border border-gray-200 dark:border-slate-800">Threshold = Target × 0.75</p>
                     <p className="ml-2">• Dedicated 2WH: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.threshold} = {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.target} × 0.75</p>
@@ -457,7 +457,7 @@ const DashboardMonthly = () => {
 
                 {/* Step 4 */}
                 <div className="pb-4 border-b border-gray-200 dark:border-slate-800">
-                  <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 4: Apply Threshold Formula</h5>
+                  <h5 className="text-indigo-600 dark:text-indigo-400 font-semibold text-sm mb-2">Step 4: Apply Threshold Formula</h5>
                   <div className="text-gray-700 dark:text-slate-300 text-xs space-y-1 ml-3">
                     <p className="font-mono bg-gray-50 dark:bg-slate-800 p-2 rounded border border-gray-200 dark:border-slate-800">Achievement = (Result − Threshold) ÷ (Target − Threshold) × 100%</p>
                     <p className="mt-2">Then cap between 0-100%</p>
@@ -471,13 +471,13 @@ const DashboardMonthly = () => {
 
                 {/* Step 5 */}
                 <div>
-                  <h5 className="text-indigo-600 font-semibold text-sm mb-2">Step 5: Average Both Contract Types</h5>
+                  <h5 className="text-indigo-600 dark:text-indigo-400 font-semibold text-sm mb-2">Step 5: Average Both Contract Types</h5>
                   <div className="text-gray-700 dark:text-slate-300 text-xs space-y-1 ml-3">
                     <p className="font-mono bg-gray-50 dark:bg-slate-800 p-2 rounded border border-gray-200 dark:border-slate-800">Final KPI = (Dedicated Achievement + Kurir Plus Achievement) ÷ 2</p>
                     <p className="mt-2">Current calculation:</p>
                     <p className="ml-2">• Dedicated: {monthlyMetrics.productivity2WHKPI.subMetrics.dedicated.achievement.toFixed(1)}%</p>
                     <p className="ml-2">• Kurir Plus: {monthlyMetrics.productivity2WHKPI.subMetrics.kurirPlus.achievement.toFixed(1)}%</p>
-                    <p className="ml-2 mt-1">• <span className="text-indigo-600 font-bold text-base">Final = {monthlyMetrics.productivity2WHKPI.achievement}%</span></p>
+                    <p className="ml-2 mt-1">• <span className="text-indigo-600 dark:text-indigo-400 font-bold text-base">Final = {monthlyMetrics.productivity2WHKPI.achievement}%</span></p>
                   </div>
                 </div>
               </div>
@@ -517,14 +517,14 @@ const DashboardMonthly = () => {
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-200 p-6 bg-indigo-50">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-indigo-700">Monthly Target</h3>
+                  <h3 className="text-sm font-medium text-indigo-700 dark:text-indigo-400">Monthly Target</h3>
                 </div>
-                <p className="text-3xl font-bold text-indigo-900">
+                <p className="text-3xl font-bold text-indigo-900 dark:text-indigo-300">
                   {monthlyMetrics.summary.avgTarget != null 
                     ? monthlyMetrics.summary.avgTarget.toFixed(1) 
                     : '0.0'}
                 </p>
-                <p className="text-sm text-indigo-600 mt-1">Target per shift (avg)</p>
+                <p className="text-sm text-indigo-600 dark:text-indigo-400 mt-1">Target per shift (avg)</p>
               </div>
 
               <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 p-6">
@@ -543,9 +543,9 @@ const DashboardMonthly = () => {
               <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-white text-xs font-bold">i</span>
               </div>
-              <div className="text-sm text-blue-900">
+              <div className="text-sm text-blue-900 dark:text-blue-300">
                 <p className="font-medium mb-1">Monthly Calculation Method</p>
-                <p className="text-blue-700">
+                <p className="text-blue-700 dark:text-blue-400">
                   Monthly Achievement = Total Delivered ÷ Total Active Shifts (daily active manpower).
                   Cross-month weeks are split by month boundaries with daily targets from appeal or Monday baseline.
                   Threshold-based achievement calculation applies (75% threshold).
