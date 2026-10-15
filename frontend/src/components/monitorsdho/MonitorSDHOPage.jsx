@@ -321,11 +321,15 @@ const MonitorSDHOPage = () => {
 
       {/* ── Recap Pickup Attempts ── */}
       {dataCreated.length > 0 && (() => {
-        // Hitung attempts breakdown
-        const attemptMap = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+        // Hitung attempts breakdown (termasuk 0x)
+        const attemptMap = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
         dataCreated.forEach(row => {
-          const n = parseInt(row['Pickup Attempts']) || 0;
-          if (n >= 1 && n <= 5) {
+          const attemptsValue = row['Pickup Attempts'] || row['Attempts'] || '0';
+          const n = parseInt(attemptsValue) || 0;
+          
+          if (n === 0) {
+            attemptMap[0]++;
+          } else if (n >= 1 && n <= 5) {
             attemptMap[n]++;
           } else if (n >= 6) {
             attemptMap[6]++;
@@ -337,23 +341,26 @@ const MonitorSDHOPage = () => {
             <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-4">
               Recap Pickup Attempts (Status Created)
             </h3>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-              {[1, 2, 3, 4, 5, 6].map(n => {
+            <div className="grid grid-cols-3 sm:grid-cols-7 gap-3">
+              {[0, 1, 2, 3, 4, 5, 6].map(n => {
                 const count = attemptMap[n] || 0;
                 const pct = dataCreated.length > 0 
                   ? Math.round((count / dataCreated.length) * 100) 
                   : 0;
                 const color = 
+                  n === 0 ? 'border-gray-200 bg-gray-50' :
                   n >= 5 ? 'border-red-200 bg-red-50' : 
                   n >= 3 ? 'border-orange-200 bg-orange-50' : 
                   n >= 2 ? 'border-yellow-200 bg-yellow-50' : 
                   'border-blue-100 bg-blue-50';
                 const textColor = 
+                  n === 0 ? 'text-gray-700' :
                   n >= 5 ? 'text-red-700' : 
                   n >= 3 ? 'text-orange-600' : 
                   n >= 2 ? 'text-yellow-700' : 
                   'text-blue-700';
                 const barColor = 
+                  n === 0 ? 'bg-gray-400' :
                   n >= 5 ? 'bg-red-500' : 
                   n >= 3 ? 'bg-orange-400' : 
                   n >= 2 ? 'bg-yellow-400' : 
@@ -363,7 +370,7 @@ const MonitorSDHOPage = () => {
                   <div key={n} className={`rounded-lg border p-3 ${color}`}>
                     <p className={`text-2xl font-bold ${textColor}`}>{count}</p>
                     <p className="text-xs font-medium text-gray-700 dark:text-slate-300 mt-0.5">
-                      {n === 6 ? '6x+' : n + 'x'} Attempts
+                      {n === 0 ? '0x' : n === 6 ? '6x+' : n + 'x'} Attempts
                     </p>
                     <div className="mt-2 w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5">
                       <div 
