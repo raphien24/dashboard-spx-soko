@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
@@ -7,37 +8,56 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [whitelist, setWhitelist] = useState([]);
 
-  // Load whitelist from localStorage
+  // Load whitelist from Supabase
   useEffect(() => {
-    const defaultList = ['rafi.alvian@spxexpress.com', 'admin@spxsoko.online'];
-    const savedWhitelist = localStorage.getItem('spx_whitelist');
-    
-    if (savedWhitelist) {
-      try {
-        const parsedList = JSON.parse(savedWhitelist);
-        
-        // Ensure default emails are always present (merge with existing)
-        const mergedList = [...new Set([...defaultList, ...parsedList])];
-        
-        // Update if list changed
-        if (JSON.stringify(mergedList) !== JSON.stringify(parsedList)) {
-          setWhitelist(mergedList);
-          localStorage.setItem('spx_whitelist', JSON.stringify(mergedList));
-        } else {
-          setWhitelist(parsedList);
-        }
-      } catch (e) {
-        console.error('Failed to parse whitelist:', e);
-        // Default whitelist if parsing fails
-        setWhitelist(defaultList);
-        localStorage.setItem('spx_whitelist', JSON.stringify(defaultList));
-      }
-    } else {
-      // Set default whitelist
-      setWhitelist(defaultList);
-      localStorage.setItem('spx_whitelist', JSON.stringify(defaultList));
-    }
+    loadWhitelist();
   }, []);
+
+  const loadWhitelist = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('whitelist')
+        .select('email')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error loading whitelist:', error);
+        // Fallback to default list if Supabase fails
+        const defaultList = ['rafi.alvian@spxexpress.com', 'admin@spxsoko.online'];
+        setWhitelist(defaultList);
+      } else if (data && data.length > 0) {
+        const emails = data.map(row => row.email);
+        setWhitelist(emails);
+      } else {
+        // If table is empty, initialize with default emails
+        await initializeDefaultWhitelist();
+      }
+    } catch (err) {
+      console.error('Failed to load whitelist:', err);
+      // Fallback to default
+      const defaultList = ['rafi.alvian@spxexpress.com', 'admin@spxsoko.online'];
+      setWhitelist(defaultList);
+    }
+  };
+
+  const initializeDefaultWhitelist = async () => {
+    const defaultList = ['rafi.alvian@spxexpress.com', 'admin@spxsoko.online'];
+    
+    try {
+      const { error } = await supabase
+        .from('whitelist')
+        .insert(defaultList.map(email => ({ email })));
+
+      if (error) {
+        console.error('Error initializing whitelist:', error);
+      } else {
+        setWhitelist(defaultList);
+      }
+    } catch (err) {
+      console.error('Failed to initialize whitelist:', err);
+      setWhitelist(defaultList);
+    }
+  };
 
   // Check if user is already logged in (from localStorage)
   useEffect(() => {
@@ -60,21 +80,27 @@ export const AuthProvider = ({ children }) => {
       const name = googleUser.name;
       const picture = googleUser.picture;
 
-      // Get current whitelist (check localStorage directly to ensure it's initialized)
+      // Load fresh whitelist from Supabase
+      await loadWhitelist();
+
+      // Get current whitelist
       let currentWhitelist = whitelist;
       if (currentWhitelist.length === 0) {
-        const savedWhitelist = localStorage.getItem('spx_whitelist');
-        if (savedWhitelist) {
-          currentWhitelist = JSON.parse(savedWhitelist);
+        // Force reload if empty
+        const { data } = await supabase
+          .from('whitelist')
+          .select('email');
+        
+        if (data && data.length > 0) {
+          currentWhitelist = data.map(row => row.email);
         } else {
-          // Initialize default whitelist if not exists
-          currentWhitelist = ['rafi.alvian@spxexpress.com', 'admin@spxsoko.online'];
-          localStorage.setItem('spx_whitelist', JSON.stringify(currentWhitelist));
-          setWhitelist(currentWhitelist);
+          // Initialize defaults if still empty
+          const defaultList = ['rafi.alvian@spxexpress.com', 'admin@spxsoko.online'];
+          await initializeDefaultWhitelist();
+          currentWhitelist = defaultList;
         }
       }
 
-      // Debug logging
       console.log('=== LOGIN DEBUG ===');
       console.log('Email attempting login:', email);
       console.log('Current whitelist:', currentWhitelist);
@@ -111,9 +137,68 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const updateWhitelist = (newWhitelist) => {
-    setWhitelist(newWhitelist);
-    localStorage.setItem('spx_whitelist', JSON.stringify(newWhitelist));
+  const updateWhitelist = async (newWhitelist) => {
+    try {
+      // Delete all existing records
+      await supabase.from('whitelist').delete().neq('email', '');
+
+      // Insert new records
+      const { error } = await supabase
+        .from('whitelist')
+        .insert(newWhitelist.map(email => ({ email })));
+
+      if (error) {
+        console.error('Error updating whitelist:', error);
+        throw error;
+      }
+
+      setWhitelist(newWhitelist);
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to update whitelist:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const addToWhitelist = async (email) => {
+    try {
+      const { error } = await supabase
+        .from('whitelist')
+        .insert([{ email: email.toLowerCase() }]);
+
+      if (error) {
+        console.error('Error adding to whitelist:', error);
+        throw error;
+      }
+
+      // Reload whitelist
+      await loadWhitelist();
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to add to whitelist:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const removeFromWhitelist = async (email) => {
+    try {
+      const { error } = await supabase
+        .from('whitelist')
+        .delete()
+        .eq('email', email);
+
+      if (error) {
+        console.error('Error removing from whitelist:', error);
+        throw error;
+      }
+
+      // Reload whitelist
+      await loadWhitelist();
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to remove from whitelist:', error);
+      return { success: false, error: error.message };
+    }
   };
 
   const isEmailWhitelisted = (email) => {
@@ -129,7 +214,10 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         updateWhitelist,
+        addToWhitelist,
+        removeFromWhitelist,
         isEmailWhitelisted,
+        loadWhitelist,
       }}
     >
       {children}

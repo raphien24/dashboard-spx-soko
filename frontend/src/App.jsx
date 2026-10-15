@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 import { Play, Pause, RefreshCw, LogOut, User } from 'lucide-react';
 import Sidebar from './components/common/Sidebar';
 import Dashboard from './components/dashboard/Dashboard';
@@ -24,8 +23,7 @@ import { useAuth } from './contexts/AuthContext';
 import StarfieldBackground from './components/animations/StarfieldBackground';
 
 function App() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [activePage, setActivePage] = useState('landing');
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { user, logout } = useAuth();
@@ -43,58 +41,8 @@ function App() {
   };
 
   const handleNavigation = (pageId) => {
-    // Map page IDs to routes
-    const routes = {
-      'productivity-dashboard': '/dashboard',
-      'productivity-monthly': '/dashboard/monthly',
-      'adjust-target': '/dashboard/adjust-target',
-      'sp-generator': '/punishment/generator',
-      'sp-record': '/punishment/record',
-      'expedite': '/expedite',
-      'backlog-lm': '/backlog',
-      'hse-daily': '/hse/daily',
-      'hse-weekly': '/hse/weekly',
-      'buyer-rr': '/buyer-rr',
-      'monitor-sdho': '/monitor-sdho',
-      'control-stuck-fm': '/control-stuck',
-      'cookie-manager': '/settings/cookies',
-      'theme-settings': '/settings/theme',
-      'whitelist-settings': '/settings/whitelist',
-      'animation-demo': '/settings/animation',
-    };
-    
-    const route = routes[pageId] || '/';
-    navigate(route);
+    setActivePage(pageId);
   };
-
-  // Get current page from URL
-  const getActivePageFromPath = () => {
-    const path = location.pathname;
-    
-    const pathMap = {
-      '/': 'landing',
-      '/dashboard': 'productivity-dashboard',
-      '/dashboard/monthly': 'productivity-monthly',
-      '/dashboard/adjust-target': 'adjust-target',
-      '/punishment/generator': 'sp-generator',
-      '/punishment/record': 'sp-record',
-      '/expedite': 'expedite',
-      '/backlog': 'backlog-lm',
-      '/hse/daily': 'hse-daily',
-      '/hse/weekly': 'hse-weekly',
-      '/buyer-rr': 'buyer-rr',
-      '/monitor-sdho': 'monitor-sdho',
-      '/control-stuck': 'control-stuck-fm',
-      '/settings/cookies': 'cookie-manager',
-      '/settings/theme': 'theme-settings',
-      '/settings/whitelist': 'whitelist-settings',
-      '/settings/animation': 'animation-demo',
-    };
-    
-    return pathMap[path] || 'landing';
-  };
-
-  const activePage = getActivePageFromPath();
 
   // Determine page title based on active page
   const pageTitles = {
@@ -138,8 +86,8 @@ function App() {
   const currentTitle = pageTitles[activePage] || 'SPX SOKO Dashboard';
   const currentSubtitle = pageSubtitles[activePage] || '';
 
-  // Check if current route is landing page
-  const isLandingPage = location.pathname === '/';
+  // Is the active page a landing page?
+  const isLandingPage = activePage === 'landing';
   
   // Is the active page a punishment management sub-page?
   const isProductivityDash = activePage === 'productivity-dashboard' || activePage === 'productivity';
@@ -161,9 +109,7 @@ function App() {
       
       {isLandingPage ? (
         /* Landing Page - Full Screen */
-        <Routes>
-          <Route path="/" element={<LandingPage onNavigate={handleNavigation} />} />
-        </Routes>
+        <LandingPage onNavigate={handleNavigation} />
       ) : (
         /* Normal Dashboard Layout with Sidebar */
         <div className="flex h-screen bg-transparent overflow-hidden relative touch-none" style={{ height: '100vh', height: '100dvh' }}>
@@ -280,24 +226,23 @@ function App() {
             {/* Main Content - Scrollable */}
             <main className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-transparent relative overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
               <div className={`${isPunishmentPage ? 'p-2 sm:p-3 md:p-4 lg:p-6 h-full' : 'p-2 sm:p-3 md:p-4 lg:p-6'}`}>
-                <Routes>
-                  <Route path="/dashboard" element={<Dashboard autoRefreshEnabled={autoRefreshEnabled} />} />
-                  <Route path="/dashboard/monthly" element={<DashboardMonthly />} />
-                  <Route path="/dashboard/adjust-target" element={<AdjustTargetPage />} />
-                  <Route path="/punishment/generator" element={<PunishmentManagement activeSubPage="sp-generator" />} />
-                  <Route path="/punishment/record" element={<PunishmentManagement activeSubPage="sp-record" />} />
-                  <Route path="/expedite" element={<ExpeditePage />} />
-                  <Route path="/backlog" element={<BacklogLMPage />} />
-                  <Route path="/hse/daily" element={<HSEDailyBriefing />} />
-                  <Route path="/hse/weekly" element={<HSEWeekly5S />} />
-                  <Route path="/buyer-rr" element={<BuyerRRPage />} />
-                  <Route path="/monitor-sdho" element={<MonitorSDHOPage />} />
-                  <Route path="/control-stuck" element={<ControlStuckFMPage />} />
-                  <Route path="/settings/cookies" element={<CookieManagerPage />} />
-                  <Route path="/settings/theme" element={<ThemeSettings />} />
-                  <Route path="/settings/whitelist" element={<WhitelistSettings />} />
-                  <Route path="/settings/animation" element={<AnimationDemo />} />
-                </Routes>
+                {isProductivityDash && <Dashboard autoRefreshEnabled={autoRefreshEnabled} />}
+                {isProductivityMonthly && <DashboardMonthly />}
+                {isAdjustTarget     && <AdjustTargetPage />}
+                {isPunishmentPage && (
+                  <PunishmentManagement activeSubPage={activePage} />
+                )}
+                {isExpeditePage      && <ExpeditePage />}
+                {isBacklogLMPage     && <BacklogLMPage />}
+                {activePage === 'hse-daily'  && <HSEDailyBriefing />}
+                {activePage === 'hse-weekly' && <HSEWeekly5S />}
+                {isBuyerRRPage     && <BuyerRRPage />}
+                {isMonitorSDHOPage   && <MonitorSDHOPage />}
+                {activePage === 'cookie-manager' && <CookieManagerPage />}
+                {activePage === 'theme-settings' && <ThemeSettings />}
+                {activePage === 'whitelist-settings' && <WhitelistSettings />}
+                {activePage === 'animation-demo' && <AnimationDemo />}
+                {isControlStuckPage  && <ControlStuckFMPage />}
               </div>
             </main>
 

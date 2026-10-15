@@ -1,19 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Mail, Plus, Trash2, Shield, Check, X, AlertCircle } from 'lucide-react';
+import { Mail, Plus, Trash2, Shield, Check, X, AlertCircle, Loader } from 'lucide-react';
 
 const WhitelistSettings = () => {
-  const { whitelist, updateWhitelist, user } = useAuth();
+  const { whitelist, addToWhitelist, removeFromWhitelist, loadWhitelist, user } = useAuth();
   const [newEmail, setNewEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Reload whitelist on mount
+  useEffect(() => {
+    loadWhitelist();
+  }, []);
 
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const handleAddEmail = () => {
+  const handleAddEmail = async () => {
     setError('');
     setSuccess('');
 
@@ -32,15 +38,21 @@ const WhitelistSettings = () => {
       return;
     }
 
-    const updatedList = [...whitelist, newEmail.toLowerCase()];
-    updateWhitelist(updatedList);
-    setNewEmail('');
-    setSuccess(`Added ${newEmail} to whitelist`);
+    setIsLoading(true);
+    const result = await addToWhitelist(newEmail.toLowerCase());
+    setIsLoading(false);
 
-    setTimeout(() => setSuccess(''), 3000);
+    if (result.success) {
+      setNewEmail('');
+      setSuccess(`Added ${newEmail} to whitelist`);
+      setTimeout(() => setSuccess(''), 3000);
+    } else {
+      setError(result.error || 'Failed to add email');
+      setTimeout(() => setError(''), 5000);
+    }
   };
 
-  const handleRemoveEmail = (email) => {
+  const handleRemoveEmail = async (email) => {
     // Prevent removing own email
     if (email === user?.email) {
       setError('You cannot remove your own email');
@@ -55,10 +67,17 @@ const WhitelistSettings = () => {
       return;
     }
 
-    const updatedList = whitelist.filter((e) => e !== email);
-    updateWhitelist(updatedList);
-    setSuccess(`Removed ${email} from whitelist`);
-    setTimeout(() => setSuccess(''), 3000);
+    setIsLoading(true);
+    const result = await removeFromWhitelist(email);
+    setIsLoading(false);
+
+    if (result.success) {
+      setSuccess(`Removed ${email} from whitelist`);
+      setTimeout(() => setSuccess(''), 3000);
+    } else {
+      setError(result.error || 'Failed to remove email');
+      setTimeout(() => setError(''), 5000);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -119,10 +138,20 @@ const WhitelistSettings = () => {
           </div>
           <button
             onClick={handleAddEmail}
-            className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
+            disabled={isLoading}
+            className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
           >
-            <Plus className="w-4 h-4" />
-            Add Email
+            {isLoading ? (
+              <>
+                <Loader className="w-4 h-4 animate-spin" />
+                Adding...
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4" />
+                Add Email
+              </>
+            )}
           </button>
         </div>
         <p className="text-xs text-gray-500 dark:text-slate-500 mt-2">
