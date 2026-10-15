@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   RefreshCw, X, Play, RotateCcw, CheckCircle, XCircle, 
-  Loader2, Activity, BarChart3, Clock, Layers
+  Loader2, Activity, Clock, Layers
 } from 'lucide-react';
 import { 
   getMonitorSDHOData, 
@@ -29,32 +29,6 @@ const ASSIGNED_COLS = [
   { key: 'Accepted Time',      label: 'Accepted Time',    width: 'min-w-[140px]' },
   { key: 'Status',             label: 'Status',           width: 'min-w-[110px]' },
 ];
-
-// Warna card summary
-const summaryCardStyle = (status) => {
-  if (!status) return { 
-    border: 'border-gray-200 dark:border-slate-800', 
-    bg: 'bg-gray-50 dark:bg-slate-800', 
-    icon: 'text-gray-500 dark:text-slate-500', 
-    iconBg: 'bg-gray-100 dark:bg-slate-800', 
-    text: 'text-gray-700 dark:text-slate-300' 
-  };
-  
-  const s = String(status).toLowerCase();
-  if (s.includes('total'))    return { border: 'border-indigo-200', bg: 'bg-indigo-50', icon: 'text-indigo-600', iconBg: 'bg-indigo-100 dark:bg-indigo-950', text: 'text-indigo-700' };
-  if (s.includes('assigned')) return { border: 'border-green-200',  bg: 'bg-green-50',  icon: 'text-green-600',  iconBg: 'bg-green-100',  text: 'text-green-700'  };
-  if (s.includes('created'))  return { border: 'border-blue-200',   bg: 'bg-blue-50',   icon: 'text-blue-600',   iconBg: 'bg-blue-100 dark:bg-blue-950',   text: 'text-blue-700'   };
-  
-  return { border: 'border-gray-200 dark:border-slate-800', bg: 'bg-gray-50 dark:bg-slate-800', icon: 'text-gray-500 dark:text-slate-500', iconBg: 'bg-gray-100 dark:bg-slate-800', text: 'text-gray-700 dark:text-slate-300' };
-};
-
-const summaryIcon = (status) => {
-  const s = String(status).toLowerCase();
-  if (s.includes('total'))    return Layers;
-  if (s.includes('assigned')) return CheckCircle;
-  if (s.includes('created'))  return Clock;
-  return BarChart3;
-};
 
 const MonitorSDHOPage = () => {
   // Data state
@@ -291,38 +265,59 @@ const MonitorSDHOPage = () => {
       </div>
 
       {/* ── Summary Cards ── */}
-      {summary.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {summary.map((row, i) => {
-            const style = summaryCardStyle(row['Status']);
-            const Icon  = summaryIcon(row['Status']);
-            return (
-              <div 
-                key={i} 
-                className={`bg-white dark:bg-slate-900 rounded-xl shadow-sm border ${style.border} p-5`}
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={`w-10 h-10 ${style.iconBg} rounded-lg flex items-center justify-center`}>
-                    <Icon className={`w-5 h-5 ${style.icon}`} />
-                  </div>
-                  <div>
-                    <p className={`text-2xl font-bold ${style.text}`}>
-                      {row['Total Count'] || '0'}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-slate-500">
-                      {row['Status']}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between text-xs text-gray-400 dark:text-slate-500 border-t border-gray-100 dark:border-slate-800 pt-2">
-                  <span>{row['Mode'] || ''}</span>
-                  <span>{row['Last Update'] || ''}</span>
-                </div>
-              </div>
-            );
-          })}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-indigo-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-950 rounded-lg flex items-center justify-center">
+              <Layers className="w-5 h-5 text-indigo-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-indigo-700">
+                {dataCreated.length + dataAssigned.length}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Total Pickup Tasks</p>
+            </div>
+          </div>
         </div>
-      )}
+        
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-blue-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-950 rounded-lg flex items-center justify-center">
+              <Clock className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-blue-600">{dataCreated.length}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Status Created</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-green-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-green-600">{dataAssigned.length}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Status Assigned</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-purple-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <Activity className="w-5 h-5 text-purple-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-purple-600">
+                {lastUpdate ? lastUpdate.split(' ')[1] || 'N/A' : 'N/A'}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-slate-500">Last Update</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* ── Tabel 1: Status CREATED ── */}
       <SDHODataTable
