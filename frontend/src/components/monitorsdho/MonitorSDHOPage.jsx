@@ -348,17 +348,17 @@ const MonitorSDHOPage = () => {
                   ? Math.round((count / dataCreated.length) * 100) 
                   : 0;
                 const color = 
-                  n === 0 ? 'border-gray-200 bg-gray-50' :
-                  n >= 5 ? 'border-red-200 bg-red-50' : 
-                  n >= 3 ? 'border-orange-200 bg-orange-50' : 
-                  n >= 2 ? 'border-yellow-200 bg-yellow-50' : 
-                  'border-blue-100 bg-blue-50';
+                  n === 0 ? 'border-gray-300 dark:border-slate-700 bg-gray-100 dark:bg-slate-800' :
+                  n >= 5 ? 'border-red-300 dark:border-red-900 bg-red-50 dark:bg-red-950' : 
+                  n >= 3 ? 'border-orange-300 dark:border-orange-900 bg-orange-50 dark:bg-orange-950' : 
+                  n >= 2 ? 'border-yellow-300 dark:border-yellow-900 bg-yellow-50 dark:bg-yellow-950' : 
+                  'border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950';
                 const textColor = 
-                  n === 0 ? 'text-gray-700' :
-                  n >= 5 ? 'text-red-700' : 
-                  n >= 3 ? 'text-orange-600' : 
-                  n >= 2 ? 'text-yellow-700' : 
-                  'text-blue-700';
+                  n === 0 ? 'text-gray-700 dark:text-slate-300' :
+                  n >= 5 ? 'text-red-700 dark:text-red-400' : 
+                  n >= 3 ? 'text-orange-600 dark:text-orange-400' : 
+                  n >= 2 ? 'text-yellow-700 dark:text-yellow-400' : 
+                  'text-blue-700 dark:text-blue-400';
                 const barColor = 
                   n === 0 ? 'bg-gray-400' :
                   n >= 5 ? 'bg-red-500' : 

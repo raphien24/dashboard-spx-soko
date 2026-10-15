@@ -172,12 +172,19 @@ const BuyerRRPage = () => {
 
   // ── Stats ────────────────────────────────────────────────────
   const stats = useMemo(() => {
-    // Pickup attempts breakdown (1x-6x)
-    const attemptMap = { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0 };
+    // Pickup attempts breakdown (0x-6x+)
+    const attemptMap = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
     createdRows.forEach(r => {
-      const n = parseInt(r['Pickup Attempts']) || 0;
-      if (n >= 1 && n <= 6) attemptMap[n]++;
-      else if (n > 6) attemptMap[6]++;
+      const attemptsValue = r['Pickup Attempts'] || '0';
+      const n = parseInt(attemptsValue) || 0;
+      
+      if (n === 0) {
+        attemptMap[0]++;
+      } else if (n >= 1 && n <= 5) {
+        attemptMap[n]++;
+      } else if (n >= 6) {
+        attemptMap[6]++;
+      }
     });
 
     // Overdue by ETA
@@ -530,19 +537,36 @@ const BuyerRRPage = () => {
         <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 uppercase tracking-wider mb-4">
           Recap Pickup Attempts (Status Created)
         </h3>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-          {[1,2,3,4,5,6].map(n => {
+        <div className="grid grid-cols-3 sm:grid-cols-7 gap-3">
+          {[0, 1, 2, 3, 4, 5, 6].map(n => {
             const count = stats.attemptMap[n] || 0;
             const pct   = stats.totalCreated > 0 ? Math.round((count / stats.totalCreated) * 100) : 0;
-            const color = n >= 5 ? 'border-red-200 bg-red-50' : n >= 3 ? 'border-orange-200 bg-orange-50' : n >= 2 ? 'border-yellow-200 bg-yellow-50' : 'border-indigo-100 bg-indigo-50';
-            const textColor = n >= 5 ? 'text-red-700' : n >= 3 ? 'text-orange-600' : n >= 2 ? 'text-yellow-700' : 'text-indigo-700';
+            const color = 
+              n === 0 ? 'border-gray-300 dark:border-slate-700 bg-gray-100 dark:bg-slate-800' :
+              n >= 5 ? 'border-red-300 dark:border-red-900 bg-red-50 dark:bg-red-950' : 
+              n >= 3 ? 'border-orange-300 dark:border-orange-900 bg-orange-50 dark:bg-orange-950' : 
+              n >= 2 ? 'border-yellow-300 dark:border-yellow-900 bg-yellow-50 dark:bg-yellow-950' : 
+              'border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950';
+            const textColor = 
+              n === 0 ? 'text-gray-700 dark:text-slate-300' :
+              n >= 5 ? 'text-red-700 dark:text-red-400' : 
+              n >= 3 ? 'text-orange-600 dark:text-orange-400' : 
+              n >= 2 ? 'text-yellow-700 dark:text-yellow-400' : 
+              'text-indigo-700 dark:text-indigo-400';
             return (
               <div key={n} className={`rounded-lg border p-3 ${color}`}>
                 <p className={`text-2xl font-bold ${textColor}`}>{count}</p>
-                <p className="text-xs font-medium text-gray-700 dark:text-slate-300 mt-0.5">{n === 6 ? '6x+' : n + 'x'} Attempts</p>
+                <p className="text-xs font-medium text-gray-700 dark:text-slate-300 mt-0.5">
+                  {n === 0 ? '0x' : n === 6 ? '6x+' : n + 'x'} Attempts
+                </p>
                 <div className="mt-2 w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5">
-                  <div className={`h-1.5 rounded-full ${n >= 5 ? 'bg-red-500' : n >= 3 ? 'bg-orange-400' : n >= 2 ? 'bg-yellow-400' : 'bg-indigo-500'}`}
-                    style={{ width: `${pct}%` }} />
+                  <div className={`h-1.5 rounded-full ${
+                    n === 0 ? 'bg-gray-400' :
+                    n >= 5 ? 'bg-red-500' : 
+                    n >= 3 ? 'bg-orange-400' : 
+                    n >= 2 ? 'bg-yellow-400' : 
+                    'bg-indigo-500'
+                  }`} style={{ width: `${pct}%` }} />
                 </div>
                 <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">{pct}%</p>
               </div>
@@ -581,9 +605,9 @@ const BuyerRRPage = () => {
                 {stats.pickupOptions.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
               <select value={filterAttempts} onChange={e => setFilterAttempts(e.target.value)}
-                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500">
                 <option value="all">Semua Attempts</option>
-                {[1,2,3,4,5,6].map(n => <option key={n} value={String(n)}>{n}x</option>)}
+                {[0, 1, 2, 3, 4, 5, 6].map(n => <option key={n} value={String(n)}>{n === 0 ? '0x' : n + 'x'}</option>)}
               </select>
               {(searchCreated || filterPickup !== 'all' || filterAttempts !== 'all') && (
                 <button onClick={() => { setSearchCreated(''); setFilterPickup('all'); setFilterAttempts('all'); }}
