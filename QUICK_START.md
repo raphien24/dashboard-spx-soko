@@ -1,236 +1,155 @@
-# Quick Start Guide - Dashboard SPX SOKO
+# Quick Start Guide - SPX SOKO Dashboard
 
-Panduan cepat untuk menjalankan dashboard dalam 5 menit!
+## ⚠️ Setup Required
 
-## ⚡ Super Quick Start
+Aplikasi memerlukan konfigurasi Supabase sebelum dapat dijalankan. Ikuti langkah berikut:
 
-```bash
-# 1. Masuk ke folder frontend
-cd "d:\SPX\DASHBOARD SPX SOKO\frontend"
+## 1. Setup Supabase Project
 
-# 2. Install dependencies (first time only)
-npm install
+### A. Buat Project Supabase (5 menit)
+1. Buka https://supabase.com/dashboard
+2. Klik "New Project"
+3. Isi detail project:
+   - Name: `spx-soko-dashboard` (atau nama lain)
+   - Database Password: Buat password yang kuat (simpan password ini!)
+   - Region: Pilih yang terdekat (Singapore atau Tokyo)
+4. Klik "Create new project"
+5. Tunggu ~2 menit hingga project selesai dibuat
 
-# 3. Copy environment template
-cp .env.example .env
+### B. Buat Database Table (2 menit)
+1. Di dashboard Supabase, buka **SQL Editor** (icon </> di sidebar kiri)
+2. Klik "New query"
+3. Copy-paste script SQL berikut:
 
-# 4. Edit .env dan isi API key (lihat step di bawah)
+```sql
+-- Create whitelist table
+CREATE TABLE whitelist (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-# 5. Run!
-npm run dev
+-- Create index for faster email lookups
+CREATE INDEX idx_whitelist_email ON whitelist(email);
 
-# 6. Open browser: http://localhost:5173
+-- Enable Row Level Security
+ALTER TABLE whitelist ENABLE ROW LEVEL SECURITY;
+
+-- Create policy to allow all operations (for now)
+CREATE POLICY "Allow all operations" ON whitelist
+  FOR ALL USING (true);
+
+-- Insert default whitelist emails
+INSERT INTO whitelist (email) VALUES 
+  ('rafi.alvian@spxexpress.com'),
+  ('admin@spxsoko.online')
+ON CONFLICT (email) DO NOTHING;
 ```
 
----
+4. Klik "Run" atau tekan `Ctrl+Enter`
+5. Verifikasi di **Table Editor** → tabel `whitelist` sudah muncul dengan 2 email
 
-## 🔑 Mendapatkan Google Sheets API Key (5 menit)
+### C. Dapatkan Credentials (1 menit)
+1. Buka **Settings** → **API** (icon ⚙️ di sidebar kiri)
+2. Copy 2 nilai ini:
+   - **Project URL**: `https://xxxxx.supabase.co`
+   - **anon/public key**: String panjang dimulai dengan `eyJhbGci...`
 
-### Step 1: Create Google Cloud Project
-1. Buka: https://console.cloud.google.com/
-2. Click "Select a Project" → "New Project"
-3. Nama: "SPX-SOKO-Dashboard" → Create
+## 2. Konfigurasi Frontend
 
-### Step 2: Enable Google Sheets API
-1. Menu: "APIs & Services" → "Library"
-2. Search: "Google Sheets API"
-3. Click → "Enable"
+### A. Update File .env
+1. Buka file `frontend/.env`
+2. Replace placeholder dengan credentials Supabase Anda:
 
-### Step 3: Create API Key
-1. "APIs & Services" → "Credentials"
-2. "+ CREATE CREDENTIALS" → "API Key"
-3. **Copy the API key** (example: AIzaSyBxxx...)
-
-### Step 4: Configure Spreadsheet
-1. Buka Google Sheets yang ingin digunakan
-2. Click "Share" button
-3. Set: **"Anyone with the link"** → **"Viewer"**
-4. Copy Spreadsheet ID dari URL:
-   ```
-   https://docs.google.com/spreadsheets/d/[COPY_THIS_PART]/edit
-   ```
-
-### Step 5: Update .env File
-Edit `frontend/.env`:
 ```env
-VITE_GOOGLE_SHEETS_API_KEY=AIzaSyBxxx...  # Paste API key here
-VITE_SPREADSHEET_ID=1wrQhe7ySqkITVe...     # Paste spreadsheet ID here
-VITE_API_REFRESH_INTERVAL=30000
+# Google OAuth Configuration
+VITE_GOOGLE_CLIENT_ID=521585739971-ngbskbb30jtamlb6op1kukv1o175p3al.apps.googleusercontent.com
+
+# Supabase Configuration
+VITE_SUPABASE_URL=https://xxxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGci...
 ```
 
----
+3. Save file
 
-## 🎯 Testing with Mock Data
-
-Jika belum setup Google Sheets API, aplikasi akan otomatis menggunakan **mock data** untuk testing:
-
+### B. Restart Development Server
 ```bash
-# Just run without API key
+cd frontend
 npm run dev
 ```
 
-Dashboard akan menampilkan data sample. Ini sangat berguna untuk:
-- Testing layout dan UI
-- Development tanpa API quota
-- Demo purposes
+## 3. Test Aplikasi
+
+1. Buka http://localhost:5173
+2. Klik tombol "Dashboard" (tombol hijau di pojok kanan atas)
+3. Login dengan email: `rafi.alvian@spxexpress.com`
+4. Seharusnya berhasil masuk
+
+### Test Whitelist Management
+1. Klik icon ⚙️ (Settings) di sidebar
+2. Pilih "Email Whitelist"
+3. Tambahkan email baru
+4. Refresh halaman → email masih ada (tersimpan di cloud!)
+5. Verifikasi di Supabase: **Table Editor** → `whitelist` → lihat data terbaru
+
+## 4. Deploy ke Production (Cloudflare Pages)
+
+### A. Set Environment Variables
+1. Buka Cloudflare Dashboard
+2. Pilih project: **spxsoko-online**
+3. **Settings** → **Environment variables**
+4. Tambahkan 3 variabel berikut:
+
+| Variable Name | Value |
+|---------------|-------|
+| `VITE_GOOGLE_CLIENT_ID` | `521585739971-ngbskbb30jtamlb6op1kukv1o175p3al.apps.googleusercontent.com` |
+| `VITE_SUPABASE_URL` | `https://xxxxx.supabase.co` (dari Supabase) |
+| `VITE_SUPABASE_ANON_KEY` | `eyJhbGci...` (dari Supabase) |
+
+5. Pilih environment: **Production** dan **Preview**
+6. Klik "Save"
+
+### B. Redeploy
+1. Buat perubahan kecil atau trigger manual redeploy
+2. Tunggu build selesai
+3. Test di https://spxsoko.online
+
+## 📚 Documentation Lengkap
+
+Lihat file berikut untuk detail lebih lanjut:
+- `SUPABASE_SETUP.md` - Detail setup Supabase
+- `CLOUDFLARE_ENV_SETUP.md` - Detail setup Cloudflare
+- `PRD.md` - Product Requirements
+
+## 🆘 Troubleshooting
+
+### Error: "supabaseUrl is required"
+❌ **Penyebab**: File `.env` belum dikonfigurasi
+✅ **Solusi**: Ikuti langkah 2.A di atas
+
+### Error: "Invalid API key"
+❌ **Penyebab**: Salah copy ANON_KEY atau ada spasi ekstra
+✅ **Solusi**: Copy ulang dari Supabase Dashboard → Settings → API
+
+### Login gagal "Email not authorized"
+❌ **Penyebab**: Email belum ada di whitelist
+✅ **Solusi**: Tambahkan email di Settings → Whitelist atau langsung di Supabase Table Editor
+
+### Data whitelist tidak tersimpan
+❌ **Penyebab**: RLS policy belum dibuat atau salah konfigurasi
+✅ **Solusi**: Jalankan ulang SQL script di langkah 1.B
+
+## 🎯 Next Steps
+
+Setelah setup selesai:
+1. ✅ Test semua fitur login & whitelist
+2. ✅ Verifikasi data tersimpan di Supabase
+3. ✅ Deploy ke production
+4. 🔒 (Opsional) Setup RLS policy lebih ketat untuk security
+5. 📊 Mulai input data produktivitas kurir
 
 ---
 
-## 🚀 Deploy ke Production
-
-### Option 1: Vercel (Paling Mudah)
-
-```bash
-# Install Vercel CLI
-npm install -g vercel
-
-# Deploy
-vercel
-
-# Atau deploy langsung dari Git
-# 1. Push ke GitHub
-# 2. Import project di vercel.com
-# 3. Done!
-```
-
-**Jangan lupa set environment variables di Vercel dashboard!**
-
-### Option 2: Build Manual
-
-```bash
-# Build
-npm run build
-
-# Output ada di folder dist/
-# Upload dist/ ke hosting apa saja
-```
-
----
-
-## 📖 Commands Cheat Sheet
-
-```bash
-# Development
-npm run dev              # Run dev server
-
-# Build
-npm run build            # Build for production
-npm run preview          # Preview production build
-
-# Linting
-npm run lint             # Check code quality
-
-# Dependencies
-npm install              # Install all dependencies
-npm update               # Update dependencies
-```
-
----
-
-## 🔧 Troubleshooting
-
-### "API key not valid"
-- Cek API key di `.env` file
-- Pastikan Google Sheets API sudah enabled
-- Verify spreadsheet is public atau shared
-
-### "Failed to fetch"
-- Check internet connection
-- Verify spreadsheet ID benar
-- Check browser console untuk error details
-
-### Data tidak muncul
-- Buka browser console (F12)
-- Lihat error messages
-- Jika API belum setup, aplikasi akan show mock data
-
-### Build error
-```bash
-# Clear cache dan reinstall
-rm -rf node_modules package-lock.json
-npm install
-npm run build
-```
-
----
-
-## 📂 File Structure (Yang Penting)
-
-```
-frontend/
-├── .env                    # Environment variables (BUAT INI!)
-├── src/
-│   ├── App.jsx            # Main app
-│   ├── components/        # UI components
-│   └── services/          # Google Sheets integration
-└── package.json
-```
-
----
-
-## 🎨 Customization Quick Tips
-
-### Change Colors
-Edit `frontend/tailwind.config.js`:
-```javascript
-colors: {
-  primary: {
-    500: '#7C3AED', // Change this!
-  }
-}
-```
-
-### Change Refresh Interval
-Edit `.env`:
-```env
-VITE_API_REFRESH_INTERVAL=60000  # 60 seconds
-```
-
-### Adjust Sheet Names
-Edit `frontend/src/services/googleSheetsService.js`:
-```javascript
-async getKPIMetrics() {
-  const data = await this.getRange('YourSheetName!A1:F20');
-  // ...
-}
-```
-
----
-
-## 📚 Need More Help?
-
-- **Setup Issues**: Baca `SETUP_GUIDE.md`
-- **Deployment**: Baca `DEPLOYMENT.md`
-- **Full Docs**: Baca `PROJECT_SUMMARY.md`
-- **API Details**: Baca `PRD.md`
-
----
-
-## ✅ Quick Checklist
-
-Before running:
-- [ ] Node.js 18+ installed
-- [ ] npm working
-- [ ] `.env` file created
-- [ ] API key obtained (or using mock data)
-- [ ] Spreadsheet public (if using real API)
-
-Ready to deploy:
-- [ ] Build successful (`npm run build`)
-- [ ] Tested locally
-- [ ] Environment variables ready
-- [ ] Hosting platform chosen
-
----
-
-## 🎉 That's It!
-
-Dashboard sekarang sudah running! 
-
-**Development**: http://localhost:5173
-
-**Production**: Deploy dengan Vercel/Netlify
-
----
-
-**Questions?** Check the full documentation in the project folder!
+**Status**: ⏳ Waiting for Supabase configuration
+**Estimated Setup Time**: ~10 menit
