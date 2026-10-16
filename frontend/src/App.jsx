@@ -15,6 +15,7 @@ import AnimationDemo from './pages/AnimationDemo';
 import WhitelistSettings from './pages/WhitelistSettings';
 import ControlStuckFMPage from './components/controlstuckfm/ControlStuckFMPage';
 import BacklogLMPage from './components/backlog/BacklogLMPage';
+import StuckOnholdPage from './components/stuckonhold/StuckOnholdPage';
 import HSEDailyBriefing from './components/hse/HSEDailyBriefing';
 import HSEWeekly5S from './components/hse/HSEWeekly5S';
 import LandingPage from './pages/LandingPage';
@@ -52,6 +53,7 @@ function App() {
       'sp-record': '/punishment/record',
       'expedite': '/expedite',
       'backlog-lm': '/backlog',
+      'stuck-onhold': '/stuck-onhold',
       'hse-daily': '/hse/daily',
       'hse-weekly': '/hse/weekly',
       'buyer-rr': '/buyer-rr',
@@ -80,6 +82,7 @@ function App() {
       '/punishment/record': 'sp-record',
       '/expedite': 'expedite',
       '/backlog': 'backlog-lm',
+      '/stuck-onhold': 'stuck-onhold',
       '/hse/daily': 'hse-daily',
       '/hse/weekly': 'hse-weekly',
       '/buyer-rr': 'buyer-rr',
@@ -106,6 +109,7 @@ function App() {
     'sp-record':    'Punishment Management',
     'expedite':          'Expedite Tracker',
     'backlog-lm':        'Backlog LM',
+    'stuck-onhold':      'Stuck Onhold',
     'hse-daily':         'HSE',
     'hse-weekly':        'HSE',
     'buyer-rr':      'Buyer RR',
@@ -125,6 +129,7 @@ function App() {
     'sp-record':    'SP Record — Database',
     'expedite':          'Monitor & track paket expedite',
     'backlog-lm':        'Monitor backlog last mile',
+    'stuck-onhold':      'Monitor stuck onhold packages',
     'hse-daily':         'Daily Briefing — Keselamatan Harian',
     'hse-weekly':        'Weekly 5S — Checklist Mingguan',
     'buyer-rr':      'Monitor & track buyer return request',
@@ -148,6 +153,7 @@ function App() {
   const isPunishmentPage  = activePage === 'sp-generator' || activePage === 'sp-record';
   const isExpeditePage    = activePage === 'expedite';
   const isBacklogLMPage   = activePage === 'backlog-lm';
+  const isStuckOnholdPage = activePage === 'stuck-onhold';
   const isHSEPage         = activePage === 'hse-daily' || activePage === 'hse-weekly';
   const isBuyerRRPage     = activePage === 'buyer-rr';
   const isMonitorSDHOPage  = activePage === 'monitor-sdho';
@@ -187,7 +193,7 @@ function App() {
                       <p className="text-[10px] sm:text-xs lg:text-sm text-gray-500 dark:text-slate-400">
                         {currentSubtitle}
                       </p>
-                      {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && !isBacklogLMPage && !isHSEPage && !isAdjustTarget && (
+                      {!isPunishmentPage && !isExpeditePage && !isBuyerRRPage && !isMonitorSDHOPage && !isSettingsPage && !isControlStuckPage && !isBacklogLMPage && !isStuckOnholdPage && !isHSEPage && !isAdjustTarget && (
                         <>
                           <span className="hidden sm:inline text-gray-300 dark:text-slate-700">•</span>
                           <div className="flex items-center gap-1">
@@ -288,6 +294,7 @@ function App() {
                   <Route path="/punishment/record" element={<PunishmentManagement activeSubPage="sp-record" />} />
                   <Route path="/expedite" element={<ExpeditePage />} />
                   <Route path="/backlog" element={<BacklogLMPage />} />
+                  <Route path="/stuck-onhold" element={<StuckOnholdPage />} />
                   <Route path="/hse/daily" element={<HSEDailyBriefing />} />
                   <Route path="/hse/weekly" element={<HSEWeekly5S />} />
                   <Route path="/buyer-rr" element={<BuyerRRPage />} />

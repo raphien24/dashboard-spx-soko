@@ -63,10 +63,15 @@ const Sidebar = ({ activePage = 'productivity', onNavigate }) => {
       active: false,
     },
     {
-      id: 'backlog-lm',
-      label: 'Backlog LM',
+      id: 'stuck-lm',
+      label: 'Stuck LM',
       icon: Package,
       active: false,
+      hasSubmenu: true,
+      submenu: [
+        { id: 'backlog-lm', label: 'Backlog LM', parent: 'stuck-lm' },
+        { id: 'stuck-onhold', label: 'Stuck Onhold', parent: 'stuck-lm' },
+      ],
     },
     {
       id: 'hse',
