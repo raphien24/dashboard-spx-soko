@@ -37,6 +37,8 @@ const StuckOnholdPage = () => {
   const [filterDistrict,  setFilterDistrict]  = useState('all');
   const [filterStatus,    setFilterStatus]    = useState('all');
   const [filterAccount,   setFilterAccount]   = useState('all');
+  const [filterDateFrom,  setFilterDateFrom]  = useState('');
+  const [filterDateTo,    setFilterDateTo]    = useState('');
 
   // Sort
   const [sortKey, setSortKey] = useState('OnHold Time');
@@ -176,6 +178,34 @@ const StuckOnholdPage = () => {
     if (filterDistrict !== 'all') data = data.filter(r => r['District Name'] === filterDistrict);
     if (filterStatus   !== 'all') data = data.filter(r => r['Status'] === filterStatus);
     if (filterAccount  !== 'all') data = data.filter(r => r['Order Account'] === filterAccount);
+    
+    // Filter by date range (Received Time)
+    if (filterDateFrom || filterDateTo) {
+      data = data.filter(r => {
+        const receivedTime = r['Current Station Received Time'];
+        if (!receivedTime) return false;
+        
+        // Parse date from string (format: YYYY-MM-DD HH:MM:SS or similar)
+        const dateStr = String(receivedTime).split(' ')[0]; // Get date part only
+        const recordDate = new Date(dateStr);
+        
+        if (isNaN(recordDate.getTime())) return false; // Invalid date
+        
+        // Compare with filters
+        if (filterDateFrom) {
+          const fromDate = new Date(filterDateFrom);
+          if (recordDate < fromDate) return false;
+        }
+        if (filterDateTo) {
+          const toDate = new Date(filterDateTo);
+          toDate.setHours(23, 59, 59, 999); // End of day
+          if (recordDate > toDate) return false;
+        }
+        
+        return true;
+      });
+    }
+    
     if (search.trim()) {
       const q = search.toLowerCase();
       data = data.filter(r => COLUMNS.some(c => String(r[c.key] ?? '').toLowerCase().includes(q)));
@@ -189,7 +219,7 @@ const StuckOnholdPage = () => {
       return sortDir === 'asc' ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
     });
     return data;
-  }, [records, filterDistrict, filterStatus, filterAccount, search, sortKey, sortDir]);
+  }, [records, filterDistrict, filterStatus, filterAccount, filterDateFrom, filterDateTo, search, sortKey, sortDir]);
 
   const handleSort = (key) => {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -438,9 +468,27 @@ const StuckOnholdPage = () => {
                 <option value="all">Semua Account</option>
                 {stats.accountOptions.map(a => <option key={a} value={a}>{a}</option>)}
               </select>
+              {/* Date Filter From */}
+              <input
+                type="date"
+                value={filterDateFrom}
+                onChange={e => setFilterDateFrom(e.target.value)}
+                placeholder="Dari tanggal"
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500"
+                title="Received Time - Dari"
+              />
+              {/* Date Filter To */}
+              <input
+                type="date"
+                value={filterDateTo}
+                onChange={e => setFilterDateTo(e.target.value)}
+                placeholder="Sampai tanggal"
+                className="px-3 py-2 border border-gray-300 dark:border-slate-700 rounded-lg text-sm text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500"
+                title="Received Time - Sampai"
+              />
               {/* Reset */}
-              {(search || filterDistrict !== 'all' || filterStatus !== 'all' || filterAccount !== 'all') && (
-                <button onClick={() => { setSearch(''); setFilterDistrict('all'); setFilterStatus('all'); setFilterAccount('all'); }}
+              {(search || filterDistrict !== 'all' || filterStatus !== 'all' || filterAccount !== 'all' || filterDateFrom || filterDateTo) && (
+                <button onClick={() => { setSearch(''); setFilterDistrict('all'); setFilterStatus('all'); setFilterAccount('all'); setFilterDateFrom(''); setFilterDateTo(''); }}
                   className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 dark:text-slate-400 border border-gray-300 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800">
                   <X className="w-3.5 h-3.5" /> Reset
                 </button>
