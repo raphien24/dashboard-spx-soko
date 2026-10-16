@@ -2923,6 +2923,41 @@ export async function getBacklogLMStatus() {
 }
 
 // ============================================================
+// Stuck Onhold
+// ============================================================
+export async function getStuckOnholdData() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/stuck-onhold`);
+  if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to fetch Stuck Onhold data');
+  return { data: json.data || [], headers: json.headers || [] };
+}
+
+export async function runStuckOnholdScraper(action = 'run') {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/trigger-stuck-onhold`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action }),
+  });
+  const json = await response.json();
+  if (!json.success) throw new Error(json.error || 'Failed to trigger scraper');
+  return json;
+}
+
+export async function getStuckOnholdStatus() {
+  const backendUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!backendUrl) throw new Error('Backend URL not configured.');
+  const response = await fetch(`${backendUrl}/api/stuck-onhold-status`);
+  const json = await response.json();
+  if (!json.success) return null;
+  return json;
+}
+
+// ============================================================
 // HSE
 // ============================================================
 export async function getHSEDailyData() {

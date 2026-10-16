@@ -110,6 +110,24 @@ export default {
         '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger', 'E1', 'E2', 'E3');
     }
 
+    // Route: Get Stuck Onhold data
+    if (url.pathname === '/api/stuck-onhold' && request.method === 'GET') {
+      return handleSheetData(env, corsHeaders, '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Stuck Onhold');
+    }
+
+    // Route: Trigger Stuck Onhold scraper (kolom F di sheet Trigger)
+    if (url.pathname === '/api/trigger-stuck-onhold' && request.method === 'POST') {
+      const body = await request.json().catch(() => ({}));
+      return handleTriggerSheetCol(body, env, corsHeaders,
+        '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger', 'F1');
+    }
+
+    // Route: Poll Stuck Onhold scraper status (kolom F)
+    if (url.pathname === '/api/stuck-onhold-status' && request.method === 'GET') {
+      return handleSheetStatusCol(env, corsHeaders,
+        '1NJEjuV9Wnol2MWZp3Wvo_1p7AjD7zZzc8kyjLydvWX0', 'Trigger', 'F1', 'F2', 'F3');
+    }
+
     // Route: Get Control Stuck FM data (A1:P3)
     if (url.pathname === '/api/control-stuck-fm' && request.method === 'GET') {
       return handleControlStuckFM(env, corsHeaders);
